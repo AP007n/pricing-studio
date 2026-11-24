@@ -562,6 +562,9 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
 .method { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; }
 .ver { font-size: 11.5px; color: var(--muted); background: var(--field); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
 .sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pkgwork { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; }
+.pkgwork .inp.sm { width: 84px; }
+.pkgwork[hidden] { display: none; }
 /* bottom nav (phones) */
 .bnav { position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 40; display: none; background: #13241c; border-radius: 22px; padding: 6px; gap: 2px; box-shadow: 0 14px 34px -12px rgba(0,0,0,.55); }
 .bnav .navbtn { flex: 1; flex-direction: column; gap: 3px; color: #9fb3a8; padding: 8px 2px; justify-content: center; text-align: center; border-radius: 16px; }
@@ -718,9 +721,10 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
           <div id="lines" class="lines"></div>
         </div>
         <button class="ghost addline" id="addLine" type="button">+ Add cost line</button>
-        <div class="costhints"><span class="muted small">Often forgotten:</span><button type="button" class="hint" data-cost="fees">Payment fees</button><button type="button" class="hint" data-cost="sub">Subcontractor</button><button type="button" class="hint" data-cost="rework">Revisions buffer</button><button type="button" class="hint" data-cost="travel">Client visits</button></div>
+        <div class="costhints"><span class="muted small">Often forgotten:</span><button type="button" class="hint" data-cost="sub">Subcontractor</button><button type="button" class="hint" data-cost="rework">Revisions buffer</button><button type="button" class="hint" data-cost="travel">Client visits</button></div>
         <div class="linetotal"><span>Total other costs</span><span class="num" id="o-lines"></span></div>
         <div class="field" style="margin-top:6px"><label for="cont">Contingency<small>Buffer for overruns: 10 to 15%</small></label><div class="inp"><input id="cont" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label for="feePct">Payment fees<small>Card or gateway fees as a share of the price. 0 for bank transfer</small></label><div class="inp"><input id="feePct" inputmode="decimal"><span class="u">%</span></div></div>
         <div class="field"><label for="margin">Profit margin<small>Share of the price kept as profit. 20% = 20 of every 100 charged</small></label><div class="inp"><input id="margin" inputmode="decimal"><span class="u">%</span></div></div>
       </div><div class="pane" data-pane="market" hidden>
         <h2><span class="ico" data-i="bars"></span>Market range <span class="perU h2hint"></span></h2>
@@ -742,7 +746,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
       <div class="facts">
         <div class="fact"><div class="k" id="f-total-k">Engagement total</div><div class="v" id="f-total"></div></div>
         <div class="fact"><div class="k" id="f-vat-k">Client pays incl. tax</div><div class="v" id="f-vat"></div></div>
-        <div class="fact"><div class="k">Deposit upfront</div><div class="v" id="f-dep"></div></div>
+        <div class="fact"><div class="k" id="f-dep-k">Due on signing</div><div class="v" id="f-dep"></div></div>
         <div class="fact"><div class="k">Max discount before loss</div><div class="v" id="f-disc"></div></div>
       </div>
 
@@ -764,6 +768,9 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
         <h2 id="pkgTitle"></h2>
         <div class="pkgs" id="pkgs"></div>
         <p class="note" id="pkgNote"></p>
+        <div class="pkgwork" id="pkgWorkRow"><span class="muted small">Effort compared with Standard (sets each package's cost floor):</span>
+          <label for="pkgWorkB">Basic</label><div class="inp sm"><input id="pkgWorkB" inputmode="decimal"><span class="u">%</span></div>
+          <label for="pkgWorkP">Premium</label><div class="inp sm"><input id="pkgWorkP" inputmode="decimal"><span class="u">%</span></div></div>
       </section>
       <details class="card bdcard"><summary>Show how the floor is calculated</summary>
         <h2><span class="ico" data-i="list"></span>Floor breakdown <span id="bdLabel" class="h2hint"></span></h2>
@@ -912,9 +919,9 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
     <div class="card about">
       <div class="card-h"><h3><span class="ni" data-i="bulb"></span> How the price is worked out</h3><span class="ver" id="appVer"></span></div>
       <ol class="method">
-        <li><b>Cost floor:</b> your time (rate × hours) + a share of business expenses + job costs + unpaid sales time, plus contingency. Profit margin is then taken as a share of the final price.</li>
+        <li><b>Cost floor:</b> your time (rate × hours) + a share of business expenses + job costs + unpaid sales time, plus contingency. Profit margin and payment fees are then taken as shares of the final price.</li>
         <li><b>Market check:</b> the price is capped at the top of the competitor range you enter.</li>
-        <li><b>Value check:</b> your share of the client's yearly gain sets the target inside that range.</li>
+        <li><b>Value check:</b> your share of the value to the client sets the target inside that range: yearly value for projects, monthly value for retainers, value of the whole job for hourly and daily work.</li>
         <li><b>Result:</b> the higher of the cost floor and the value target, so a quote never goes below cost.</li>
       </ol>
       <p class="muted small">Example ranges and costs are illustrations, not market data. Replace them with your own quotes. This is a planning tool, not financial, legal or tax advice.</p>
@@ -998,7 +1005,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "2.0", updated: "24 November 2026", contact: "" };
+const APP = { version: "2.1", updated: "24 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1075,11 +1082,11 @@ Object.assign(DEFAULTS, {
     { name: "Insurance", amt: 200, freq: "y" }, { name: "Laptop and equipment (spread)", amt: 400, freq: "y" }
   ]
 });
-Object.assign(DEFAULTS, { onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
+Object.assign(DEFAULTS, { feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
 Object.assign(DEFAULTS, { logo: "", taxName: "VAT", validDays: 14, bizName: "", client: "", qTitle: "", notes: "" });
 const KEY = "pricing-model-v6";
 const TXT = ["taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
-const SIMPLE = ["vat", "validDays", "hourRate", "income", "billDays", "changeRate", "lateFee", "careOffer", "taxReserve", "propHours", "winRate", "startCash", "payDelay", "hoursPerDay", "months", "cont", "margin", "share"];
+const SIMPLE = ["feePct", "pkgWorkB", "pkgWorkP", "vat", "validDays", "hourRate", "income", "billDays", "changeRate", "lateFee", "careOffer", "taxReserve", "propHours", "winRate", "startCash", "payDelay", "hoursPerDay", "months", "cont", "margin", "share"];
 const $ = id => document.getElementById(id);
 const clone = o => JSON.parse(JSON.stringify(o));
 let S;
@@ -1109,9 +1116,15 @@ Object.entries(BASES).forEach(([k, b]) => {
 });
 
 /* inputs */
+const LIMITS = { margin: [0, 90, "Profit margin"], feePct: [0, 20, "Payment fees"], cont: [0, 100, "Contingency"], vat: [0, 100, "Tax rate"], taxReserve: [0, 100, "Tax reserve"], winRate: [1, 100, "Win rate"], share: [0, 100, "Value share"], lateFee: [0, 10, "Late fee"] };
+function lim(k, v) { const L = LIMITS[k]; v = num(v); return L ? Math.min(L[1], Math.max(L[0], v)) : v; }
 function bindNum(id, get, set) {
   const el = $(id);
-  el.addEventListener("input", () => { set(num(el.value)); render(); });
+  el.addEventListener("input", () => {
+    const raw = num(el.value), v = lim(id, raw);
+    if (LIMITS[id] && raw !== v) toast(LIMITS[id][2] + " must be between " + LIMITS[id][0] + " and " + LIMITS[id][1] + "%. Using " + v + "%.");
+    set(v); render();
+  });
   el.addEventListener("blur", () => { el.value = fmtIn(get()); });
 }
 SIMPLE.forEach(k => bindNum(k, () => S[k], v => S[k] = v));
@@ -1215,7 +1228,7 @@ function drawLines() {
 }
 document.querySelectorAll("[data-cost]").forEach(b => b.addEventListener("click", () => {
   const r = calc(), k = b.dataset.cost;
-  const L = { fees: ["Payment and card fees (about 3%)", 1, Math.round(r.quote * 0.03)], sub: ["Subcontractor or freelancer", 1, 0], rework: ["Revisions buffer (extra hours)", 4, Math.round(r.dayRate / Math.max(1, S.hoursPerDay))], travel: ["Client visits and parking", 3, 5] }[k];
+  const L = { sub: ["Subcontractor or freelancer", 1, 0], rework: ["Revisions buffer (extra hours)", 4, Math.round(r.dayRate / Math.max(1, S.hoursPerDay))], travel: ["Client visits and parking", 3, 5] }[k];
   S.lines.push({ name: L[0], qty: L[1], unit: L[2] }); drawLines(); render();
   const el = $("ln-unit-" + (S.lines.length - 1)); if (el) { el.focus(); el.select(); }
 }));
@@ -1256,10 +1269,10 @@ function calc(st = S) {
   const salesHours = st.basis === "project" ? (st.propHours || 0) / Math.max(1, st.winRate || 100) * 100 : 0;
   const salesCost = salesHours * dayRate / hpd;
   const subtotal = labour + direct + salesCost;
-  const contAmt = subtotal * st.cont / 100;
-  const mFrac = Math.min(Math.max(st.margin, 0), 90) / 100;
-  const floor = (subtotal + contAmt) / (1 - mFrac);
-  const marginAmt = floor - subtotal - contAmt;
+  const contAmt = subtotal * lim("cont", st.cont) / 100;
+  const mFrac = lim("margin", st.margin) / 100, fFrac = Math.min(lim("feePct", st.feePct || 0) / 100, 0.9 - mFrac);
+  const floor = (subtotal + contAmt) / (1 - mFrac - fFrac);
+  const marginAmt = floor * mFrac, feeAmt = floor * fFrac;
   let [mLow, mHigh] = st.mkt[st.basis]; if (mHigh < mLow) [mLow, mHigh] = [mHigh, mLow];
   const valuePrice = st.cValue[st.basis] * st.share / 100;
   const target = valuePrice > 0 ? valuePrice : (mLow + mHigh) / 2 * units;
@@ -1271,7 +1284,7 @@ function calc(st = S) {
   const eff = (days + salesHours / hpd) > 0 ? (quote - direct) / (days + salesHours / hpd) : 0;
   const total = st.basis === "month" ? quote * Math.max(1, st.months) : quote;
   return { b, dayPay, dayOver, dayRate, q, days, units, labour, direct, contAmt, marginAmt, floor, mLow, mHigh,
-    valuePrice, quote, unitPrice, eff, total, salesHours, salesCost, floorUnit: floor / u, valueUnit: valuePrice / u };
+    valuePrice, quote, unitPrice, eff, total, salesHours, salesCost, feeAmt, floorUnit: floor / u, valueUnit: valuePrice / u };
 }
 
 function pkgCard(name, price, per, items, mid, flag, editTier) {
@@ -1320,6 +1333,8 @@ function render() {
 
   $("o-dayrate").textContent = fmt(r.dayRate) + (S.basis === "hour" ? "  (" + fmt(r.dayRate / Math.max(1, S.hoursPerDay)) + " / hour)" : "");
   $("o-lines").textContent = fmt(r.direct);
+  $("pkgWorkRow").hidden = !(S.basis === "project" || S.basis === "month");
+  $("f-dep-k").textContent = S.basis === "month" ? "First month, in advance" : S.basis === "project" ? "Due on signing" : "Deposit before work";
   $("o-over").textContent = fmt(yearlyExp(S)) + " / year";
   const sch = parseSched(S.schedule), ssum = sch.reduce((a, x) => a + x, 0);
   $("schedNote").textContent = Math.abs(ssum - 100) > 0.01 ? "Stages add up to " + ssum + "%, not 100%. Fix this before downloading the quote." : "";
@@ -1334,7 +1349,7 @@ function render() {
   $("f-total-k").textContent = S.basis === "month" ? "Contract total (" + fmtIn(Math.max(1, S.months)) + " months)" : S.basis === "project" ? "Project total" : "Estimated job total";
   $("f-total").textContent = fmt(r.total);
   $("f-vat").textContent = fmt(r.quote * (1 + S.vat / 100)) + (S.basis === "project" ? "" : " " + (S.basis === "month" ? "/ month" : "total"));
-  $("f-dep").textContent = fmt(r.quote * (1 + S.vat / 100) * S.deposit / 100) + " (" + S.deposit + "%)";
+  $("f-dep").textContent = S.basis === "month" ? fmt(r.quote * (1 + S.vat / 100)) : fmt(r.quote * (1 + S.vat / 100) * S.deposit / 100) + " (" + S.deposit + "%)";
   const disc = r.quote > 0 ? Math.max(0, (r.quote - r.floor) / r.quote * 100) : 0;
   $("f-disc").textContent = disc.toFixed(0) + "%";
 
@@ -1385,7 +1400,8 @@ function render() {
     ...S.lines.map(l => [l.name || "Cost", fmtIn(l.qty) + " × " + fmt(l.unit), l.qty * l.unit]),
     ...(r.salesCost > 0 ? [["Sales time", fmtIn(Math.round(r.salesHours * 10) / 10) + " h (" + S.propHours + " h per proposal, " + S.winRate + "% win rate)", r.salesCost]] : []),
     ["Contingency", S.cont + "% of subtotal", r.contAmt],
-    ["Profit margin", S.margin + "% of the price", r.marginAmt]
+    ...(r.feeAmt > 0 ? [["Payment fees", lim("feePct", S.feePct) + "% of the price", r.feeAmt]] : []),
+    ["Profit margin", lim("margin", S.margin) + "% of the price", r.marginAmt]
   ];
   const tb = $("breakdown"); tb.innerHTML = "";
   rows.forEach(([a, c2, c]) => {
@@ -1404,13 +1420,13 @@ function render() {
   const R = b.round, P = r.unitPrice;
   if (S.basis === "project" || S.basis === "month") {
     $("pkgTitle").innerHTML = '<span class="ico">' + svg("pkg") + "</span>Three packages to send";
-    const fB = r.floorUnit * 0.6, fP = r.floorUnit * 1.5;
+    const fB = r.floorUnit * Math.max(10, S.pkgWorkB) / 100, fP = r.floorUnit * Math.max(10, S.pkgWorkP) / 100;
     const basic = roundUp(Math.max(P * 0.65, fB), R), prem = roundUp(Math.max(P * 1.6, fP), R);
     const T = S.pkgs || GENERIC_PKGS;
-    pk.appendChild(pkgCard("Basic", basic, per, T[0], false, "", 0)); pk.lastChild.dataset.floor = fB;
-    pk.appendChild(pkgCard("Standard", P, per, T[1], true, "", 1)); pk.lastChild.dataset.floor = r.floorUnit;
-    pk.appendChild(pkgCard("Premium", prem, per, T[2], false, "", 2)); pk.lastChild.dataset.floor = fP;
-    $("pkgNote").textContent = "Click any scope line to edit it. Basic assumes 60% of the work and Premium 150%, and neither can go below the cost floor for that scope.";
+    pk.appendChild(pkgCard("Basic", basic, per, T[0], false, "", 0)); Object.assign(pk.lastChild.dataset, { floor: fB, price: basic });
+    pk.appendChild(pkgCard("Standard", P, per, T[1], true, "", 1)); Object.assign(pk.lastChild.dataset, { floor: r.floorUnit, price: P });
+    pk.appendChild(pkgCard("Premium", prem, per, T[2], false, "", 2)); Object.assign(pk.lastChild.dataset, { floor: fP, price: prem });
+    $("pkgNote").textContent = "Click any scope line to edit it. If you change a package's scope, update its effort below: Basic and Premium floors are estimates scaled from Standard, never priced under that floor.";
   } else {
     $("pkgTitle").innerHTML = '<span class="ico">' + svg("pkg") + "</span>Rate card to send";
     if (S.basis === "day") {
@@ -1479,7 +1495,7 @@ $("saveJob").addEventListener("click", () => {
 
 $("reset").addEventListener("click", () => {
   const j = allJobs().find(x => x.id === S.job) || JOBS[0];
-  const keep = {}; ["myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
+  const keep = {}; ["feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
   S = clone(DEFAULTS); Object.assign(S, keep); jobInto(S, j);
   drawJobs(); fillInputs(); render();
 });
@@ -1508,7 +1524,8 @@ function parseSched(t) {
 function changeRateFor(r) {
   if (S.changeRate > 0) return S.changeRate;
   const hpd = Math.max(1, S.hoursPerDay);
-  return roundUp(r.dayRate / hpd * (1 + S.cont / 100) / (1 - Math.min(Math.max(S.margin, 0), 90) / 100), 1);
+  const m = lim("margin", S.margin) / 100, f = Math.min(lim("feePct", S.feePct || 0) / 100, 0.9 - m);
+  return roundUp(r.dayRate / hpd * (1 + lim("cont", S.cont) / 100) / (1 - m - f), 1);
 }
 const MIX_UNIT = { project: ["project", "projects"], month: ["client", "retainer clients"], hour: ["hour", "hours"], day: ["day", "days"] };
 
@@ -1525,7 +1542,8 @@ function bizCalc() {
     if (bs === "project" || bs === "month") { price = r.quote; direct = r.direct; hours = r.days * hpd + r.salesHours; }
     else { price = r.unitPrice; direct = r.direct / Math.max(1, r.q); hours = bs === "hour" ? 1 : hpd; }
     const count = Math.max(0, num((S.mix || {})[j.id] || 0));
-    return { j, bs, price, direct, hours, count, rev: price * count, dir: direct * count, hrs: hours * count, sales: (r.salesHours || 0) * count };
+    const floor = (bs === "project" || bs === "month") ? r.floor : r.floorUnit;
+    return { j, bs, price, direct, hours, floor, count, rev: price * count, dir: direct * count, hrs: hours * count, sales: (r.salesHours || 0) * count };
   });
   const R = rows.reduce((s, x) => s + x.rev, 0);
   const D = rows.reduce((s, x) => s + x.dir, 0);
@@ -1538,16 +1556,19 @@ function bizCalc() {
   const beJobs = rows.filter(x => x.price > x.direct).map(x => ({ x, n: (fixedM + targetPay) / (x.price - x.direct) }));
   const capUsed = H / capHours;
   const dp = Math.min(100, S.deposit) / 100, k = Math.max(0, Math.ceil(S.payDelay / 30));
+  const Rp = rows.filter(x => x.bs === "project").reduce((s, x) => s + x.rev, 0);
+  const Rm = rows.filter(x => x.bs === "month").reduce((s, x) => s + x.rev, 0);
+  const Ra = R - Rp - Rm;
   const out = D + fixedM + targetPay + taxRes;
   let cash = S.startCash; const months = [];
   for (let m = 1; m <= 12; m++) {
-    const inflow = k === 0 ? R : R * dp + (m > k ? R * (1 - dp) : 0);
+    const inflow = Rp * dp + (m > k ? Rp * (1 - dp) : 0) + Rm + (m > k ? Ra : 0);
     cash += inflow - out;
     months.push({ m, inflow, out, net: inflow - out, cash });
   }
-  const wc = R * (1 - dp) * S.payDelay / 30;
+  const wc = (Rp * (1 - dp) + Ra) * S.payDelay / 30;
   const runway = (fixedM + targetPay) > 0 ? S.startCash / (fixedM + targetPay) : Infinity;
-  return { hpd, capHours, targetPay, fixedM, rows, R, D, H, salesH, gross, owner, after, taxRes, net, be, beJobs, capUsed, months, wc, runway, k, dp };
+  return { Rp, Rm, Ra, hpd, capHours, targetPay, fixedM, rows, R, D, H, salesH, gross, owner, after, taxRes, net, be, beJobs, capUsed, months, wc, runway, k, dp };
 }
 
 function drawExps() {
@@ -1716,7 +1737,7 @@ function renderBusiness() {
   const lx = pad + 11 * bw + bw / 2;
   g += '<text x="' + lx.toFixed(1) + '" y="' + (Math.min(y(0), y(last.cash)) - 5).toFixed(1) + '" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">' + esc(fmt(last.cash)) + "</text>";
   $("cashChart").innerHTML = g;
-  $("cashText").textContent = "Starts at " + fmt(S.startCash) + ", ends month 12 at " + fmt(last.cash) + ". Lowest point: " + fmt(low.cash) + " in month " + low.m + ". Assumes " + Math.round(B.dp * 100) + "% is paid upfront and the rest after " + fmtIn(S.payDelay) + " days, with this mix every month. This is a scenario, not a forecast: real months vary.";
+  $("cashText").textContent = "Starts at " + fmt(S.startCash) + ", ends month 12 at " + fmt(last.cash) + ". Lowest point: " + fmt(low.cash) + " in month " + low.m + ". Assumes a " + Math.round(B.dp * 100) + "% deposit and the balance after " + fmtIn(S.payDelay) + " days for projects (retainers paid in advance, hourly and daily work billed after), with this mix every month. A scenario, not a forecast.";
   return B;
 }
 
@@ -1772,12 +1793,13 @@ async function exportExcel() {
     ws.headerFooter.oddFooter = "&L&8Pricing Studio · " + name + "&R&8Page &P of &N";
     return ws;
   }
+  function setRow(R, vals) { vals.forEach((v, i) => { R.getCell(i + 1).value = v; }); }
   function head(ws, row, labels, alignFirst) {
     const R = ws.getRow(row); R.height = 24;
     labels.forEach((l, i) => {
       const c = R.getCell(i + 1); c.value = l;
       c.font = { name: "Calibri", bold: true, size: 10, color: { argb: C.white } };
-      const leftCol = i === 0 || /^(Notes|What it means|How|Charged per|Every)$/.test(l);
+      const leftCol = i === 0 || /^(Notes|What it means|How|Charged per|Every|Billing)$/.test(l);
       c.fill = fill(C.dark); c.alignment = { vertical: "middle", horizontal: leftCol ? "left" : "right", wrapText: true, indent: leftCol ? 1 : 0 };
     });
   }
@@ -1825,7 +1847,7 @@ async function exportExcel() {
   const sum = mk("Summary", C.lime, [30, 20, 3, 30, 20], "Pricing and business plan");
   const as = mk("Assumptions", C.input, [36, 18, 54], "Assumptions");
   const ex = mk("Expenses", "FFC08A1E", [38, 16, 12, 18], "Business expenses");
-  const jm = mk("Job mix", C.dark, [30, 14, 16, 14, 16, 16, 16, 12, 12], "Job mix per month");
+  const jm = mk("Job mix", C.dark, [34, 11, 10, 14, 14, 15, 10, 12, 14, 14, 11], "Job mix per month");
   const pl = mk("Profit & loss", C.dark, [40, 20, 46], "Monthly profit and loss");
   const cf = mk("Cash 12 months", C.dark, [16, 18, 18, 18, 20], "Cash flow scenario, 12 months");
   const cj = mk("Current job", C.dark, [34, 36, 20, 16], "Current job price");
@@ -1840,8 +1862,8 @@ async function exportExcel() {
     ["Billable days per year", S.billDays, NF, "120 to 150 is realistic for a solo founder", 1],
     ["Monthly pay target", null, MF, "Worked out from the three lines above"],
     ["Billable hours per month", null, NF, "Billable days ÷ 12 × hours per day"],
-    ["Contingency", S.cont / 100, PF, "Buffer added to costs for overruns", 1],
-    ["Profit margin (share of price)", S.margin / 100, PF, "20% means 20 of every 100 charged is profit", 1],
+    ["Contingency", lim("cont", S.cont) / 100, PF, "Buffer added to costs for overruns", 1],
+    ["Profit margin (share of price)", lim("margin", S.margin) / 100, PF, "20% means 20 of every 100 charged is profit", 1],
     ["Tax name", S.taxName || "Tax", "text", "As printed on quotes"],
     ["Tax rate on quotes", S.vat / 100, PF, "Check registration and exempt or zero-rated supplies with an adviser", 1],
     ["Tax reserve on profit", S.taxReserve / 100, PF, "Money set aside for income or corporate tax", 1],
@@ -1850,7 +1872,9 @@ async function exportExcel() {
     ["Deposit (first payment stage)", Math.min(100, S.deposit) / 100, PF, "Payment schedule: " + parseSched(S.schedule).join("/") + "%", 1],
     ["Days until balance is paid", S.payDelay, NF, "From invoice to money in the bank", 1],
     ["Cash in the bank today", S.startCash, MF, "Starting balance for the cash scenario", 1],
-    ["Months until balance arrives", null, NF, "Days until paid ÷ 30, rounded up"]
+    ["Months until balance arrives", null, NF, "Days until paid ÷ 30, rounded up"],
+    ["Payment fees (share of price)", Math.min(lim("feePct", S.feePct || 0), 90 - lim("margin", S.margin)) / 100, PF, "Card or gateway fees. 0 for bank transfer", 1],
+    ["Your cost per billable hour", null, MF, "Your pay plus a share of expenses, per billable hour"]
   ];
   A.forEach((a, i) => {
     const row = 5 + i, R = as.getRow(row);
@@ -1868,7 +1892,7 @@ async function exportExcel() {
   as.getCell("B10").value = F("B8/12*B7", B.capHours);
   as.getCell("B21").value = F("ROUNDUP(B19/30,0)", B.k);
   const lastA = 5 + A.length;
-  note(as, lastA + 1, "Blue cells on a yellow background are inputs. Change them here, on Expenses and on Job mix; every total in the workbook updates by formula.", 3);
+  note(as, lastA + 1, "Blue cells on a yellow background are inputs. Cost floors, profit and cash update from them by formula. Job prices are a snapshot from the app: change them on Job mix.", 3);
   as.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
 
   /* ---------- Expenses ---------- */
@@ -1890,27 +1914,40 @@ async function exportExcel() {
   const EXP = "Expenses!$D$" + te;
 
   /* ---------- Job mix ---------- */
-  head(jm, 4, ["Job", "Charged per", "Price", "Count / month", "Revenue", "Direct cost each", "Direct cost total", "Hours each", "Hours total"]);
+  as.getCell("B23").value = F("(B9*12+Expenses!$D$" + (te + 1) + ")/(B8*B7)", r.dayRate / Math.max(1, S.hoursPerDay));
+  as.getCell("B23").font = { bold: true, size: 10, color: { argb: C.ink } };
+  const BILL = { project: "Project", month: "Retainer", hour: "Hourly", day: "Daily" };
+  head(jm, 4, ["Job", "Billing", "Hours each", "Direct cost each", "Cost floor", "Price (snapshot)", "Above floor", "Count / month", "Revenue", "Direct cost total", "Hours total"]);
   B.rows.forEach((x, i) => {
     const row = 5 + i, R = jm.getRow(row);
-    R.values = [x.j.name, MIX_UNIT[x.bs][0], x.price, x.count, F("C" + row + "*D" + row, x.rev), x.direct, F("F" + row + "*D" + row, x.dir), x.hours, F("H" + row + "*D" + row, x.hrs)];
-    [3, 5, 6, 7].forEach(k => R.getCell(k).numFmt = MF); [4].forEach(k => R.getCell(k).numFmt = HF); [8, 9].forEach(k => R.getCell(k).numFmt = HF);
-    body(jm, row, 9, i % 2 === 1); input(R.getCell(4)); R.getCell(2).alignment = { horizontal: "left", vertical: "middle" };
+    setRow(R, [x.j.name + " (per " + MIX_UNIT[x.bs][0] + ")", BILL[x.bs], x.hours, x.direct,
+      F("(C" + row + "*" + AR(18) + "+D" + row + ")*(1+" + AR(6) + ")/(1-" + AR(7) + "-" + AR(17) + ")", x.floor),
+      x.price, F("IF(F" + row + "=0,0,(F" + row + "-E" + row + ")/F" + row + ")", x.price ? (x.price - x.floor) / x.price : 0),
+      x.count, F("F" + row + "*H" + row, x.rev), F("D" + row + "*H" + row, x.dir), F("C" + row + "*H" + row, x.hrs)]);
+    [4, 5, 6, 9, 10].forEach(k => R.getCell(k).numFmt = MF); [3, 8, 11].forEach(k => R.getCell(k).numFmt = HF); R.getCell(7).numFmt = "0.0%";
+    body(jm, row, 11, i % 2 === 1);
+    [3, 4, 6, 8].forEach(k => input(R.getCell(k)));
+    R.getCell(2).alignment = { horizontal: "left", vertical: "middle" };
   });
-  const tj = 5 + B.rows.length;
+  const tj = 5 + B.rows.length, last = tj - 1;
+  jm.addConditionalFormatting({ ref: "G5:G" + last, rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { fill: fill(C.badFill), font: { color: { argb: C.bad }, bold: true } } }] });
   jm.getCell(tj, 1).value = "Total per month";
-  jm.getCell(tj, 5).value = F("SUM(E5:E" + (tj - 1) + ")", B.R);
-  jm.getCell(tj, 7).value = F("SUM(G5:G" + (tj - 1) + ")", B.D);
-  jm.getCell(tj, 9).value = F("SUM(I5:I" + (tj - 1) + ")", B.H);
-  [5, 7].forEach(k => jm.getCell(tj, k).numFmt = MF); jm.getCell(tj, 9).numFmt = HF; total(jm, tj, 9);
-  jm.getCell(tj + 2, 1).value = "Billable hours available"; jm.getCell(tj + 2, 2).value = F(AR(5), B.capHours); jm.getCell(tj + 2, 2).numFmt = NF;
-  jm.getCell(tj + 3, 1).value = "Capacity used"; jm.getCell(tj + 3, 2).value = F("IF(B" + (tj + 2) + "=0,0,I" + tj + "/B" + (tj + 2) + ")", B.capUsed); jm.getCell(tj + 3, 2).numFmt = PF;
-  body(jm, tj + 2, 2); body(jm, tj + 3, 2);
-  jm.getCell(tj + 3, 2).font = { bold: true, size: 11, color: { argb: C.ink } };
+  jm.getCell(tj, 9).value = F("SUM(I5:I" + last + ")", B.R);
+  jm.getCell(tj, 10).value = F("SUM(J5:J" + last + ")", B.D);
+  jm.getCell(tj, 11).value = F("SUM(K5:K" + last + ")", B.H);
+  [9, 10].forEach(k => jm.getCell(tj, k).numFmt = MF); jm.getCell(tj, 11).numFmt = HF; total(jm, tj, 11);
+  const kv = (row, label, f, fmtc, bold) => { jm.getCell(row, 1).value = label; jm.getCell(row, 2).value = f; jm.getCell(row, 2).numFmt = fmtc; body(jm, row, 2); if (bold) jm.getCell(row, 2).font = { bold: true, size: 11, color: { argb: C.ink } }; };
+  kv(tj + 2, "Billable hours available", F(AR(5), B.capHours), NF);
+  kv(tj + 3, "Capacity used", F("IF(B" + (tj + 2) + "=0,0,K" + tj + "/B" + (tj + 2) + ")", B.capUsed), PF, true);
   jm.addConditionalFormatting({ ref: "B" + (tj + 3), rules: [{ type: "cellIs", operator: "greaterThan", formulae: [1], style: { font: { color: { argb: C.bad }, bold: true }, fill: fill(C.badFill) } }] });
-  note(jm, tj + 5, "Prices come from the app at export time. Hours include unpaid sales time for projects. Change the yellow counts to test a different month.", 9);
+  kv(tj + 5, "Project revenue (deposit, then balance)", F('SUMIF(B5:B' + last + ',"Project",I5:I' + last + ')', B.Rp), MF);
+  kv(tj + 6, "Retainer revenue (paid in advance)", F('SUMIF(B5:B' + last + ',"Retainer",I5:I' + last + ')', B.Rm), MF);
+  kv(tj + 7, "Hourly and daily revenue (billed after)", F('SUMIF(B5:B' + last + ',"Hourly",I5:I' + last + ')+SUMIF(B5:B' + last + ',"Daily",I5:I' + last + ')', B.Ra), MF);
+  note(jm, tj + 9, "Cost floors recalculate from Assumptions and Expenses. Prices are a snapshot from the app: edit them here if you change your rate. A red 'Above floor' means that price is below cost. Hours include unpaid sales time for projects.", 11);
+  jm.getRow(tj + 9).height = 36;
   jm.views = [{ showGridLines: false, state: "frozen", ySplit: 4, xSplit: 1 }];
-  const REV = "'Job mix'!$E$" + tj, DIR = "'Job mix'!$G$" + tj, CAP = "'Job mix'!$B$" + (tj + 3);
+  const REV = "'Job mix'!$I$" + tj, DIR = "'Job mix'!$J$" + tj, CAP = "'Job mix'!$B$" + (tj + 3);
+  const RP = "'Job mix'!$B$" + (tj + 5), RM = "'Job mix'!$B$" + (tj + 6), RA = "'Job mix'!$B$" + (tj + 7);
 
   /* ---------- Profit & loss ---------- */
   head(pl, 4, ["Line", "Per month", "What it means"]);
@@ -1945,7 +1982,7 @@ async function exportExcel() {
   B.months.forEach((m, i) => {
     const row = 6 + i, R = cf.getRow(row), n = i + 1;
     R.getCell(1).value = MONTHS[(now + i) % 12];
-    R.getCell(2).value = F("IF(" + AR(16) + "=0,'Profit & loss'!$B$5,'Profit & loss'!$B$5*" + AR(13) + "+IF(" + n + ">" + AR(16) + ",'Profit & loss'!$B$5*(1-" + AR(13) + "),0))", m.inflow);
+    R.getCell(2).value = F(RP + "*" + AR(13) + "+IF(" + n + ">" + AR(16) + "," + RP + "*(1-" + AR(13) + "),0)+" + RM + "+IF(" + n + ">" + AR(16) + "," + RA + ",0)", m.inflow);
     R.getCell(3).value = F("-('Profit & loss'!$B$6+'Profit & loss'!$B$9+'Profit & loss'!$B$11+'Profit & loss'!$B$13)", m.out);
     R.getCell(4).value = F("B" + row + "-C" + row, m.net);
     R.getCell(5).value = F("E" + (row - 1) + "+D" + row, m.cash);
@@ -1954,12 +1991,12 @@ async function exportExcel() {
   });
   cf.addConditionalFormatting({ ref: "E6:E17", rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { fill: fill(C.badFill), font: { color: { argb: C.bad }, bold: true } } }] });
   cf.getCell("A19").value = "Lowest cash"; cf.getCell("E19").value = F("MIN(E6:E17)", Math.min(...B.months.map(m => m.cash))); cf.getCell("E19").numFmt = MF; total(cf, 19, 5);
-  note(cf, 21, "Scenario, not a forecast: it repeats the same job mix every month. The deposit arrives in the month of the work and the balance after the delay set on Assumptions.", 5);
+  note(cf, 21, "Scenario, not a forecast: the same job mix every month. Projects pay the deposit in the month of the work and the balance after the delay on Assumptions; retainers pay in advance; hourly and daily work is paid after the delay.", 5);
   cf.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
 
   /* ---------- Current job ---------- */
   const job = allJobs().find(j => j.id === S.job);
-  section(cj, 4, "Price", 4);
+  section(cj, 4, "Price (snapshot from the app)", 4);
   const CJ = [["Job", job ? job.name : "Custom job"], ["Charged", r.b.label], ["Your price per " + r.b.unit, r.unitPrice, MF], ["Cost floor per " + r.b.unit, r.floorUnit, MF], ["Value price per " + r.b.unit, r.valuePrice > 0 ? r.valueUnit : "Not set", MF], ["Market range", fmt(r.mLow) + " to " + fmt(r.mHigh)]];
   CJ.forEach((c, i) => { const row = 5 + i, R = cj.getRow(row); R.getCell(1).value = c[0]; R.getCell(2).value = c[1]; if (c[2] && typeof c[1] === "number") R.getCell(2).numFmt = c[2]; body(cj, row, 2, i % 2 === 1); R.getCell(2).alignment = { horizontal: "right" }; });
   cj.getCell("B7").font = { bold: true, size: 13, color: { argb: C.dark } };
@@ -1979,7 +2016,7 @@ async function exportExcel() {
     const price = num(p.querySelector(".price span").textContent.replace(/[^\d.,-]/g, ""));
     const pf = num(p.dataset.floor || r.floorUnit);
     const R = cj.getRow(rr);
-    R.values = [p.querySelector(".name span").textContent + " (" + p.querySelector(".price .per").textContent + ")", price, pf, F("IF(B" + rr + "=0,0,(B" + rr + "-C" + rr + ")/B" + rr + ")", price ? (price - pf) / price : 0)];
+    setRow(R, [p.querySelector(".name span").textContent + " (" + p.querySelector(".price .per").textContent + ")", price, pf, F("IF(B" + rr + "=0,0,(B" + rr + "-C" + rr + ")/B" + rr + ")", price ? (price - pf) / price : 0)]);
     R.getCell(2).numFmt = MF; R.getCell(3).numFmt = MF; R.getCell(4).numFmt = PF;
     body(cj, rr, 4, i % 2 === 1); rr++;
   });
@@ -2021,7 +2058,7 @@ async function exportExcel() {
     sum.getRow(row).height = 32;
   });
   const nr = 22 + msgs.length;
-  note(sum, nr, "How to use: change the blue inputs on Assumptions, Expenses and Job mix and every figure updates. The cash view is a scenario. This workbook is a planning aid, not financial or tax advice.", 5);
+  note(sum, nr, "How to use: change the blue inputs on Assumptions, Expenses and Job mix. Cost floors, profit and cash recalculate; job prices are a snapshot from the app and only change if you edit them on Job mix (a red margin there means below cost). The cash view is a scenario. Planning aid, not financial or tax advice.", 5);
   sum.getRow(nr).height = 42;
 
   try {
@@ -2096,6 +2133,12 @@ const QCSS = `
       .q-sign .q-sn { color: #16202b; font-weight: 600; font-size: 11.5px; margin-bottom: 2px; }
       .q-mark { background: none !important; }
       .q-mark svg { width: 38px !important; height: 38px !important; stroke: none !important; }
+      .q-multi { width: 100%; }
+      .q-multi th { text-align: right; font-size: 11px; padding: 6px 4px; border-bottom: 2px solid #16202b; vertical-align: bottom; }
+      .q-multi td:not(:first-child) { text-align: right; }
+      .q-multi td:last-child { font-weight: 400; }
+      .q-multi tr.q-grand td, .q-multi tr.q-dep td { font-weight: 700; }
+      .q-recs { display: block; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #1e4d3c; }
       .q-logoimg { max-height: 46px; max-width: 170px; object-fit: contain; }
 `;
 const logoHTML = () => S.logo ? '<img class="q-logoimg" src="' + S.logo + '" alt="">' : '<div class="q-logo q-mark">' + MARK_SVG + "</div>";
@@ -2107,6 +2150,7 @@ function buildQuoteHTML() {
     price: p.querySelector(".price span").textContent,
     per: p.querySelector(".price .per").textContent,
     mid: p.classList.contains("mid"),
+    price_n: num(p.dataset.price || r.unitPrice),
     items: [...p.querySelectorAll("li")].map(li => li.textContent)
   }));
   const now = new Date();
@@ -2114,23 +2158,34 @@ function buildQuoteHTML() {
   const valid = new Date(now.getTime() + Math.max(1, S.validDays || 14) * 864e5);
   const qno = (S.qNo || "").trim() || autoQNo();
   const tax = S.vat > 0, taxN = S.taxName || "Tax";
-  const sub = r.quote, taxAmt = sub * S.vat / 100, tot = sub + taxAmt, dep = tot * S.deposit / 100;
-  const estLabel = S.basis === "month" ? "Monthly fee (Standard)" : S.basis === "project" ? "Project price (Standard)" : "Estimate: " + fmtIn(r.q) + " " + b.qtyUnit + " × " + fmt(r.unitPrice);
   const sched = parseSched(S.schedule);
   const stageNames = n => n === 1 ? ["On signing"] : n === 2 ? ["On signing", "On delivery"] : n === 3 ? ["On signing", "At midpoint (design approval)", "On delivery"] : Array.from({ length: n }, (_, i) => i === 0 ? "On signing" : i === n - 1 ? "On delivery" : "Milestone " + (i + 1));
   const names = stageNames(sched.length);
-  const amts = sched.map(p => Math.round(tot * p / 100)); if (amts.length > 1) amts[amts.length - 1] = Math.round(tot) - amts.slice(0, -1).reduce((x, y) => x + y, 0);
-  const schedRows = (S.basis === "project" && sched.length > 1) ? sched.map((p, i) => `<tr><td>${esc(names[i])} (${p}%)</td><td>${fmt(amts[i])}</td></tr>`).join("") : "";
+  const isPkg = S.basis === "project" || S.basis === "month";
+  const oneOnly = S.showPkgs === "one" && isPkg;
+  const cols = isPkg ? cards.filter(c => !oneOnly || c.mid).map(c => ({ name: c.name, mid: c.mid, sub: c.price_n })) : [{ name: "Estimate", mid: true, sub: r.quote }];
+  const split = (t, arr) => { const a = arr.map(p => Math.round(t * p / 100)); a[a.length - 1] = Math.round(t) - a.slice(0, -1).reduce((x, y) => x + y, 0); return a; };
+  cols.forEach(c => { c.tax = c.sub * S.vat / 100; c.tot = c.sub + c.tax; c.stages = split(c.tot, sched); });
+  const one = cols.length === 1;
+  const cell = v => "<td>" + fmt(v) + "</td>";
+  const rowsH = [];
+  rowsH.push("<tr><td>" + (S.basis === "month" ? "Monthly fee" : S.basis === "project" ? "Price" : esc("Estimate: " + fmtIn(r.q) + " " + b.qtyUnit + " × " + fmt(r.unitPrice))) + "</td>" + cols.map(c => cell(c.sub)).join("") + "</tr>");
+  if (tax) rowsH.push("<tr><td>" + esc(taxN) + " (" + S.vat + "%)</td>" + cols.map(c => cell(c.tax)).join("") + "</tr>");
+  rowsH.push('<tr class="q-grand"><td>Total' + (S.basis === "month" ? " per month" : "") + "</td>" + cols.map(c => cell(c.tot)).join("") + "</tr>");
+  if (S.basis === "project") sched.forEach((p, i) => rowsH.push('<tr class="' + (i === 0 ? "q-dep" : "") + '"><td>' + esc(names[i]) + " (" + p + "%)</td>" + cols.map(c => cell(c.stages[i])).join("") + "</tr>"));
+  else if (S.basis === "month") rowsH.push('<tr class="q-dep"><td>Due before each month starts</td>' + cols.map(c => cell(c.tot)).join("") + "</tr>");
+  else if (S.deposit > 0) rowsH.push('<tr class="q-dep"><td>Deposit before work starts (' + S.deposit + "%)</td>" + cols.map(c => cell(c.tot * S.deposit / 100)).join("") + "</tr>");
+  const headH = one ? "" : "<tr><th></th>" + cols.map(c => "<th>" + esc(c.name) + (c.mid ? '<span class="q-recs">Recommended</span>' : "") + "</th>").join("") + "</tr>";
+  const summaryHTML = '<table class="q-tot' + (one ? "" : " q-multi") + '">' + headH + rowsH.join("") + "</table>";
   const cr = changeRateFor(r);
   const terms = [
-    S.basis === "month" ? "Invoiced monthly in advance." : S.basis === "project" ? (sched.length > 1 ? "Payment in " + sched.length + " stages: " + sched.join("/") + "%, as shown above." : "Full payment " + (sched[0] >= 100 ? "on signing." : sched[0] + "% on signing.")) : (S.deposit > 0 ? S.deposit + "% deposit before work starts, the rest invoiced as worked." : "Invoiced as worked."),
+    S.basis === "month" ? "Invoiced monthly in advance. No separate deposit." : S.basis === "project" ? (sched.length > 1 ? "Payment in " + sched.length + " stages: " + sched.join("/") + "% of the package you choose, as shown above." : "Full payment on signing.") : (S.deposit > 0 ? S.deposit + "% deposit before work starts, the rest invoiced as worked." : "Invoiced as worked."),
     "All prices in " + S.cur + (tax ? ", excluding " + taxN + " (" + S.vat + "%), shown separately." : "."),
     S.basis === "month" ? "Minimum term: " + fmtIn(Math.max(1, S.months)) + " months. Contract value: " + fmt(r.total) + (tax ? " before " + taxN : "") + "." : "",
     (S.basis === "hour" || S.basis === "day") ? "Final amount is based on actual " + b.qtyUnit + " worked, reported with each invoice." : "Changes or extra work outside the agreed scope: " + fmt(cr) + " per hour, agreed in writing first.",
     S.lateFee > 0 ? "Invoices are due within 14 days. Overdue invoices incur " + S.lateFee + "% per month." : "Invoices are due within 14 days.",
     "This quote is valid until " + d(valid) + "."
   ].filter(Boolean);
-  const oneOnly = S.showPkgs === "one" && (S.basis === "project" || S.basis === "month");
   const pk = cards.filter(c => !oneOnly || c.mid).map(c => `
     <td class="q-pkg${c.mid ? " q-mid" : ""}">
       ${c.mid && !oneOnly ? '<div class="q-rec">Recommended</div>' : ""}
@@ -2160,13 +2215,7 @@ function buildQuoteHTML() {
     <div class="q-h">${oneOnly ? "Scope and price" : (S.basis === "project" || S.basis === "month") ? "Choose your package" : "Rates"}</div>
     <table class="q-pkgs${oneOnly ? " q-one" : ""}"><tr>${pk}</tr></table>
     <div class="q-h">Summary</div>
-    <table class="q-tot">
-      <tr><td>${esc(estLabel)}</td><td>${fmt(sub)}</td></tr>
-      ${tax ? `<tr><td>${esc(taxN)} (${S.vat}%)</td><td>${fmt(taxAmt)}</td></tr>` : ""}
-      <tr class="q-grand"><td>Total${S.basis === "month" ? " per month" : ""}</td><td>${fmt(tot)}</td></tr>
-      ${S.deposit > 0 ? `<tr class="q-dep"><td>Deposit due now (${S.deposit}%)</td><td>${fmt(dep)}</td></tr>` : ""}
-    </table>
-    ${schedRows ? `<div class="q-h">Payment schedule</div><table class="q-tot">${schedRows}</table>` : ""}
+    ${summaryHTML}
     ${S.careOffer > 0 && S.basis === "project" ? `<div class="q-care"><b>Optional care plan:</b> ${fmt(S.careOffer)} per month after launch for hosting, updates, backups and small changes.</div>` : ""}
     <div class="q-h">Terms</div>
     <ul class="q-terms">${terms.map(t => "<li>" + esc(t) + "</li>").join("")}</ul>
@@ -2245,7 +2294,7 @@ function buildInternalHTML() {
       <tr><td>${S.basis === "month" ? "Monthly fee" : "Engagement total"}</td><td>${fmt(r.quote)}</td></tr>
       ${S.vat > 0 ? `<tr><td>${esc(S.taxName || "Tax")} (${S.vat}%)</td><td>${fmt(r.quote * S.vat / 100)}</td></tr>` : ""}
       <tr class="q-grand"><td>Client pays</td><td>${fmt(r.quote * (1 + S.vat / 100))}</td></tr>
-      ${S.deposit > 0 ? `<tr class="q-dep"><td>Deposit (${S.deposit}%)</td><td>${fmt(r.quote * (1 + S.vat / 100) * S.deposit / 100)}</td></tr>` : ""}
+      ${S.basis === "month" ? `<tr class="q-dep"><td>First month, in advance</td><td>${fmt(r.quote * (1 + S.vat / 100))}</td></tr>` : S.deposit > 0 ? `<tr class="q-dep"><td>${S.basis === "project" ? "Due on signing" : "Deposit"} (${S.deposit}%, Standard)</td><td>${fmt(r.quote * (1 + S.vat / 100) * S.deposit / 100)}</td></tr>` : ""}
       ${S.basis === "month" ? `<tr><td>Contract value (${fmtIn(Math.max(1, S.months))} months)</td><td>${fmt(r.total)}</td></tr>` : ""}
     </table>
   </div>`;
