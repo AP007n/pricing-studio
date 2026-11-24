@@ -1,0 +1,2483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing Studio</title>
+<meta name="description" content="Price tech services from your costs, the market and the value to the client.">
+<meta name="theme-color" content="#1e4d3c">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<style>
+@font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 800; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-800-normal.woff2") format("woff2"); }
+</style>
+<style>
+/* Layout: pricing basis selector on top; inputs left (rate, costs, market, value, terms), live results right; stacks on phones */
+:root {
+  --bg: #f3f4f6;
+  --panel: #ffffff;
+  --ink: #16202b;
+  --muted: #5d6b7a;
+  --line: #dde2e8;
+  --field: #f7f8fa;
+  --accent: #1e4d3c;
+  --accent-soft: #e3eef6;
+  --brass: #b7791f;
+  --good: #2f7d4f;
+  --warn: #b7791f;
+  --bad: #b23a3a;
+  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-num: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f151c; --panel: #17202a; --ink: #e6ebf0; --muted: #93a1b0; --line: #2a3542; --field: #121a23;
+    --accent: #6fb0dd; --accent-soft: #1d3346; --brass: #e0a64a;
+    --good: #5cbf85; --warn: #e0a64a; --bad: #e57373; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f151c; --panel: #17202a; --ink: #e6ebf0; --muted: #93a1b0; --line: #2a3542; --field: #121a23;
+  --accent: #6fb0dd; --accent-soft: #1d3346; --brass: #e0a64a;
+  --good: #5cbf85; --warn: #e0a64a; --bad: #e57373; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; display: grid; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+h1 { font-size: 26px; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 62ch; }
+.toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+select, input, button { font: inherit; color: var(--ink); }
+select { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 7px 14px; cursor: pointer; font-weight: 600; }
+button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+button:hover { filter: brightness(1.08); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* basis selector */
+.basis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 760px) { .basis { grid-template-columns: repeat(2, 1fr); } }
+.basis button {
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; text-align: left; display: grid; gap: 2px; font-weight: 400;
+}
+.basis button strong { font-size: 15px; }
+.basis button span { font-size: 12px; color: var(--muted); line-height: 1.35; }
+.basis button[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--accent-soft); padding: 11px 13px; }
+.basis button[aria-pressed="true"] strong { color: var(--accent); }
+
+.grid { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.col { display: grid; gap: 16px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; display: flex; gap: 8px; align-items: center; }
+.step { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 700; }
+.field { display: grid; grid-template-columns: 1fr 150px; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.field:last-child { border-bottom: 0; }
+.field label { font-size: 14px; }
+.field small { display: block; color: var(--muted); font-size: 12px; line-height: 1.35; }
+
+/* clean inputs: no spinners, unit inside the box */
+.inp { display: flex; align-items: center; background: var(--field); border: 1px solid var(--line); border-radius: 7px; overflow: hidden; transition: border-color .15s; }
+.inp:focus-within { border-color: var(--accent); background: var(--panel); }
+.inp input { border: 0; background: transparent; width: 100%; min-width: 0; padding: 7px 8px; text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; outline: none; }
+.inp .u { padding: 0 9px 0 2px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.inp .u.pre { padding: 0 2px 0 9px; }
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.seg button { flex: 1; background: var(--field); color: var(--ink); border: 0; border-radius: 0; padding: 6px 4px; font-weight: 500; font-size: 13px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+.derived { display: flex; justify-content: space-between; margin-top: 10px; padding: 8px 10px; background: var(--accent-soft); border-radius: 6px; font-size: 14px; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+
+/* cost lines */
+.lines { display: grid; gap: 6px; }
+.lhead, .line { display: grid; grid-template-columns: 1fr 64px 96px 28px; gap: 6px; align-items: center; }
+.lhead { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.lhead span:nth-child(2), .lhead span:nth-child(3) { text-align: right; }
+.line .name { border: 1px solid var(--line); background: var(--field); border-radius: 7px; padding: 7px 8px; min-width: 0; font-size: 14px; }
+.line .name:focus { outline: none; border-color: var(--accent); background: var(--panel); }
+.line .x { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 4px 0; font-weight: 400; }
+.line .x:hover { color: var(--bad); border-color: var(--bad); }
+.addline { margin-top: 8px; width: 100%; }
+.linetotal { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* results */
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 640px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.tile .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.tile .v { font-family: var(--font-num); font-size: 22px; font-weight: 600; margin-top: 2px; line-height: 1.2; }
+.tile .per { font-size: 12px; color: var(--muted); font-family: var(--font-body); font-weight: 400; }
+.tile.hero { border: 2px solid var(--accent); }
+.tile.hero .v { color: var(--accent); font-size: 26px; }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+@media (max-width: 640px) { .facts { grid-template-columns: repeat(2, 1fr); } }
+.fact { padding: 10px 14px; border-right: 1px solid var(--line); }
+.fact:last-child { border-right: 0; }
+.fact .k { font-size: 12px; color: var(--muted); }
+.fact .v { font-family: var(--font-num); font-weight: 600; font-size: 16px; }
+.status { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); border-left: 4px solid var(--good); background: var(--panel); }
+.status.warn { border-left-color: var(--warn); }
+.status.bad { border-left-color: var(--bad); }
+.pill { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 999px; color: #fff; background: var(--good); white-space: nowrap; }
+.status.warn .pill { background: var(--warn); }
+.status.bad .pill { background: var(--bad); }
+.band { position: relative; height: 96px; margin: 8px 10px 0; }
+.track { position: absolute; left: 0; right: 0; top: 44px; height: 8px; background: var(--line); border-radius: 4px; }
+.mkt { position: absolute; top: 40px; height: 16px; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; }
+.mark { position: absolute; top: 0; transform: translateX(-50%); display: grid; justify-items: center; font-size: 11px; white-space: nowrap; }
+.mark .lbl { color: var(--muted); }
+.mark .val { font-family: var(--font-num); font-weight: 600; }
+.mark .stem { width: 2px; height: 30px; margin-top: 2px; }
+.mark.below { top: 50px; }
+.mark.below .stem { order: -1; margin: 0 0 2px; height: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+td, th { padding: 7px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+td.r, th.r { text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+tr.total td { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: 0; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.pkgs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 640px) { .pkgs { grid-template-columns: 1fr; } }
+.pkg { border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.pkg.mid { border: 2px solid var(--accent); }
+.pkg .name { font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.pkg .price { font-family: var(--font-num); font-size: 20px; font-weight: 600; }
+.pkg .price .per { font-size: 12px; color: var(--muted); font-family: var(--font-body); font-weight: 400; }
+.pkg ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+.pkg .pflag { font-size: 12px; color: var(--bad); }
+.tag { font-size: 10px; background: var(--accent); color: #fff; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+.toast { font-size: 13px; color: var(--good); min-width: 60px; }
+[hidden] { display: none !important; }
+.ico { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--accent-soft); color: var(--accent); flex: none; }
+.ico svg, .bi svg, .ji svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.brand { display: flex; gap: 14px; align-items: center; }
+.logo { width: 46px; height: 46px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center; flex: none; box-shadow: 0 4px 14px -6px var(--accent); }
+.logo svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bi { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--field); color: var(--accent); margin-bottom: 4px; }
+.basis button[aria-pressed="true"] .bi { background: var(--accent); color: #fff; }
+.ji { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; background: var(--panel); color: var(--accent); border: 1px solid var(--line); margin-bottom: 4px; }
+.job[aria-pressed="true"] .ji { background: var(--accent); color: #fff; border-color: var(--accent); }
+/* job presets */
+.jobgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 8px; }
+.job { position: relative; background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; text-align: left; display: grid; gap: 1px; font-weight: 400; }
+.job strong { font-size: 14px; }
+.job span { font-size: 12px; color: var(--muted); line-height: 1.3; }
+.job .b { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 600; }
+.job[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--accent-soft); padding: 8px 10px; }
+.job.mine { border-style: dashed; }
+.job .del { position: absolute; top: 4px; right: 6px; font-size: 14px; color: var(--muted); cursor: pointer; padding: 0 4px; border-radius: 4px; }
+.job .del:hover { color: var(--bad); }
+.curpick, .pdfwrap { position: relative; }
+.curbtn { display: inline-flex; align-items: center; gap: 8px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); font-weight: 600; padding: 6px 10px; }
+.chev { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; vertical-align: -2px; }
+.flag { display: inline-block; width: 24px; height: 16px; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,.12); flex: none; }
+.flag svg { display: block; width: 100%; height: 100%; }
+.curmenu, .pdfpop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 40px -12px rgba(0,0,0,.35); padding: 6px; }
+.curmenu { width: 250px; max-height: 420px; overflow-y: auto; }
+.curopt { display: flex; width: 100%; align-items: center; gap: 10px; background: transparent; color: var(--ink); border: 0; padding: 7px 8px; border-radius: 7px; font-weight: 400; text-align: left; }
+.curopt:hover, .curopt[aria-selected="true"] { background: var(--accent-soft); }
+.curopt b { font-family: var(--font-num); width: 38px; }
+.curopt span:last-child { color: var(--muted); font-size: 13px; }
+.curgroup { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 8px 8px 2px; }
+.curother { border-top: 1px solid var(--line); margin-top: 6px; padding: 8px; display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.curother input { border: 1px solid var(--line); background: var(--field); border-radius: 6px; padding: 6px 8px; text-transform: uppercase; color: var(--ink); }
+.pdfpop { width: 300px; display: grid; gap: 4px; }
+.pdfpop button { background: transparent; color: var(--ink); border: 0; text-align: left; padding: 10px; border-radius: 8px; display: grid; gap: 2px; font-weight: 400; }
+.pdfpop button:hover { background: var(--accent-soft); }
+.pdfpop strong { font-size: 14px; }
+.pdfpop span { font-size: 12px; color: var(--muted); line-height: 1.35; }
+.logobox { display: flex; align-items: center; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.logobox img { max-height: 36px; max-width: 110px; border-radius: 4px; background: #fff; padding: 2px; border: 1px solid var(--line); }
+.filebtn { display: inline-block; cursor: pointer; color: var(--accent); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; font-weight: 600; font-size: 13px; }
+.filebtn:hover { background: var(--accent-soft); }
+.logo img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.inp input.txt { text-align: left; font-family: var(--font-body); }
+.field:has(input.txt) { grid-template-columns: 1fr 1.4fr; }
+textarea { width: 100%; margin-top: 4px; font: inherit; font-size: 14px; color: var(--ink); background: var(--field); border: 1px solid var(--line); border-radius: 7px; padding: 8px; resize: vertical; }
+textarea:focus { outline: none; border-color: var(--accent); background: var(--panel); }
+#printDoc { display: none; }
+details.grp { border-top: 1px solid var(--line); padding-top: 4px; margin-top: 4px; }
+details.grp:first-of-type { border-top: 0; }
+details.grp summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 8px 0; color: var(--ink); list-style: none; display: flex; justify-content: space-between; }
+details.grp summary::after { content: "+"; color: var(--muted); font-weight: 400; }
+details.grp[open] summary::after { content: "−"; }
+details.grp summary::-webkit-details-marker { display: none; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+.tabs button { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--muted); border: 0; border-bottom: 3px solid transparent; border-radius: 0; padding: 10px 16px; font-size: 15px; font-weight: 600; margin-bottom: -1px; }
+.tabs button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+.tabs button:hover { filter: none; color: var(--ink); }
+.view { display: grid; gap: 20px; }
+.view[hidden] { display: none !important; }
+.derivedv { text-align: right; font-weight: 600; display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
+.linkbtn { padding: 3px 10px; font-size: 13px; }
+.elhead, .eline { grid-template-columns: 1fr 84px 104px 28px !important; }
+.seg.mini button { font-size: 12px; padding: 5px 2px; }
+.bstat { display: grid; gap: 8px; }
+.mixhead, .mixrow, .mixtot { display: grid; grid-template-columns: 1fr 110px 150px 96px; gap: 8px; align-items: center; }
+.mixhead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.mixrow { padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.mixrow:not(.on) .mr, .mixrow:not(.on) .mp { color: var(--muted); }
+.mixrow .mj { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.mixrow .mj .ji { margin: 0; flex: none; }
+.mixrow.on .ji { background: var(--accent); color: #fff; border-color: var(--accent); }
+.mixrow strong { display: block; font-size: 14px; }
+.mixrow small { color: var(--muted); font-size: 12px; }
+.mixrow .mc { display: inline-flex; width: 140px; }
+.mixrow .mc input { width: 52px; flex: none; }
+.mixrow .mc .u { font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+.mixrow .mp { font-size: 13px; }
+.mixtot { padding-top: 10px; font-weight: 700; }
+.r { text-align: right; }
+@media (max-width: 640px) { .mixhead, .mixrow, .mixtot { grid-template-columns: 1fr 1fr; } .mixhead span:nth-child(2), .mixrow .mp, .mixtot span:nth-child(2) { display: none; } .mixhead span:nth-child(3), .mixrow > span:nth-child(3) { grid-column: 2; } }
+#pnl td { padding: 8px 4px; }
+#pnl small { display: block; color: var(--muted); font-size: 12px; }
+#pnl .pl-sub td { font-weight: 600; background: var(--field); }
+#pnl .pl-strong td { font-weight: 700; }
+#pnl .pl-total td { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: 0; font-size: 16px; }
+.where { display: flex; height: 14px; border-radius: 7px; overflow: hidden; margin-top: 14px; background: var(--line); }
+.where span { display: block; height: 100%; }
+.bebig { font-size: 15px; margin: 0 0 8px; }
+.bebig .num { font-size: 22px; font-weight: 700; color: var(--accent); }
+.bechips { display: flex; flex-wrap: wrap; gap: 8px; }
+.bechip { border: 1px solid var(--line); background: var(--field); border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+.bechip b { font-family: var(--font-num); color: var(--accent); }
+.capbar { position: relative; height: 18px; border-radius: 9px; background: var(--line); overflow: hidden; }
+.capfill { height: 100%; border-radius: 9px; transition: width .2s; }
+.cap100 { position: absolute; top: -2px; bottom: -2px; left: calc(100% / 1.3); width: 2px; background: var(--ink); }
+#cashChart { width: 100%; height: auto; display: block; }
+@media print {
+  body { background: #fff; }
+  body > .wrap { display: none !important; }
+  #printDoc { display: block !important; }
+  @page { size: A4; margin: 14mm; }
+}
+.chips { display: flex; gap: 6px; margin-top: 4px; }
+.chips button { background: var(--field); color: var(--accent); border: 1px solid var(--line); padding: 1px 10px; font-size: 12px; font-family: var(--font-num); }
+.chips button[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+.savejob { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.savejob .inp { flex: 1; min-width: 200px; }
+.savejob .inp input { text-align: left; font-family: var(--font-body); }
+.pkg li[contenteditable] { outline: none; border-radius: 3px; cursor: text; }
+.pkg li[contenteditable]:hover { background: var(--field); }
+.pkg li[contenteditable]:focus { background: var(--accent-soft); color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---------- polish: desktop + mobile ---------- */
+.grid, .col, .view, .wrap { min-width: 0; }
+.field:has(.derivedv) { grid-template-columns: 1fr auto; }
+.grid > *, .col > *, .view > *, .wrap > * { min-width: 0; max-width: 100%; }
+html, body { overflow-x: hidden; }
+.tile .v span:first-child, #t-quote, #t-floor, #t-value, #b-own, #b-be, #o-over, #o-target { white-space: nowrap; }
+.num, .tile .v, .fact .v, td.r, .derivedv { font-variant-numeric: tabular-nums; }
+header { align-items: center; }
+.sub { font-size: 14px; }
+.tb { display: inline-flex; align-items: center; gap: 6px; }
+.ti { display: inline-grid; place-items: center; }
+.ti svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tabs { position: sticky; top: 0; z-index: 15; background: var(--bg); padding-top: 6px; }
+.h2hint { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--muted); }
+.panel h2 { flex-wrap: wrap; row-gap: 2px; }
+.tile .v { font-size: clamp(19px, 2.1vw, 23px); }
+.tile.hero .v { font-size: clamp(20px, 2.2vw, 26px); }
+.tile .per { display: block; margin-top: 2px; }
+.tile, .fact { min-width: 0; }
+.fact .v { font-size: 16px; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 40; background: var(--ink); color: var(--panel); padding: 7px 14px; border-radius: 999px; font-size: 13px; min-width: 0; box-shadow: 0 8px 24px -10px rgba(0,0,0,.4); }
+.toast:empty { display: none; }
+.mpm { display: none; font-style: normal; }
+.mbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: none; align-items: center; gap: 12px; padding: 10px 14px; background: var(--panel); border-top: 1px solid var(--line); box-shadow: 0 -8px 24px -14px rgba(0,0,0,.35); }
+.mbar .grow { flex: 1; min-width: 0; }
+.mbar .mk { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.mbar .mv { display: flex; align-items: center; gap: 8px; }
+.mbar b { font-size: 19px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mbar .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.mbar button { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; min-height: 44px; }
+.job { transition: border-color .15s, background .15s; }
+.job:hover, .basis button:hover { border-color: var(--accent); filter: none; }
+.panel { box-shadow: 0 1px 2px rgba(16, 24, 40, .04); }
+@media (max-width: 900px) {
+  .mbar { display: flex; }
+  .wrap { padding-bottom: 96px; }
+  .toast { bottom: 84px; }
+  .pdfpop { position: fixed; left: 12px; right: 12px; bottom: 80px; top: auto; width: auto; }
+}
+@media (max-width: 700px) {
+  body { font-size: 15px; }
+  .wrap { padding: 14px 12px 96px; gap: 14px; }
+  header { gap: 10px; }
+  h1 { font-size: 20px; }
+  .sub { display: none; }
+  .logo { width: 38px; height: 38px; border-radius: 10px; }
+  .logo svg { width: 21px; height: 21px; }
+  .toolbar { width: 100%; flex-wrap: nowrap; gap: 6px; }
+  .toolbar .tl { display: none; }
+  .toolbar button, .curbtn { min-height: 42px; padding: 8px 11px; }
+  .pdfwrap { margin-left: auto; }
+  .curmenu { position: fixed; left: 12px; right: 12px; top: 64px; width: auto; max-height: 70vh; }
+  input, select, textarea, .inp input { font-size: 16px !important; }
+  .panel { padding: 14px; border-radius: 12px; }
+  .panel h2 { font-size: 12px; }
+  .h2hint { flex-basis: 100%; }
+  .field { grid-template-columns: 1fr 136px; }
+  .field:has(input.txt) { grid-template-columns: 1fr; gap: 4px; }
+  .field:has(.seg), .field:has(#rateChips), .field:has(#schedChips), .field:has(#taxChips) { grid-template-columns: 1fr; gap: 6px; }
+  .seg button { padding: 9px 4px; }
+  .chips button { padding: 4px 12px; font-size: 13px; }
+  .tabs button { flex: 1; justify-content: center; padding: 11px 8px; }
+  .jobgrid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 64%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+  .job { scroll-snap-align: start; }
+  .basis { gap: 8px; }
+  .basis button { padding: 10px 12px; }
+  .basis button[aria-pressed="true"] { padding: 9px 11px; }
+  .basis .bi { width: 26px; height: 26px; }
+  .tiles, .facts { gap: 8px; }
+  .tile { padding: 10px 12px; }
+  .facts { gap: 0; }
+  .fact { padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  .fact:nth-child(2n) { border-right: 0; }
+  .fact:nth-last-child(-n+2) { border-bottom: 0; }
+  .lhead { display: none; }
+  .line, .eline { grid-template-columns: 1fr 1fr 40px !important; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+  .line .name { grid-column: 1 / -1; }
+  .line:not(.eline) > .inp:nth-child(2)::after { content: "qty"; font-size: 12px; color: var(--muted); padding-right: 9px; }
+  .line:not(.eline) > .inp:nth-child(3)::after { content: "each"; font-size: 12px; color: var(--muted); padding-right: 9px; }
+  .line .x { min-height: 40px; }
+  .mixhead { display: none; }
+  .mixrow { grid-template-columns: 1fr auto; row-gap: 8px; }
+  .mixrow .mj { grid-column: 1 / -1; }
+  .mixrow .mp { display: none; }
+  .mixrow > span:nth-child(3) { grid-column: 1; text-align: left; }
+  .mixrow .mr { grid-column: 2; font-weight: 600; }
+  .mixrow .mc { width: auto; }
+  .mixrow .mc input { width: 64px; }
+  .mpm { display: inline; }
+  .mixtot { grid-template-columns: 1fr auto auto; }
+  .mixtot span:nth-child(2) { display: none; }
+  .band { margin: 8px 4px 0; }
+  .mark { font-size: 10px; }
+  td, th { padding: 6px 2px; }
+  .pkg { padding: 12px; }
+  .bebig .num { font-size: 20px; }
+}
+
+/* ================= Pricing Studio app shell ================= */
+:root { --bg: #f2f5f1; --panel: #ffffff; --ink: #13241c; --muted: #65766d; --line: #e1e8e3; --field: #f5f8f5; --accent: #1e4d3c; --accent-soft: #e3efe7; --lime: #b9ec7e; --lime-ink: #16301f; --side: #e7eee8; --brass: #c08a1e; --good: #2f8a57; --warn: #c08a1e; --bad: #c2453d; --radius: 16px; --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; --font-num: var(--font-body); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0d1411; --panel: #151f1a; --ink: #e7efe9; --muted: #93a39a; --line: #26332c; --field: #101914; --accent: #2f8f60; --accent-soft: #1b3026; --lime: #b9ec7e; --lime-ink: #13241c; --side: #111a15; --good: #5cc28a; --warn: #e0a64a; --bad: #ec7b72; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #0d1411; --panel: #151f1a; --ink: #e7efe9; --muted: #93a39a; --line: #26332c; --field: #101914; --accent: #2f8f60; --accent-soft: #1b3026; --lime: #b9ec7e; --lime-ink: #13241c; --side: #111a15; --good: #5cc28a; --warn: #e0a64a; --bad: #ec7b72; color-scheme: dark; }
+body { font-family: var(--font-body); background: var(--bg); }
+body.noscroll { overflow: hidden; }
+button { border-radius: 10px; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.ni { display: inline-grid; place-items: center; }
+.ni svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+button .ni, .filebtn .ni { margin-right: 6px; vertical-align: -5px; }
+button .ni svg, .filebtn .ni svg { width: 17px; height: 17px; }
+.app { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100vh; }
+.side { position: sticky; top: 0; height: 100vh; background: var(--side); padding: 22px 16px; display: flex; flex-direction: column; gap: 24px; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.brand b { display: block; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.brand span { font-size: 12px; color: var(--muted); }
+.logo { background: var(--accent); }
+.snav { display: grid; gap: 4px; }
+.navbtn { display: flex; align-items: center; gap: 12px; background: transparent; color: var(--ink); border: 0; padding: 11px 14px; border-radius: 12px; font-weight: 600; font-size: 14.5px; text-align: left; }
+.navbtn:hover { background: rgba(127, 140, 130, .12); filter: none; }
+.snav .navbtn[aria-current="page"] { background: var(--lime); color: var(--lime-ink); }
+.side-card { margin-top: auto; background: var(--accent); color: #fff; border-radius: 18px; padding: 16px; display: grid; gap: 10px; position: relative; overflow: hidden; }
+.side-card::after { content: ""; position: absolute; right: -30px; top: -30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(185, 236, 126, .18); }
+.side-card p { margin: 0; font-size: 13px; opacity: .92; position: relative; }
+.side-card .ni { color: var(--lime); }
+button.lime { background: var(--lime); color: var(--lime-ink); }
+button.glass { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.28); }
+button.sm { padding: 6px 12px; font-size: 13px; justify-self: start; position: relative; }
+button.danger { color: var(--bad); }
+.main { padding: 14px 28px 40px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 15; background: var(--bg); padding: 10px 0; }
+.top h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.top .sub { margin: 2px 0 0; }
+.view { display: grid; gap: 16px; }
+.view[hidden] { display: none !important; }
+.card, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; box-shadow: none; }
+.card-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.card-h h3 { margin: 0; font-size: 16px; font-weight: 700; display: flex; gap: 8px; align-items: center; }
+.card p { margin: 0 0 10px; }
+.split { display: grid; grid-template-columns: minmax(330px, 420px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.tcard { position: sticky; top: 76px; max-height: calc(100vh - 92px); overflow: auto; padding-top: 12px; }
+.ctabs { display: flex; gap: 4px; background: var(--field); padding: 4px; border-radius: 12px; margin-bottom: 14px; position: sticky; top: -12px; z-index: 3; border: 1px solid var(--line); }
+.ctabs button { flex: 1; background: transparent; color: var(--muted); border: 0; padding: 9px 6px; border-radius: 9px; font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+.ctabs button:hover { color: var(--ink); filter: none; }
+.ctabs button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.pane > h2 { display: none; }
+.pane[hidden] { display: none !important; }
+hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
+.rescol { display: grid; gap: 16px; min-width: 0; align-content: start; }
+.bgrid { grid-template-columns: 1fr 1fr; }
+.bgrid > section:first-child, .bgrid > section:last-child { grid-column: 1 / -1; }
+.jobcard { padding: 14px 18px; }
+.jobcard > h2 { margin-bottom: 8px; }
+.jobcard .note { display: none; }
+.jobgrid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.job { border-radius: 12px; }
+.basis { gap: 10px; }
+.basis button { border-radius: 14px; }
+.tile, .fact, .facts { border-radius: 14px; }
+.rescol .tiles .tile.hero { background: var(--accent); border: 0; color: #fff; position: relative; overflow: hidden; }
+.rescol .tiles .tile.hero::after { content: ""; position: absolute; right: -24px; bottom: -34px; width: 90px; height: 90px; border-radius: 50%; background: rgba(185,236,126,.22); }
+.tile.hero .k, .tile.hero .per { color: rgba(255,255,255,.78) !important; }
+.tile.hero .v { color: #fff !important; }
+.bdcard summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; }
+.bdcard summary::after { content: "+"; color: var(--muted); }
+.bdcard[open] summary::after { content: "−"; }
+.bdcard summary::-webkit-details-marker { display: none; }
+.bdcard[open] summary { margin-bottom: 10px; }
+.bdcard > h2 { display: none; }
+/* home */
+.hgrid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.5fr); gap: 16px; }
+.hero { background: linear-gradient(140deg, #1e4d3c 0%, #163a2d 100%); color: #fff; border-radius: 22px; padding: 22px; display: grid; gap: 6px; position: relative; overflow: hidden; align-content: start; }
+.hero::before { content: ""; position: absolute; right: -40px; top: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(185,236,126,.14); }
+.hero::after { content: ""; position: absolute; right: 60px; bottom: -70px; width: 140px; height: 140px; border-radius: 50%; background: rgba(185,236,126,.10); }
+.hero > * { position: relative; z-index: 1; }
+.hero-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hero-k { opacity: .82; font-size: 13.5px; font-weight: 600; }
+.hero-badge { background: var(--lime); color: #16301f; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; }
+.hero-badge[data-lvl="warn"] { background: #f6d58b; }
+.hero-badge[data-lvl="bad"] { background: #f5b1aa; }
+.hero-v { font-size: clamp(32px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.hero-sub { opacity: .8; font-size: 13px; }
+.hero-act { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.kico { width: 42px; height: 42px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; margin-bottom: 14px; }
+.kpi-v { font-size: clamp(20px, 2vw, 26px); font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-k { color: var(--muted); font-size: 13px; }
+.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--accent-soft); border-radius: 18px; padding: 6px; }
+.quick button { background: transparent; color: var(--accent); border: 0; display: grid; justify-items: center; gap: 6px; padding: 12px 6px; border-radius: 13px; font-weight: 600; font-size: 13px; }
+.quick button .ni { margin: 0; }
+.quick button .ni svg { width: 22px; height: 22px; }
+.quick button:hover { background: var(--panel); filter: none; }
+.hgrid2 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.legend2 { font-size: 12px; color: var(--muted); }
+.legend2 i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin: 0 5px 0 12px; vertical-align: -1px; }
+.hc-big { display: grid; margin-bottom: 4px; }
+.hc-big span { font-size: 12.5px; }
+.hc-big b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+#h-chart { width: 100%; height: auto; display: block; }
+.donut-wrap { position: relative; width: 168px; margin: 0 auto 10px; }
+.donut-wrap svg { width: 100%; display: block; }
+.donut-c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.donut-c span { font-size: 12px; }
+.donut-c b { font-size: 17px; font-weight: 800; }
+.dlist { display: grid; }
+.drow { display: grid; grid-template-columns: 18px 1fr auto; gap: 6px; align-items: center; padding: 7px 0; font-size: 13.5px; border-bottom: 1px dashed var(--line); }
+.drow:last-child { border-bottom: 0; }
+.drow i { display: block; width: 10px; height: 10px; border-radius: 3px; }
+.drow .dv { font-weight: 700; font-variant-numeric: tabular-nums; }
+.drow.bad { color: var(--bad); }
+.alerts { display: grid; }
+.alert { display: flex; gap: 12px; text-align: left; background: transparent; color: var(--ink); border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; padding: 10px 0; font-weight: 400; }
+.alert:last-child { border-bottom: 0; }
+.alert:hover { filter: none; background: var(--field); }
+.alert i { width: 10px; height: 10px; border-radius: 50%; background: var(--good); margin-top: 5px; flex: none; }
+.alert[data-lvl="warn"] i { background: var(--warn); }
+.alert[data-lvl="bad"] i { background: var(--bad); }
+.alert b { display: block; font-size: 13.5px; }
+.alert small { color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+/* quote preview */
+.pv-act { display: flex; gap: 8px; flex-wrap: wrap; }
+.qprev { background: var(--field); border-radius: 12px; padding: 12px; overflow: hidden; border: 1px solid var(--line); }
+.qprev-in { width: 700px; transform-origin: top left; background: #fff; border-radius: 8px; box-shadow: 0 10px 30px -14px rgba(0,0,0,.35); padding: 16px 10px; }
+/* settings */
+.sgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.filebtn.big { padding: 8px 14px; font-size: 14px; }
+/* wizard */
+.wiz { position: fixed; inset: 0; z-index: 100; background: rgba(9, 20, 14, .55); backdrop-filter: blur(5px); display: grid; place-items: center; padding: 16px; }
+.wiz[hidden] { display: none; }
+.wiz-card { background: var(--panel); border-radius: 24px; width: min(580px, 100%); max-height: 94vh; overflow: auto; padding: 22px 24px; display: grid; gap: 10px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.5); }
+.wiz-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.logo.sm { width: 36px; height: 36px; border-radius: 10px; }
+.logo.sm svg { width: 20px; height: 20px; }
+.wiz-dots { display: flex; gap: 6px; }
+.wiz-dots i { width: 26px; height: 6px; border-radius: 3px; background: var(--line); }
+.wiz-dots i.on { background: var(--accent); }
+.wiz-step h2 { margin: 6px 0 2px; font-size: 25px; font-weight: 800; letter-spacing: -0.02em; text-transform: none; color: var(--ink); }
+.wiz-step > p { margin: 0 0 6px; }
+.wiz-step h4 { margin: 16px 0 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.wiz-step[hidden] { display: none; }
+.wiz-jobs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.wopt { background: var(--field); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: left; display: grid; gap: 3px; font-weight: 600; }
+.wopt:hover { border-color: var(--accent); filter: none; }
+.wopt[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--accent-soft); padding: 11px; }
+.wopt small { color: var(--muted); font-weight: 400; font-size: 12px; }
+.wopt .ji { margin-bottom: 2px; }
+.wiz-cur { display: flex; flex-wrap: wrap; gap: 6px; }
+.wiz-cur .wopt { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.wiz-cur .wopt[aria-pressed="true"] { padding: 7px 11px; }
+.wiz-big .inp input { font-size: 30px !important; font-weight: 800; padding: 10px 12px; }
+.wiz-big { margin: 6px 0 10px; }
+.chips.wide { gap: 8px; margin-top: 0; flex-wrap: wrap; }
+.chips.wide button { padding: 8px 18px; font-size: 15px; border-radius: 10px; }
+.wiz-opts { display: grid; gap: 8px; }
+.wsum { font-weight: 600; color: var(--accent); margin-left: 6px; font-size: 13px; }
+.wiz-hero { margin: 8px 0; }
+.wiz-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.wiz-foot button { padding: 11px 18px; }
+.card > h2, .bdcard h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-weight: 600; }
+.rescol > * { min-width: 0; }
+.qprev { position: relative; width: 100%; min-height: 200px; }
+.qprev-in { position: absolute; top: 12px; left: 12px; }
+.tcard .mixhead { display: none; }
+.tcard .mixrow { grid-template-columns: 1fr auto; row-gap: 8px; }
+.tcard .mixrow .mj { grid-column: 1 / -1; }
+.tcard .mixrow .mp { display: none; }
+.tcard .mixrow > span:nth-child(3) { grid-column: 1; text-align: left; }
+.tcard .mixrow .mr { grid-column: 2; font-weight: 700; }
+.tcard .mixrow .mc { width: auto; }
+.tcard .mixrow .mc input { width: 64px; }
+.tcard .mpm { display: inline; }
+.tcard .mixtot { grid-template-columns: 1fr auto auto; gap: 14px; }
+.tcard .mixtot span:nth-child(2) { display: none; }
+.logo { background: none !important; box-shadow: none; overflow: hidden; }
+.logo svg.brandmark, .logo.sm svg.brandmark { width: 100%; height: 100%; stroke: none; }
+.costhints { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.hint { background: var(--field); color: var(--accent); border: 1px dashed var(--line); padding: 4px 10px; font-size: 12.5px; font-weight: 600; border-radius: 999px; }
+.hint:hover { border-color: var(--accent); filter: none; }
+.taxnote { margin: 0 0 6px; padding: 8px 10px; background: var(--field); border-radius: 8px; }
+.method { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; }
+.ver { font-size: 11.5px; color: var(--muted); background: var(--field); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* bottom nav (phones) */
+.bnav { position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 40; display: none; background: #13241c; border-radius: 22px; padding: 6px; gap: 2px; box-shadow: 0 14px 34px -12px rgba(0,0,0,.55); }
+.bnav .navbtn { flex: 1; flex-direction: column; gap: 3px; color: #9fb3a8; padding: 8px 2px; justify-content: center; text-align: center; border-radius: 16px; }
+.bnav .navbtn span:last-child { font-size: 10.5px; font-weight: 600; }
+.bnav .navbtn .ni svg { width: 21px; height: 21px; }
+.bnav .navbtn[aria-current="page"] { color: var(--lime); background: rgba(185,236,126,.12); }
+@media (max-width: 1200px) {
+  .hgrid2 { grid-template-columns: 1fr 1fr; }
+  .hgrid2 > .card:first-child { grid-column: 1 / -1; }
+  .jobgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 1100px) {
+  .hgrid { grid-template-columns: 1fr; }
+  #view-price .rescol { order: -1; }
+  .split { grid-template-columns: 1fr; }
+  .tcard { position: static; max-height: none; overflow: visible; }
+  .ctabs { top: 58px; }
+}
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .side { display: none; }
+  .bnav { display: flex; }
+  .main { padding: 4px 12px 104px; gap: 14px; }
+  header.top { padding: 10px 0 8px; }
+  .top h1 { font-size: 21px; }
+  .top .sub { display: none; }
+  .toolbar #reset, .toolbar #copy, .toolbar #xlsx { display: none; }
+  .toast { bottom: 96px; }
+  .pdfpop { bottom: 92px; }
+  .bgrid, .sgrid { grid-template-columns: 1fr; }
+  .bgrid > section { grid-column: auto !important; }
+  .hgrid2 { grid-template-columns: 1fr; }
+  .kpis { gap: 8px; }
+  .kpi { padding: 12px; }
+  .kico { width: 34px; height: 34px; margin-bottom: 8px; }
+  .kpi-k { font-size: 11.5px; }
+  .card, .panel { padding: 14px; }
+  .jobgrid { grid-template-columns: none; }
+  .basis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .basis button { padding: 9px 4px; text-align: center; justify-items: center; }
+  .basis button[aria-pressed="true"] { padding: 8px 3px; }
+  .basis button span, .basis .bi { display: none; }
+  .basis button strong { font-size: 12.5px; }
+  .jobcard .savejob { display: none; }
+  .wiz { padding: 0; place-items: end center; }
+  .wiz-card { border-radius: 24px 24px 0 0; max-height: 96vh; padding: 18px; }
+  .wiz-jobs { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 420px) {
+  .kpi-v { font-size: 17px; }
+  .quick button { font-size: 11.5px; padding: 10px 2px; }
+  .ctabs button { font-size: 12.5px; padding: 8px 3px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="logo" data-mark></div><div><b>Pricing Studio</b><span>for tech services</span></div></div>
+    <nav class="snav" aria-label="Main"><button type="button" class="navbtn" data-view="home"><span class="ni" data-i="grid"></span><span>Overview</span></button><button type="button" class="navbtn" data-view="price"><span class="ni" data-i="tag"></span><span>Price a job</span></button><button type="button" class="navbtn" data-view="quote"><span class="ni" data-i="file"></span><span>Quote</span></button><button type="button" class="navbtn" data-view="business"><span class="ni" data-i="chart"></span><span>Business</span></button><button type="button" class="navbtn" data-view="settings"><span class="ni" data-i="gear"></span><span>Settings</span></button></nav>
+    <div class="side-card"><span class="ni" data-i="shield"></span><p>No account. Saved only in this browser and in backups you download.</p><button type="button" class="lime sm" data-goto="settings">Backup</button></div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div class="top-t"><h1 id="viewTitle">Overview</h1><p class="sub" id="viewSub"></p></div>
+      <div class="toolbar">
+      <div class="curpick" id="curPick">
+        <button type="button" class="curbtn" id="curBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Currency"><span class="flag" id="curFlag"></span><span id="curCode"></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="curmenu" id="curMenu" role="listbox" hidden>
+          <div id="curList"></div>
+          <div class="curother"><label for="curOther">Other currency code</label><input id="curOther" maxlength="5" placeholder="e.g. EGP" autocomplete="off"></div>
+        </div>
+      </div>
+      <button class="ghost tb" id="reset" type="button" title="Reset this job" aria-label="Reset this job"><span class="ti" data-i="reset"></span><span class="tl">Reset job</span></button>
+      <button class="ghost tb" id="copy" type="button" title="Copy summary" aria-label="Copy summary"><span class="ti" data-i="copy"></span><span class="tl">Copy</span></button>
+      <button class="ghost tb" id="xlsx" type="button" title="Download Excel" aria-label="Download Excel"><span class="ti" data-i="sheet"></span><span class="tl">Excel</span></button>
+      <div class="pdfwrap">
+        <button id="pdf" class="tb" type="button" aria-haspopup="menu" aria-expanded="false"><span class="ti" data-i="file"></span><span class="tl">Download </span>PDF <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="pdfpop" id="pdfPop" role="menu" hidden>
+          <button type="button" role="menuitem" data-mode="client"><strong>Client quote</strong><span>Professional quotation to send. Prices, packages, tax and terms only.</span></button>
+          <button type="button" role="menuitem" data-mode="internal"><strong>Internal report</strong><span>For you only. Costs, floor, margin, market check and discount room.</span></button>
+        </div>
+      </div>
+      <span class="toast" id="toast" aria-live="polite"></span>
+    </div>
+    </header>
+    
+<section class="view" id="view-home" data-title="Overview" data-sub="Your price and your business at a glance">
+  <div class="hgrid">
+    <div class="hero">
+      <div class="hero-top"><span class="hero-k" id="h-job"></span><span class="hero-badge" id="h-badge"></span></div>
+      <div class="hero-v" id="h-price"></div>
+      <div class="hero-sub" id="h-sub"></div>
+      <div class="hero-act"><button type="button" class="lime" data-goto="quote"><span class="ni" data-i="file"></span>Make the quote</button><button type="button" class="glass" data-goto="price"><span class="ni" data-i="tag"></span>Adjust price</button></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><span class="kico"><span class="ni" data-i="chart"></span></span><div class="kpi-v" id="h-rev"></div><div class="kpi-k">Monthly revenue</div></div>
+      <div class="kpi"><span class="kico"><span class="ni" data-i="wallet"></span></span><div class="kpi-v" id="h-own"></div><div class="kpi-k">Available to pay you, a month</div></div>
+      <div class="kpi"><span class="kico"><span class="ni" data-i="clock"></span></span><div class="kpi-v" id="h-cap"></div><div class="kpi-k">Of your hours used</div></div>
+    </div>
+  </div>
+  <div class="quick">
+    <button type="button" data-goto="price"><span class="ni" data-i="tag"></span><span>New price</span></button>
+    <button type="button" data-goto="quote"><span class="ni" data-i="file"></span><span>Client quote</span></button>
+    <button type="button" data-goto="business"><span class="ni" data-i="chart"></span><span>Business plan</span></button>
+    <button type="button" id="h-xlsx"><span class="ni" data-i="sheet"></span><span>Excel</span></button>
+  </div>
+  <div class="hgrid2">
+    <div class="card">
+      <div class="card-h"><h3>Cash flow scenario, 12 months</h3><span class="legend2"><i style="background:var(--accent)"></i>Money in <i style="background:var(--lime)"></i>Money out</span></div>
+      <div class="hc-big"><span class="muted">Cash at month 12</span><b id="h-cash"></b></div>
+      <svg id="h-chart" viewBox="0 0 640 220" role="img" aria-label="Money in and out by month"></svg>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Where revenue goes</h3><span class="muted">per month</span></div>
+      <div class="donut-wrap"><svg id="h-donut" viewBox="0 0 120 120" aria-hidden="true"></svg><div class="donut-c"><span class="muted">Revenue</span><b id="h-donut-v"></b></div></div>
+      <div id="h-donut-list" class="dlist"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Health check</h3><button type="button" class="ghost linkbtn" data-goto="business">Details</button></div>
+      <div id="h-alerts" class="alerts"></div>
+    </div>
+  </div>
+</section>
+    
+<section class="view" id="view-price" data-title="Price a job" data-sub="Pick a job, set your numbers, get a price you can defend">
+  <div class="card jobcard">
+    <h2><span class="ico" data-i="briefcase"></span>Job type <span class="h2hint">(loads a starting setup you can change)</span></h2>
+    <div class="jobgrid" id="jobs"></div>
+    <div class="savejob">
+      <div class="inp"><input id="jobName" placeholder="Name your current setup, for example: Clinic website" aria-label="Name for your saved job"></div>
+      <button type="button" id="saveJob">Save as my job</button>
+    </div>
+    <p class="note">Example prices are rough estimates for tech services in Bahrain. Replace the market range with real competitor quotes before you send a price.</p>
+  </div>
+  <nav class="basis" id="basis" aria-label="How you charge"></nav>
+  <div class="split">
+    <div class="card tcard" data-card="price"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="rate" aria-selected="true">Your rate</button><button type="button" role="tab" data-pane="costs" aria-selected="false">Costs</button><button type="button" role="tab" data-pane="market" aria-selected="false">Market & value</button></div><div class="pane" data-pane="rate">
+        <h2><span class="ico" data-i="clock"></span>Your internal day rate</h2>
+        <div class="field"><label>Set your rate by</label><div class="seg" id="rateSeg"><button type="button" data-v="hour">Hourly rate</button><button type="button" data-v="year">Yearly income</button></div></div>
+        <div class="field" id="hourRateRow"><label for="hourRate">Your hourly rate<small>Your time, before contingency and margin</small><span class="chips" id="rateChips"><button type="button" data-v="44">44</button><button type="button" data-v="62">62</button><button type="button" data-v="80">80</button></span></label><div class="inp"><input id="hourRate" inputmode="decimal"><span class="u"><span class="u-cur"></span> / hr</span></div></div>
+        <div class="field" id="incomeRow"><label for="income">Target yearly income<small>What you want to pay yourself</small></label><div class="inp"><input id="income" inputmode="decimal"><span class="u u-cur"></span></div></div>
+        <div class="field"><label for="billDays">Billable days per year<small>Realistic: 120 to 150 for a solo founder</small></label><div class="inp"><input id="billDays" inputmode="decimal"><span class="u">days</span></div></div>
+        <div class="field"><label>Yearly overhead<small>From your expenses in Business plan</small></label><div class="derivedv"><span class="num" id="o-over"></span> <button type="button" class="ghost linkbtn" data-goto="business">Edit</button></div></div>
+        <div class="field" id="hpdRow"><label for="hoursPerDay">Billable hours per day<small>Hours you can charge, not hours at your desk</small></label><div class="inp"><input id="hoursPerDay" inputmode="decimal"><span class="u">hours</span></div></div>
+        <div class="derived"><span>Your cost per day</span><strong class="num" id="o-dayrate"></strong></div>
+        <p class="note" id="o-yearly"></p>
+      </div><div class="pane" data-pane="costs" hidden>
+        <h2><span class="ico" data-i="layers"></span>Work and costs <span id="perLabel" class="h2hint"></span></h2>
+        <div class="field"><label for="qty" id="qtyLabel"></label><div class="inp"><input id="qty" inputmode="decimal"><span class="u" id="qtyUnit"></span></div></div>
+        <div class="field" id="monthsRow"><label for="months">Contract length<small>Months the client commits to</small></label><div class="inp"><input id="months" inputmode="decimal"><span class="u">months</span></div></div>
+        <div style="margin-top:10px" class="lines">
+          <div class="lhead"><span>Other costs</span><span>Qty</span><span>Unit cost</span><span></span></div>
+          <div id="lines" class="lines"></div>
+        </div>
+        <button class="ghost addline" id="addLine" type="button">+ Add cost line</button>
+        <div class="costhints"><span class="muted small">Often forgotten:</span><button type="button" class="hint" data-cost="fees">Payment fees</button><button type="button" class="hint" data-cost="sub">Subcontractor</button><button type="button" class="hint" data-cost="rework">Revisions buffer</button><button type="button" class="hint" data-cost="travel">Client visits</button></div>
+        <div class="linetotal"><span>Total other costs</span><span class="num" id="o-lines"></span></div>
+        <div class="field" style="margin-top:6px"><label for="cont">Contingency<small>Buffer for overruns: 10 to 15%</small></label><div class="inp"><input id="cont" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label for="margin">Profit margin<small>Share of the price kept as profit. 20% = 20 of every 100 charged</small></label><div class="inp"><input id="margin" inputmode="decimal"><span class="u">%</span></div></div>
+      </div><div class="pane" data-pane="market" hidden>
+        <h2><span class="ico" data-i="bars"></span>Market range <span class="perU h2hint"></span></h2>
+        <div class="field"><label for="mLow">Lowest competitor price</label><div class="inp"><input id="mLow" inputmode="decimal"><span class="u u-cur"></span></div></div>
+        <div class="field"><label for="mHigh">Highest competitor price</label><div class="inp"><input id="mHigh" inputmode="decimal"><span class="u u-cur"></span></div></div>
+      <hr class="sep">
+        <h2><span class="ico" data-i="target"></span>Value to the client</h2>
+        <div class="field"><label for="cValue" id="valueLabel"></label><div class="inp"><input id="cValue" inputmode="decimal"><span class="u u-cur"></span></div></div>
+        <div class="field"><label for="share">Your share of that value<small>Your own estimate of a fair share of the client's gain</small></label><div class="inp"><input id="share" inputmode="decimal"><span class="u">%</span></div></div>
+      </div></div>
+    <div class="rescol">
+      <div class="tiles">
+        <div class="tile hero"><div class="k">Your price</div><div class="v"><span id="t-quote"></span> <span class="per perU2"></span></div></div>
+        <div class="tile"><div class="k">Cost floor</div><div class="v"><span id="t-floor"></span> <span class="per perU2"></span></div></div>
+        <div class="tile"><div class="k">Value price</div><div class="v"><span id="t-value"></span> <span class="per perU2"></span></div></div>
+        <div class="tile"><div class="k">You earn per hour</div><div class="v"><span id="t-eff"></span> <span class="per" id="t-effd"></span></div></div>
+      </div>
+
+      <div class="facts">
+        <div class="fact"><div class="k" id="f-total-k">Engagement total</div><div class="v" id="f-total"></div></div>
+        <div class="fact"><div class="k" id="f-vat-k">Client pays incl. tax</div><div class="v" id="f-vat"></div></div>
+        <div class="fact"><div class="k">Deposit upfront</div><div class="v" id="f-dep"></div></div>
+        <div class="fact"><div class="k">Max discount before loss</div><div class="v" id="f-disc"></div></div>
+      </div>
+
+      <div class="status" id="status"><span class="pill" id="s-pill"></span><span id="s-text"></span></div>
+      <section class="panel">
+        <h2><span class="ico" data-i="chart"></span>Where your price sits <span class="perU h2hint"></span></h2>
+        <div class="band" id="band" aria-label="Price positions on one scale">
+          <div class="track"></div>
+          <div class="mkt" id="b-mkt"></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>Market range</span>
+          <span><i style="background:var(--bad)"></i>Cost floor (never go below)</span>
+          <span><i style="background:var(--brass)"></i>Value price</span>
+          <span><i style="background:var(--accent)"></i>Your price</span>
+        </div>
+      </section>
+      <section class="panel">
+        <h2 id="pkgTitle"></h2>
+        <div class="pkgs" id="pkgs"></div>
+        <p class="note" id="pkgNote"></p>
+      </section>
+      <details class="card bdcard"><summary>Show how the floor is calculated</summary>
+        <h2><span class="ico" data-i="list"></span>Floor breakdown <span id="bdLabel" class="h2hint"></span></h2>
+        <table>
+          <thead><tr><th>Item</th><th>How</th><th class="r">Amount</th></tr></thead>
+          <tbody id="breakdown"></tbody>
+        </table>
+      </details>
+    </div>
+  </div>
+</section>
+    
+<section class="view" id="view-quote" data-title="Client quote" data-sub="Fill in the details once. The preview updates as you type">
+  <div class="split">
+    <div class="card tcard" data-card="quote"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="biz" aria-selected="true">Your business</button><button type="button" role="tab" data-pane="client" aria-selected="false">Client</button><button type="button" role="tab" data-pane="this" aria-selected="false">This quote</button><button type="button" role="tab" data-pane="terms" aria-selected="false">Tax & terms</button></div><div class="pane" data-pane="biz"><div class="field"><label for="logoFile">Logo<small>PNG, JPG or SVG. Printed on the PDF</small></label>
+          <div class="logobox"><img id="logoPrev" alt="Your logo" hidden><label class="filebtn" for="logoFile" id="logoLbl">Upload logo</label><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden><button type="button" class="ghost" id="logoDel" hidden style="padding:4px 10px;font-size:13px">Remove</button></div></div>
+
+          <div class="field"><label for="bizName">Business name</label><div class="inp"><input id="bizName" class="txt" placeholder="Your company name"></div></div>
+          <div class="field"><label for="bizCR">CR number<small>Company registration number</small></label><div class="inp"><input id="bizCR" class="txt" placeholder="Commercial registration"></div></div>
+          <div class="field"><label for="bizTax"><span class="taxlbl">VAT</span> number</label><div class="inp"><input id="bizTax" class="txt" placeholder="Tax registration number"></div></div>
+          <div class="field"><label for="bizAddr">Address</label><div class="inp"><input id="bizAddr" class="txt" placeholder="Office, building, road, area, city"></div></div>
+          <div class="field"><label for="bizPhone">Phone</label><div class="inp"><input id="bizPhone" class="txt" placeholder="+973 ..."></div></div>
+          <div class="field"><label for="bizEmail">Email</label><div class="inp"><input id="bizEmail" class="txt" placeholder="hello@company.com"></div></div>
+          <div class="field"><label for="bizWeb">Website</label><div class="inp"><input id="bizWeb" class="txt" placeholder="company.com"></div></div>
+          <div class="field"><label for="preparedBy">Prepared by<small>Signs the quote for your business</small></label><div class="inp"><input id="preparedBy" class="txt" placeholder="Name, title"></div></div>
+          <label for="bank" class="sub" style="display:block;margin-top:8px;font-size:13px">Payment details (optional)</label>
+          <textarea id="bank" rows="3" placeholder="Bank name, account name, IBAN, or payment link"></textarea>
+        </div><div class="pane" data-pane="client" hidden>
+          <div class="field"><label for="client">Company</label><div class="inp"><input id="client" class="txt" placeholder="Client company"></div></div>
+          <div class="field"><label for="clientContact">Contact person</label><div class="inp"><input id="clientContact" class="txt" placeholder="Name, title"></div></div>
+          <div class="field"><label for="clientAddr">Address</label><div class="inp"><input id="clientAddr" class="txt" placeholder="Client address"></div></div>
+          <div class="field"><label for="clientPhone">Phone or email</label><div class="inp"><input id="clientPhone" class="txt" placeholder="Client phone or email"></div></div>
+          <div class="field"><label for="clientTax">Client <span class="taxlbl">VAT</span> number</label><div class="inp"><input id="clientTax" class="txt" placeholder="If they are tax-registered"></div></div>
+        </div><div class="pane" data-pane="this" hidden>
+          <div class="field"><label for="qNo">Quote number<small>Leave empty to number automatically</small></label><div class="inp"><input id="qNo" class="txt" placeholder="Automatic"></div></div>
+          <div class="field"><label for="qTitle">Project title</label><div class="inp"><input id="qTitle" class="txt" placeholder="New company website"></div></div>
+          <div class="field"><label for="delivery">Delivery time</label><div class="inp"><input id="delivery" class="txt" placeholder="4 to 6 weeks from deposit"></div></div>
+          <div class="field"><label for="validDays">Valid for</label><div class="inp"><input id="validDays" inputmode="decimal"><span class="u">days</span></div></div>
+          <div class="field"><label>Packages on the quote</label><div class="seg" id="pkgSeg"><button type="button" data-v="all">All three</button><button type="button" data-v="one">Standard only</button></div></div>
+          <label for="notes" class="sub" style="display:block;margin-top:8px;font-size:13px">Notes for the client (optional)</label>
+          <textarea id="notes" rows="3" placeholder="What you need from the client, exclusions, next steps"></textarea>
+        </div><div class="pane" data-pane="terms" hidden>
+        <h2><span class="ico" data-i="receipt"></span>Tax and payment terms</h2>
+        <p class="note taxnote">This tool does not decide whether you must register for tax or whether a service is zero-rated or exempt. Check with your tax adviser.</p>
+        <div class="field"><label for="taxName">Tax name<small>VAT, GST, sales tax, or leave as is</small></label><div class="inp"><input id="taxName" maxlength="20" style="text-align:left;font-family:var(--font-body)"></div></div>
+        <div class="field"><label for="vat">Tax rate<small>Use 0 if you are not tax-registered</small><span class="chips" id="taxChips"><button type="button" data-v="0">0</button><button type="button" data-v="5">5</button><button type="button" data-v="10">10</button><button type="button" data-v="15">15</button></span></label><div class="inp"><input id="vat" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label for="schedule">Payment schedule<small>% per stage. The first one is the deposit</small><span class="chips" id="schedChips"><button type="button" data-v="100">100</button><button type="button" data-v="50/50">50/50</button><button type="button" data-v="50/30/20">50/30/20</button><button type="button" data-v="30/40/30">30/40/30</button></span></label><div class="inp"><input id="schedule" class="txt" style="text-align:right" aria-describedby="schedNote"><span class="u">%</span></div></div>
+        <p class="note" id="schedNote" style="margin:0"></p>
+        <div class="field"><label for="changeRate">Extra work rate<small>Per hour, for changes outside the scope. 0 = automatic</small></label><div class="inp"><input id="changeRate" inputmode="decimal"><span class="u"><span class="u-cur"></span> / hr</span></div></div>
+        <div class="field"><label for="lateFee">Late payment fee<small>Per month on overdue invoices. 0 = leave off</small></label><div class="inp"><input id="lateFee" inputmode="decimal"><span class="u">% / mo</span></div></div>
+        <div class="field"><label for="careOffer">Care plan offer<small>Optional monthly plan on project quotes. 0 = leave off</small></label><div class="inp"><input id="careOffer" inputmode="decimal"><span class="u"><span class="u-cur"></span> / mo</span></div></div>
+      </div></div>
+    <div class="rescol">
+      <div class="card">
+        <div class="card-h"><h3>Preview</h3><div class="pv-act"><button type="button" class="ghost" data-pdf="internal"><span class="ni" data-i="list"></span>Internal report</button><button type="button" data-pdf="client"><span class="ni" data-i="file"></span>Download quote</button></div></div>
+        <div class="qprev" id="qPrevWrap"><div class="qprev-in" id="qPrev"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+    
+<section class="view" id="view-business" data-title="Business plan" data-sub="Does the business pay you every month?">
+  <div class="tiles">
+      <div class="tile"><div class="k">Monthly revenue</div><div class="v" id="b-rev"></div></div>
+      <div class="tile hero"><div class="k">Available to pay you</div><div class="v"><span id="b-own"></span> <span class="per">/ month</span></div></div>
+      <div class="tile"><div class="k">Profit after your pay</div><div class="v" id="b-after"></div></div>
+      <div class="tile"><div class="k">Break-even revenue</div><div class="v"><span id="b-be"></span> <span class="per">/ month</span></div></div>
+    </div>
+    <div class="facts">
+      <div class="fact"><div class="k">Your pay target</div><div class="v" id="b-target"></div></div>
+      <div class="fact"><div class="k">Capacity used</div><div class="v" id="b-cap"></div></div>
+      <div class="fact"><div class="k">Cash tied up in late payments</div><div class="v" id="b-wc"></div></div>
+      <div class="fact"><div class="k">Runway with no sales</div><div class="v" id="b-run"></div></div>
+    </div>
+    <div id="b-status" class="bstat"></div>
+  <div class="split">
+    <div class="card tcard" data-card="biz"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="mix" aria-selected="true">Job mix</button><button type="button" role="tab" data-pane="exp" aria-selected="false">Expenses</button><button type="button" role="tab" data-pane="sales" aria-selected="false">Sales & pay</button><button type="button" role="tab" data-pane="cash" aria-selected="false">Cash</button></div><div class="pane" data-pane="mix">
+          <h2><span class="ico" data-i="briefcase"></span>Job mix per month <span class="h2hint">(prices come from Price a job)</span></h2>
+          <div class="mixhead"><span>Job</span><span class="r">Price</span><span class="r">Per month</span><span class="r">Revenue</span></div>
+          <div id="mix"></div>
+          <div class="mixtot"><span>Total</span><span></span><span class="r num" id="o-mixh"></span><span class="r num" id="o-mixr"></span></div>
+        </div><div class="pane" data-pane="exp" hidden>
+          <h2><span class="ico" data-i="receipt"></span>Business expenses</h2>
+          <div class="lhead elhead"><span>Expense</span><span>Amount</span><span>Every</span><span></span></div>
+          <div id="exps" class="lines"></div>
+          <button class="ghost addline" id="addExp" type="button">+ Add expense</button>
+          <div class="linetotal"><span>Total</span><span class="num" id="o-exp"></span></div>
+          <p class="note">These replace "overhead" in job prices, so every quote carries its fair share.</p>
+        </div><div class="pane" data-pane="sales" hidden>
+          <h2><span class="ico" data-i="target"></span>Sales effort</h2>
+          <div class="field"><label for="propHours">Hours per proposal<small>Meetings, scoping, writing the quote</small></label><div class="inp"><input id="propHours" inputmode="decimal"><span class="u">hours</span></div></div>
+          <div class="field"><label for="winRate">Win rate<small>Proposals that turn into paid work</small></label><div class="inp"><input id="winRate" inputmode="decimal"><span class="u">%</span></div></div>
+          <div class="derived"><span>Unpaid sales time per project won</span><strong class="num" id="o-sales"></strong></div>
+          <p class="note">This time is added to every project price as "Sales time", because won jobs pay for the lost proposals too.</p>
+        <hr class="sep">
+          <h2><span class="ico" data-i="clock"></span>Your pay and time</h2>
+          <div class="field"><label>Pay target<small>Your rate × billable hours, from Price a job</small></label><div class="derivedv num" id="o-target"></div></div>
+          <div class="field"><label>Billable hours a month<small>Billable days ÷ 12 × hours per day</small></label><div class="derivedv num" id="o-cap"></div></div>
+          <div class="field"><label for="taxReserve">Tax reserve on profit<small>Set aside for corporate or income tax. 0 if none</small></label><div class="inp"><input id="taxReserve" inputmode="decimal"><span class="u">%</span></div></div>
+          <button type="button" class="ghost linkbtn" data-goto="price">Change rate or hours in Price a job</button>
+        </div><div class="pane" data-pane="cash" hidden>
+          <h2><span class="ico" data-i="bars"></span>Cash</h2>
+          <div class="field"><label for="startCash">Cash in the bank today</label><div class="inp"><input id="startCash" inputmode="decimal"><span class="u u-cur"></span></div></div>
+          <div class="field"><label for="payDelay">Clients pay the balance after<small>Typical days from invoice to payment</small></label><div class="inp"><input id="payDelay" inputmode="decimal"><span class="u">days</span></div></div>
+          <p class="note" id="o-peg"></p>
+        </div></div>
+    <div class="rescol bgrid">
+      <section class="panel">
+          <h2><span class="ico" data-i="list"></span>Monthly profit and loss</h2>
+          <table><tbody id="pnl"></tbody></table>
+          <div class="where" id="where" aria-label="Where each unit of revenue goes"></div>
+          <div class="legend" id="whereLeg"></div>
+        </section>
+      <section class="panel">
+          <h2><span class="ico" data-i="target"></span>Break-even</h2>
+          <p class="bebig"><span class="num" id="o-be"></span> a month covers your expenses and your pay target.</p>
+          <p class="note" style="margin-top:0">On its own, that equals any one of these each month:</p>
+          <div class="bechips" id="beList"></div>
+        </section>
+      <section class="panel">
+          <h2><span class="ico" data-i="clock"></span>Capacity</h2>
+          <div class="capbar"><div class="capfill" id="capFill"></div><div class="cap100"></div></div>
+          <p class="note" id="capText"></p>
+        </section>
+      <section class="panel">
+          <h2><span class="ico" data-i="chart"></span>Cash over the next 12 months <span class="h2hint">(scenario)</span></h2>
+          <svg id="cashChart" viewBox="0 0 640 200" role="img" aria-label="Cash balance by month"></svg>
+          <p class="note" id="cashText"></p>
+        </section>
+    </div>
+  </div>
+</section>
+    
+<section class="view" id="view-settings" data-title="Settings" data-sub="Your data, backups and setup">
+  <div class="sgrid">
+    <div class="card">
+      <div class="card-h"><h3><span class="ni" data-i="shield"></span> Private by design</h3></div>
+      <p>No account and no sign-up. What you enter, including client and bank details, is saved in this browser's local storage on this device, and in any backup file you download. It is not sent to us or to any server.</p>
+      <p class="muted">Fonts and code are served from this site, with no third-party trackers. Anyone using this browser profile can see the saved data: erase it on shared computers.</p>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3><span class="ni" data-i="file"></span> Backup</h3></div>
+      <p class="muted">Save everything (rate, expenses, jobs, quote details, logo) to one file, then load it on any device.</p>
+      <div class="btnrow"><button type="button" id="bkSave"><span class="ni" data-i="sheet"></span>Download backup</button><label class="filebtn big" for="bkLoad"><span class="ni" data-i="copy"></span>Load backup</label><input type="file" id="bkLoad" accept="application/json,.json" hidden></div>
+    </div>
+    <div class="card about">
+      <div class="card-h"><h3><span class="ni" data-i="bulb"></span> How the price is worked out</h3><span class="ver" id="appVer"></span></div>
+      <ol class="method">
+        <li><b>Cost floor:</b> your time (rate × hours) + a share of business expenses + job costs + unpaid sales time, plus contingency. Profit margin is then taken as a share of the final price.</li>
+        <li><b>Market check:</b> the price is capped at the top of the competitor range you enter.</li>
+        <li><b>Value check:</b> your share of the client's yearly gain sets the target inside that range.</li>
+        <li><b>Result:</b> the higher of the cost floor and the value target, so a quote never goes below cost.</li>
+      </ol>
+      <p class="muted small">Example ranges and costs are illustrations, not market data. Replace them with your own quotes. This is a planning tool, not financial, legal or tax advice.</p>
+      <p class="small" id="appContact"></p>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3><span class="ni" data-i="reset"></span> Start again</h3></div>
+      <p class="muted">Run the 4-step setup again, or wipe everything and start from zero.</p>
+      <div class="btnrow"><button type="button" class="ghost" id="wizAgain">Run setup again</button><button type="button" class="ghost danger" id="wipe">Erase all data</button></div>
+    </div>
+  </div>
+</section>
+  </main>
+  <nav class="bnav" aria-label="Main"><button type="button" class="navbtn" data-view="home" aria-label="Overview"><span class="ni" data-i="grid"></span><span>Overview</span></button><button type="button" class="navbtn" data-view="price" aria-label="Price a job"><span class="ni" data-i="tag"></span><span>Price</span></button><button type="button" class="navbtn" data-view="quote" aria-label="Quote"><span class="ni" data-i="file"></span><span>Quote</span></button><button type="button" class="navbtn" data-view="business" aria-label="Business"><span class="ni" data-i="chart"></span><span>Business</span></button><button type="button" class="navbtn" data-view="settings" aria-label="Settings"><span class="ni" data-i="gear"></span><span>Settings</span></button></nav>
+</div>
+
+<div class="wiz" id="wiz" hidden role="dialog" aria-modal="true" aria-labelledby="wizTitle">
+  <div class="wiz-card">
+    <div class="wiz-top"><div class="logo sm" data-mark></div><div class="wiz-dots" id="wizDots"></div><button type="button" class="ghost linkbtn" id="wizSkip">Skip</button></div>
+    <div class="wiz-step" data-step="0">
+      <h2 id="wizTitle">Price your work in 1 minute</h2>
+      <p class="muted">No sign-up. Your numbers stay in this browser.</p>
+      <h4>What do you mainly sell?</h4>
+      <div class="wiz-jobs" id="wizJobs"></div>
+      <h4>Your currency</h4>
+      <div class="wiz-cur" id="wizCur"></div>
+    </div>
+    <div class="wiz-step" data-step="1" hidden>
+      <h2>Your hourly rate</h2>
+      <p class="muted">What one hour of your time costs, before profit. You can change it later.</p>
+      <div class="wiz-big"><div class="inp"><input id="wizRate" inputmode="decimal" aria-label="Hourly rate"><span class="u"><span class="u-cur"></span> / hour</span></div></div>
+      <div class="chips wide" id="wizRateChips"><button type="button" data-v="25">25</button><button type="button" data-v="44">44</button><button type="button" data-v="62">62</button><button type="button" data-v="80">80</button></div>
+      <h4>Hours you can bill per day</h4>
+      <div class="chips wide" id="wizHrs"><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button><button type="button" data-v="8">8</button></div>
+      <p class="muted small">Most freelancers bill 5 to 6 hours of an 8-hour day.</p>
+    </div>
+    <div class="wiz-step" data-step="2" hidden>
+      <h2>Your running costs</h2>
+      <p class="muted">Pick the closest. You can edit every line later.</p>
+      <div class="wiz-opts" id="wizCosts"></div>
+    </div>
+    <div class="wiz-step" data-step="3" hidden>
+      <h2>Your price is ready</h2>
+      <div class="hero wiz-hero"><div class="hero-top"><span class="hero-k" id="wz-job"></span></div><div class="hero-v" id="wz-price"></div><div class="hero-sub" id="wz-sub"></div></div>
+      <p class="muted">Next: add your business and client details to download a professional quote, or open the dashboard.</p>
+    </div>
+    <div class="wiz-foot"><button type="button" class="ghost" id="wizBack">Back</button><button type="button" id="wizNext">Next</button></div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  layers: '<path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+  bars: '<path d="M3 21h18"/><path d="M6 17v-6M12 17V5M18 17v-9"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="m7 22-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
+  chart: '<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+  pkg: '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  cart: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11L21 7H6"/>',
+  phone: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+  flow: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><path d="M10 6.5h4a3 3 0 0 1 3 3V14"/>',
+  pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  megaphone: '<path d="M3 11v3a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14"/>',
+  shield: '<path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  wrench: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-2.5z"/>',
+  bulb: '<path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V16h8v-1.3A7 7 0 0 0 12 2z"/>',
+  bookmark: '<path d="M6 3h12v18l-6-4-6 4z"/>',
+  file: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  reset: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
+  sheet: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/>',
+  wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
+};
+const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
+const APP = { version: "2.0", updated: "24 November 2026", contact: "" };
+const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
+const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
+const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
+document.querySelectorAll("[data-i]").forEach(el => el.innerHTML = svg(el.dataset.i));
+document.querySelectorAll("[data-mark]").forEach(el => el.innerHTML = MARK_SVG);
+const BASES = {
+  project: { label: "Per project", hint: "One fixed price for a defined scope", unit: "project", round: 50,
+    qtyLabel: "Days of work<small>Your estimate to deliver the scope</small>", qtyUnit: "days",
+    valueLabel: "Yearly value of the result<small>Hours saved, revenue gained, risk avoided</small>" },
+  day: { label: "Per day", hint: "Client pays a day rate for days booked", unit: "day", round: 5,
+    qtyLabel: "Days booked<small>Estimate for this client</small>", qtyUnit: "days",
+    valueLabel: "Value of the whole job<small>What the result is worth to the client</small>" },
+  hour: { label: "Per hour", hint: "Small, open-ended or support jobs", unit: "hour", round: 1,
+    qtyLabel: "Hours booked<small>Estimate for this client</small>", qtyUnit: "hours",
+    valueLabel: "Value of the whole job<small>What the result is worth to the client</small>" },
+  month: { label: "Monthly retainer", hint: "Recurring fee for ongoing work", unit: "month", round: 25,
+    qtyLabel: "Working days per month<small>Time this client takes each month</small>", qtyUnit: "days",
+    valueLabel: "Monthly value to the client<small>Revenue or savings the work brings each month</small>" }
+};
+const GENERIC_PKGS = [["Core deliverable only", "1 revision round", "Email support"], ["Full scope as quoted", "2 revision rounds", "Handover session"], ["Everything in Standard", "Priority delivery", "3 months support"]];
+const JOBS = [
+  { id: "website", name: "Website", desc: "Company site, landing page or online store", basis: "project", qty: 6,
+    lines: [["Domain + hosting (1 year)", 1, 60], ["Theme, plugins or templates", 1, 80], ["Stock images", 1, 40]],
+    mkt: [800, 2500], cValue: 15000,
+    pkgs: [["Up to 5 pages", "Contact form + WhatsApp button", "1 revision round"], ["Up to 10 pages, two languages", "Basic SEO (search engine optimisation) setup", "2 revision rounds, 1 month support"], ["Everything in Standard", "Online store, blog or booking", "3 months support"]] },
+  { id: "app", name: "App or software", desc: "Mobile app, web app, system or automation", basis: "project", qty: 20,
+    lines: [["Hosting and database (1 year)", 1, 200], ["App store accounts", 1, 48], ["APIs and tool subscriptions", 1, 150]],
+    mkt: [4000, 15000], cValue: 50000,
+    pkgs: [["Core features only", "One platform", "1 month bug fixing"], ["Full scope as agreed", "Admin dashboard", "2 months bug fixing"], ["Everything in Standard", "Integrations + analytics", "6 months support"]] },
+  { id: "design", name: "Design and branding", desc: "Logo, brand kit, UI (user interface) screens", basis: "project", qty: 7,
+    lines: [["Font licences", 1, 60], ["Mockups and assets", 1, 20]],
+    mkt: [500, 2500], cValue: 15000,
+    pkgs: [["Logo + colour palette", "2 concepts", "1 revision round"], ["Full brand kit + guidelines", "Social media templates", "3 concepts"], ["Everything in Standard", "Website or app screen design", "Print-ready files"]] },
+  { id: "marketing", name: "Digital marketing", desc: "Social media, ads and content, monthly", basis: "month", qty: 4,
+    lines: [["Scheduling, ad and design tools", 1, 55], ["Photo and content production", 1, 60]],
+    mkt: [500, 1800], cValue: 10000,
+    pkgs: [["2 platforms, 12 posts a month", "Monthly report", "Email support"], ["3 platforms, 20 posts a month", "Ad management (budget separate)", "Bi-weekly check-in"], ["Everything in Standard", "Video content + campaigns", "Quarterly strategy session"]] },
+  { id: "support", name: "Support and maintenance", desc: "IT support, fixes and updates, hourly", basis: "hour", qty: 20,
+    lines: [["Transport (visits)", 6, 5]],
+    mkt: [15, 40], cValue: 6000, pkgs: GENERIC_PKGS },
+  { id: "consult", name: "Consulting", desc: "Strategy, audits and workshops, daily", basis: "day", qty: 5,
+    lines: [["Transport (visits)", 5, 5]],
+    mkt: [150, 400], cValue: 15000, pkgs: GENERIC_PKGS }
+];
+const BASE_DEFAULTS = {
+  cur: "BHD", basis: "project", income: 24000, billDays: 140, overhead: 2900, hoursPerDay: 8, months: 6,
+  cont: 15, margin: 20, share: 15, vat: 10, deposit: 50,
+  qty: { project: 8, day: 8, hour: 40, month: 6 },
+  mkt: { project: [2000, 4000], day: [200, 450], hour: [25, 60], month: [1500, 3500] },
+  cValue: { project: 20000, day: 20000, hour: 15000, month: 15000 },
+  lines: [], pkgs: GENERIC_PKGS, job: "website", myJobs: []
+};
+function jobInto(state, j) {
+  state.job = j.id; state.basis = j.basis;
+  state.qty[j.basis] = j.qty;
+  state.mkt[j.basis] = j.mkt.slice();
+  state.cValue[j.basis] = j.cValue;
+  state.lines = j.lines.map(l => Array.isArray(l) ? { name: l[0], qty: l[1], unit: l[2] } : Object.assign({}, l));
+  state.pkgs = JSON.parse(JSON.stringify(j.pkgs || GENERIC_PKGS));
+  if (j.hoursPerDay) state.hoursPerDay = j.hoursPerDay;
+  if (j.months) state.months = j.months;
+}
+const DEFAULTS = JSON.parse(JSON.stringify(BASE_DEFAULTS));
+jobInto(DEFAULTS, JOBS[0]);
+DEFAULTS.rateMode = "hour"; DEFAULTS.hourRate = 62;
+Object.assign(DEFAULTS, {
+  tab: "home", schedule: "50/50", deposit: 50, changeRate: 0, lateFee: 2, careOffer: 0,
+  taxReserve: 0, propHours: 4, winRate: 35, startCash: 5000, payDelay: 30,
+  mix: { website: 1, app: 0, design: 0, marketing: 0, support: 10, consult: 0 },
+  expenses: [
+    { name: "Software and AI tools", amt: 60, freq: "m" }, { name: "Phone and internet", amt: 25, freq: "m" },
+    { name: "Transport and fuel", amt: 40, freq: "m" }, { name: "Marketing and ads", amt: 30, freq: "m" },
+    { name: "Accounting and bank fees", amt: 300, freq: "y" }, { name: "CR licence and renewals", amt: 150, freq: "y" },
+    { name: "Insurance", amt: 200, freq: "y" }, { name: "Laptop and equipment (spread)", amt: 400, freq: "y" }
+  ]
+});
+Object.assign(DEFAULTS, { onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
+Object.assign(DEFAULTS, { logo: "", taxName: "VAT", validDays: 14, bizName: "", client: "", qTitle: "", notes: "" });
+const KEY = "pricing-model-v6";
+const TXT = ["taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
+const SIMPLE = ["vat", "validDays", "hourRate", "income", "billDays", "changeRate", "lateFee", "careOffer", "taxReserve", "propHours", "winRate", "startCash", "payDelay", "hoursPerDay", "months", "cont", "margin", "share"];
+const $ = id => document.getElementById(id);
+const clone = o => JSON.parse(JSON.stringify(o));
+let S;
+try {
+  const saved = localStorage.getItem(KEY);
+  S = Object.assign(clone(DEFAULTS), JSON.parse(saved || "{}"));
+  if (!saved) { const old = JSON.parse(localStorage.getItem("pricing-model-v5") || "{}");
+    ["myJobs", "logo", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "hourRate", "rateMode", "hoursPerDay", "billDays"].forEach(k => { if (old[k] !== undefined) S[k] = old[k]; }); }
+} catch (e) { S = clone(DEFAULTS); }
+
+const num = v => { const x = parseFloat(String(v).replace(/,/g, "")); return isFinite(x) ? x : 0; };
+const fmt = v => S.cur + " " + Math.round(v).toLocaleString("en-US");
+const fmtIn = v => (Math.round(v * 100) / 100).toLocaleString("en-US");
+const roundUp = (v, step) => step > 0 ? Math.ceil(v / step) * step : v;
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+/* basis buttons */
+const nav = $("basis");
+Object.entries(BASES).forEach(([k, b]) => {
+  const bt = document.createElement("button");
+  bt.type = "button"; bt.dataset.b = k;
+  bt.innerHTML = '<i class="bi">' + svg(BASIS_ICON[k]) + "</i><strong></strong><span></span>";
+  bt.querySelector("strong").textContent = b.label;
+  bt.querySelector("span").textContent = b.hint;
+  bt.addEventListener("click", () => { S.basis = k; fillInputs(); render(); });
+  nav.appendChild(bt);
+});
+
+/* inputs */
+function bindNum(id, get, set) {
+  const el = $(id);
+  el.addEventListener("input", () => { set(num(el.value)); render(); });
+  el.addEventListener("blur", () => { el.value = fmtIn(get()); });
+}
+SIMPLE.forEach(k => bindNum(k, () => S[k], v => S[k] = v));
+bindNum("qty", () => S.qty[S.basis], v => S.qty[S.basis] = v);
+bindNum("mLow", () => S.mkt[S.basis][0], v => S.mkt[S.basis][0] = v);
+bindNum("mHigh", () => S.mkt[S.basis][1], v => S.mkt[S.basis][1] = v);
+bindNum("cValue", () => S.cValue[S.basis], v => S.cValue[S.basis] = v);
+/* currency picker with flags */
+const serr = (bg, n) => { let d = "M0 0h8"; const h = 20 / n; for (let i = 0; i < n; i++) d += "l3 " + (h / 2) + "-3 " + (h / 2); return '<rect width="30" height="20" fill="' + bg + '"/><path d="' + d + 'H0z" fill="#fff"/>'; };
+const usFlag = () => { let o = '<rect width="30" height="20" fill="#fff"/>'; for (let i = 0; i < 13; i += 2) o += '<rect y="' + (i * 20 / 13) + '" width="30" height="' + (20 / 13) + '" fill="#b22234"/>'; o += '<rect width="12" height="' + (7 * 20 / 13) + '" fill="#3c3b6e"/>'; for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) o += '<circle cx="' + (1.4 + c * 2.3) + '" cy="' + (1.4 + r * 2.6) + '" r=".5" fill="#fff"/>'; return o; };
+const euFlag = () => { let o = '<rect width="30" height="20" fill="#003399"/>'; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; o += '<circle cx="' + (15 + 6 * Math.sin(a)).toFixed(2) + '" cy="' + (10 - 6 * Math.cos(a)).toFixed(2) + '" r=".9" fill="#ffcc00"/>'; } return o; };
+const FLAGS = {
+  BHD: serr("#ce1126", 5),
+  QAR: serr("#8a1538", 9),
+  SAR: '<rect width="30" height="20" fill="#006c35"/><path d="M9 7.5h12M10.5 9.8h9" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><path d="M9 13.2h11l1.5-1" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round"/>',
+  AED: '<rect width="30" height="20" fill="#fff"/><rect width="30" height="6.67" fill="#00732f"/><rect y="13.33" width="30" height="6.67" fill="#000"/><rect width="8" height="20" fill="#ff0000"/>',
+  KWD: '<rect width="30" height="20" fill="#fff"/><rect width="30" height="6.67" fill="#007a3d"/><rect y="13.33" width="30" height="6.67" fill="#ce1126"/><path d="M0 0l8 6.67v6.67L0 20z" fill="#000"/>',
+  OMR: '<rect width="30" height="20" fill="#db161b"/><rect x="8" width="22" height="6.67" fill="#fff"/><rect x="8" y="13.33" width="22" height="6.67" fill="#008000"/>',
+  USD: usFlag(),
+  GBP: '<rect width="30" height="20" fill="#012169"/><path d="M0 0l30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0l30 20M30 0L0 20" stroke="#c8102e" stroke-width="1.5"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#c8102e" stroke-width="3.4"/>',
+  EUR: euFlag()
+};
+const CURRENCIES = [
+  ["GCC", [["BHD", "Bahraini Dinar"], ["SAR", "Saudi Riyal"], ["AED", "UAE Dirham"], ["KWD", "Kuwaiti Dinar"], ["QAR", "Qatari Riyal"], ["OMR", "Omani Rial"]]],
+  ["International", [["USD", "US Dollar"], ["GBP", "British Pound"], ["EUR", "Euro"]]]
+];
+const flagSVG = c => '<svg viewBox="0 0 30 20" aria-hidden="true">' + (FLAGS[c] || '<rect width="30" height="20" fill="#93a1b0"/><circle cx="15" cy="10" r="5" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M10 10h10M15 5c2 2.8 2 7.2 0 10M15 5c-2 2.8-2 7.2 0 10" stroke="#fff" stroke-width="1" fill="none"/>') + "</svg>";
+(function buildCur() {
+  const box = $("curList");
+  CURRENCIES.forEach(([g, list]) => {
+    const h = document.createElement("div"); h.className = "curgroup"; h.textContent = g; box.appendChild(h);
+    list.forEach(([c, n]) => {
+      const o = document.createElement("button"); o.type = "button"; o.className = "curopt"; o.setAttribute("role", "option"); o.dataset.c = c;
+      o.innerHTML = '<span class="flag">' + flagSVG(c) + "</span><b></b><span></span>";
+      o.querySelector("b").textContent = c; o.querySelector("span:last-child").textContent = n;
+      o.addEventListener("click", () => { S.cur = c; closeMenus(); render(); });
+      box.appendChild(o);
+    });
+  });
+})();
+function closeMenus() { ["curMenu", "pdfPop"].forEach(id => $(id).hidden = true); $("curBtn").setAttribute("aria-expanded", "false"); $("pdf").setAttribute("aria-expanded", "false"); }
+$("curBtn").addEventListener("click", e => { e.stopPropagation(); const open = $("curMenu").hidden; closeMenus(); $("curMenu").hidden = !open; $("curBtn").setAttribute("aria-expanded", open); });
+$("curOther").addEventListener("keydown", e => { if (e.key === "Enter") { const v = $("curOther").value.toUpperCase().replace(/[^A-Z]/g, ""); if (v) { S.cur = v; $("curOther").value = ""; closeMenus(); render(); } } });
+$("curOther").addEventListener("click", e => e.stopPropagation());
+document.addEventListener("click", e => { if (!e.target.closest(".curpick") && !e.target.closest(".pdfwrap") && !e.target.closest(".mbar")) closeMenus(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenus(); });
+function paintCur() {
+  $("curFlag").innerHTML = flagSVG(S.cur); $("curCode").textContent = S.cur;
+  document.querySelectorAll(".curopt").forEach(o => o.setAttribute("aria-selected", o.dataset.c === S.cur));
+}
+
+/* logo */
+function paintLogo() {
+  const has = !!S.logo;
+  $("logoPrev").hidden = !has; $("logoDel").hidden = !has; if (has) $("logoPrev").src = S.logo;
+  $("logoLbl").textContent = has ? "Change" : "Upload logo";
+  const hl = document.querySelector(".side .logo");
+  if (has) hl.innerHTML = '<img alt="">', hl.querySelector("img").src = S.logo, hl.style.background = "#fff";
+  else { hl.innerHTML = MARK_SVG; hl.style.background = ""; }
+}
+$("logoFile").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 480, k = Math.min(1, max / Math.max(img.width || max, img.height || max));
+      const c = document.createElement("canvas"); c.width = Math.round((img.width || max) * k); c.height = Math.round((img.height || max) * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      S.logo = c.toDataURL("image/png"); save(); paintLogo(); if (S.tab === "quote") paintPreview();
+    };
+    img.onerror = () => { $("toast").textContent = "That image could not be read. Try a PNG or JPG."; };
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(f); e.target.value = "";
+});
+$("logoDel").addEventListener("click", () => { S.logo = ""; save(); paintLogo(); if (S.tab === "quote") paintPreview(); });
+$("rateSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.rateMode = b.dataset.v; render(); }));
+$("rateChips").querySelectorAll("button").forEach(b => b.addEventListener("click", e => { e.preventDefault(); S.hourRate = num(b.dataset.v); $("hourRate").value = fmtIn(S.hourRate); render(); }));
+$("taxChips").querySelectorAll("button").forEach(b => b.addEventListener("click", e => { e.preventDefault(); S.vat = num(b.dataset.v); $("vat").value = fmtIn(S.vat); render(); }));
+TXT.forEach(k => $(k).addEventListener("input", () => { S[k] = $(k).value; save(); if (k === "taxName") render(); else if (S.tab === "quote") paintPreview(); }));
+$("pkgSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.showPkgs = b.dataset.v; render(); }));
+
+function drawLines() {
+  const box = $("lines"); box.innerHTML = "";
+  S.lines.forEach((ln, i) => {
+    const row = document.createElement("div"); row.className = "line";
+    row.innerHTML = '<input class="name" aria-label="Cost name"><div class="inp"><input aria-label="Quantity" inputmode="decimal"></div><div class="inp"><input aria-label="Unit cost" inputmode="decimal"></div><button class="x" type="button" aria-label="Remove cost line">×</button>';
+    const [nameEl] = row.getElementsByClassName("name");
+    const ins = row.querySelectorAll(".inp input");
+    nameEl.value = ln.name; ins[0].value = fmtIn(ln.qty); ins[1].value = fmtIn(ln.unit);
+    nameEl.id = "ln-name-" + i; ins[0].id = "ln-qty-" + i; ins[1].id = "ln-unit-" + i;
+    nameEl.addEventListener("input", () => { ln.name = nameEl.value; save(); });
+    ins[0].addEventListener("input", () => { ln.qty = num(ins[0].value); render(); });
+    ins[1].addEventListener("input", () => { ln.unit = num(ins[1].value); render(); });
+    ins[0].addEventListener("blur", () => ins[0].value = fmtIn(ln.qty));
+    ins[1].addEventListener("blur", () => ins[1].value = fmtIn(ln.unit));
+    row.querySelector(".x").addEventListener("click", () => { S.lines.splice(i, 1); drawLines(); render(); });
+    box.appendChild(row);
+  });
+}
+document.querySelectorAll("[data-cost]").forEach(b => b.addEventListener("click", () => {
+  const r = calc(), k = b.dataset.cost;
+  const L = { fees: ["Payment and card fees (about 3%)", 1, Math.round(r.quote * 0.03)], sub: ["Subcontractor or freelancer", 1, 0], rework: ["Revisions buffer (extra hours)", 4, Math.round(r.dayRate / Math.max(1, S.hoursPerDay))], travel: ["Client visits and parking", 3, 5] }[k];
+  S.lines.push({ name: L[0], qty: L[1], unit: L[2] }); drawLines(); render();
+  const el = $("ln-unit-" + (S.lines.length - 1)); if (el) { el.focus(); el.select(); }
+}));
+$("addLine").addEventListener("click", () => {
+  S.lines.push({ name: "New cost", qty: 1, unit: 0 }); drawLines(); render();
+  const el = $("ln-name-" + (S.lines.length - 1)); if (el) { el.focus(); el.select(); }
+});
+
+function fillInputs() {
+  const b = BASES[S.basis];
+  SIMPLE.forEach(k => $(k).value = fmtIn(S[k]));
+  $("qty").value = fmtIn(S.qty[S.basis]);
+  $("mLow").value = fmtIn(S.mkt[S.basis][0]);
+  $("mHigh").value = fmtIn(S.mkt[S.basis][1]);
+  $("cValue").value = fmtIn(S.cValue[S.basis]);
+  $("qtyLabel").innerHTML = b.qtyLabel;
+  $("qtyUnit").textContent = b.qtyUnit;
+  $("valueLabel").innerHTML = b.valueLabel;
+  paintCur(); paintLogo();
+  TXT.forEach(k => $(k).value = S[k] || "");
+  $("schedule").value = S.schedule;
+  drawExps();
+  drawLines();
+}
+
+/* model */
+function calc(st = S) {
+  const b = BASES[st.basis];
+  const billDays = Math.max(1, st.billDays);
+  const hpd = Math.max(1, st.hoursPerDay);
+  const dayPay = st.rateMode === "hour" ? st.hourRate * hpd : st.income / billDays;
+  const dayOver = yearlyExp(st) / billDays, dayRate = dayPay + dayOver;
+  const q = Math.max(0, st.qty[st.basis]);
+  const days = st.basis === "hour" ? q / hpd : q;
+  const units = (st.basis === "day" || st.basis === "hour") ? q : 1;
+  const labour = dayRate * days;
+  const direct = st.lines.reduce((s, l) => s + l.qty * l.unit, 0);
+  const salesHours = st.basis === "project" ? (st.propHours || 0) / Math.max(1, st.winRate || 100) * 100 : 0;
+  const salesCost = salesHours * dayRate / hpd;
+  const subtotal = labour + direct + salesCost;
+  const contAmt = subtotal * st.cont / 100;
+  const mFrac = Math.min(Math.max(st.margin, 0), 90) / 100;
+  const floor = (subtotal + contAmt) / (1 - mFrac);
+  const marginAmt = floor - subtotal - contAmt;
+  let [mLow, mHigh] = st.mkt[st.basis]; if (mHigh < mLow) [mLow, mHigh] = [mHigh, mLow];
+  const valuePrice = st.cValue[st.basis] * st.share / 100;
+  const target = valuePrice > 0 ? valuePrice : (mLow + mHigh) / 2 * units;
+  const capped = mHigh > 0 ? Math.min(target, mHigh * units) : target;
+  const engagement = Math.max(floor, capped);
+  const u = Math.max(units, 1e-9);
+  const unitPrice = roundUp(engagement / u, b.round);
+  const quote = unitPrice * units;
+  const eff = (days + salesHours / hpd) > 0 ? (quote - direct) / (days + salesHours / hpd) : 0;
+  const total = st.basis === "month" ? quote * Math.max(1, st.months) : quote;
+  return { b, dayPay, dayOver, dayRate, q, days, units, labour, direct, contAmt, marginAmt, floor, mLow, mHigh,
+    valuePrice, quote, unitPrice, eff, total, salesHours, salesCost, floorUnit: floor / u, valueUnit: valuePrice / u };
+}
+
+function pkgCard(name, price, per, items, mid, flag, editTier) {
+  const d = document.createElement("div"); d.className = "pkg" + (mid ? " mid" : "");
+  d.innerHTML = '<div class="name"><span></span></div><div class="price"><span></span> <span class="per"></span></div><ul></ul>';
+  d.querySelector(".name span").textContent = name;
+  if (mid) { const t = document.createElement("span"); t.className = "tag"; t.textContent = "Most picked"; d.querySelector(".name").appendChild(t); }
+  d.querySelector(".price span").textContent = fmt(price);
+  d.querySelector(".price .per").textContent = per;
+  items.forEach((i, idx) => {
+    const li = document.createElement("li"); li.textContent = i;
+    if (editTier !== undefined) {
+      li.contentEditable = "true"; li.spellcheck = false; li.title = "Click to edit";
+      li.addEventListener("input", () => { S.pkgs[editTier][idx] = li.textContent; save(); });
+      li.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); li.blur(); } });
+    }
+    d.querySelector("ul").appendChild(li);
+  });
+  if (flag) { const f = document.createElement("div"); f.className = "pflag"; f.textContent = flag; d.appendChild(f); }
+  return d;
+}
+
+function render() {
+  const r = calc(), b = r.b, per = "/ " + b.unit;
+  nav.querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.b === S.basis));
+  document.querySelectorAll(".u-cur").forEach(e => e.textContent = S.cur);
+  paintCur();
+  document.querySelectorAll(".perU").forEach(e => e.textContent = "(per " + b.unit + ")");
+  document.querySelectorAll(".perU2").forEach(e => e.textContent = per);
+  $("taxChips").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", num(bt.dataset.v) === S.vat));
+  $("f-vat-k").textContent = "Client pays incl. " + (S.taxName || "tax");
+  document.querySelectorAll(".taxlbl").forEach(e => e.textContent = S.taxName || "Tax");
+  $("qNo").placeholder = autoQNo() + " (automatic)";
+  $("pkgSeg").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === (S.showPkgs || "all")));
+  $("hpdRow").hidden = S.basis !== "hour" && S.rateMode !== "hour";
+  $("hourRateRow").hidden = S.rateMode !== "hour";
+  $("incomeRow").hidden = S.rateMode === "hour";
+  $("rateSeg").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === S.rateMode));
+  $("rateChips").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", num(bt.dataset.v) === S.hourRate));
+  $("o-yearly").textContent = S.rateMode === "hour"
+    ? "At " + fmtIn(Math.max(1, S.billDays)) + " billable days, this pays you about " + fmt(r.dayPay * Math.max(1, S.billDays)) + " a year."
+    : "That is about " + fmt(r.dayPay / Math.max(1, S.hoursPerDay)) + " per billable hour.";
+  $("monthsRow").hidden = S.basis !== "month";
+  $("perLabel").textContent = S.basis === "month" ? "(per month)" : "";
+  $("bdLabel").textContent = S.basis === "month" ? "(one month)" : S.basis === "project" ? "(whole project)" : "(for " + fmtIn(r.q) + " " + b.qtyUnit + ")";
+
+  $("o-dayrate").textContent = fmt(r.dayRate) + (S.basis === "hour" ? "  (" + fmt(r.dayRate / Math.max(1, S.hoursPerDay)) + " / hour)" : "");
+  $("o-lines").textContent = fmt(r.direct);
+  $("o-over").textContent = fmt(yearlyExp(S)) + " / year";
+  const sch = parseSched(S.schedule), ssum = sch.reduce((a, x) => a + x, 0);
+  $("schedNote").textContent = Math.abs(ssum - 100) > 0.01 ? "Stages add up to " + ssum + "%, not 100%. Fix this before downloading the quote." : "";
+  $("schedNote").style.color = "var(--bad)";
+  $("schedChips").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === String(S.schedule).replace(/\s/g, "")));
+  $("t-quote").textContent = fmt(r.unitPrice);
+  $("t-floor").textContent = fmt(r.floorUnit);
+  $("t-value").textContent = r.valuePrice > 0 ? fmt(r.valueUnit) : "Not set";
+  $("t-eff").textContent = fmt(r.eff / Math.max(1, S.hoursPerDay));
+  $("t-effd").textContent = fmt(r.eff) + " / day";
+
+  $("f-total-k").textContent = S.basis === "month" ? "Contract total (" + fmtIn(Math.max(1, S.months)) + " months)" : S.basis === "project" ? "Project total" : "Estimated job total";
+  $("f-total").textContent = fmt(r.total);
+  $("f-vat").textContent = fmt(r.quote * (1 + S.vat / 100)) + (S.basis === "project" ? "" : " " + (S.basis === "month" ? "/ month" : "total"));
+  $("f-dep").textContent = fmt(r.quote * (1 + S.vat / 100) * S.deposit / 100) + " (" + S.deposit + "%)";
+  const disc = r.quote > 0 ? Math.max(0, (r.quote - r.floor) / r.quote * 100) : 0;
+  $("f-disc").textContent = disc.toFixed(0) + "%";
+
+  /* status */
+  const st = $("status"); st.className = "status";
+  let pill = "Healthy", text;
+  const mult = r.dayRate > 0 ? r.eff / r.dayRate : 0;
+  if (r.mHigh > 0 && r.floorUnit > r.mHigh) {
+    st.classList.add("bad"); pill = "Check";
+    text = "Your floor is above the highest competitor. Cut time or costs, or target clients who value this more.";
+  } else if (r.valuePrice > 0 && r.valuePrice < r.floor) {
+    st.classList.add("warn"); pill = "Thin";
+    text = "The client's value is below your cost floor, so the price is set at the floor. Expect push-back: show more value or reduce scope.";
+  } else if (r.mLow > 0 && r.unitPrice < r.mLow) {
+    st.classList.add("warn"); pill = "Low";
+    text = "Your price is below the cheapest competitor. Buyers may read that as lower quality. Consider moving into the market range.";
+  } else {
+    text = "Covers all costs and earns " + mult.toFixed(2) + "x your cost per day. You can discount up to " + disc.toFixed(0) + "% before you lose money.";
+  }
+  $("s-pill").textContent = pill; $("s-text").textContent = text;
+
+  /* band, in per-unit terms */
+  const vals = [r.floorUnit, r.unitPrice, r.mLow, r.mHigh, r.valueUnit].filter(v => v > 0);
+  const lo = Math.min(...vals) * 0.85, hi = Math.max(...vals) * 1.1;
+  const pos = v => ((v - lo) / (hi - lo)) * 100;
+  const band = $("band"); band.querySelectorAll(".mark").forEach(m => m.remove());
+  const mk = $("b-mkt");
+  if (r.mHigh > 0) { mk.style.display = ""; mk.style.left = pos(r.mLow) + "%"; mk.style.width = Math.max(0, pos(r.mHigh) - pos(r.mLow)) + "%"; }
+  else mk.style.display = "none";
+  const addMark = (v, label, color, below) => {
+    if (!(v > 0)) return;
+    const d = document.createElement("div"); d.className = "mark" + (below ? " below" : "");
+    d.style.left = Math.min(96, Math.max(4, pos(v))) + "%";
+    d.innerHTML = '<span class="lbl"></span><span class="val"></span><span class="stem"></span>';
+    d.querySelector(".lbl").textContent = label; d.querySelector(".val").textContent = fmt(v);
+    d.querySelector(".stem").style.background = color; band.appendChild(d);
+  };
+  addMark(r.floorUnit, "Floor", "var(--bad)", true);
+  if (Math.abs(r.valueUnit - r.floorUnit) > (hi - lo) * 0.12) addMark(r.valueUnit, "Value", "var(--brass)", true);
+  else addMark(r.valueUnit, "Value", "var(--brass)", false);
+  addMark(r.unitPrice, "Your price", "var(--accent)", false);
+
+  /* breakdown */
+  const dLabel = fmtIn(r.days) + " days";
+  const rows = [
+    ["Your pay", fmt(r.dayPay) + " × " + dLabel, r.dayPay * r.days],
+    ["Overhead share", fmt(r.dayOver) + " × " + dLabel, r.dayOver * r.days],
+    ...S.lines.map(l => [l.name || "Cost", fmtIn(l.qty) + " × " + fmt(l.unit), l.qty * l.unit]),
+    ...(r.salesCost > 0 ? [["Sales time", fmtIn(Math.round(r.salesHours * 10) / 10) + " h (" + S.propHours + " h per proposal, " + S.winRate + "% win rate)", r.salesCost]] : []),
+    ["Contingency", S.cont + "% of subtotal", r.contAmt],
+    ["Profit margin", S.margin + "% of the price", r.marginAmt]
+  ];
+  const tb = $("breakdown"); tb.innerHTML = "";
+  rows.forEach(([a, c2, c]) => {
+    const tr = document.createElement("tr"); tr.innerHTML = "<td></td><td></td><td class='r'></td>";
+    tr.children[0].textContent = a; tr.children[1].textContent = c2; tr.children[2].textContent = fmt(c); tb.appendChild(tr);
+  });
+  const tot = document.createElement("tr"); tot.className = "total";
+  tot.innerHTML = "<td>Cost floor</td><td></td><td class='r'></td>"; tot.children[2].textContent = fmt(r.floor); tb.appendChild(tot);
+  if (r.units > 1) {
+    const t2 = document.createElement("tr"); t2.innerHTML = "<td>Floor per " + b.unit + "</td><td></td><td class='r'></td>";
+    t2.children[2].textContent = fmt(r.floorUnit); tb.appendChild(t2);
+  }
+
+  /* packages or rate card */
+  const pk = $("pkgs"); pk.innerHTML = "";
+  const R = b.round, P = r.unitPrice;
+  if (S.basis === "project" || S.basis === "month") {
+    $("pkgTitle").innerHTML = '<span class="ico">' + svg("pkg") + "</span>Three packages to send";
+    const fB = r.floorUnit * 0.6, fP = r.floorUnit * 1.5;
+    const basic = roundUp(Math.max(P * 0.65, fB), R), prem = roundUp(Math.max(P * 1.6, fP), R);
+    const T = S.pkgs || GENERIC_PKGS;
+    pk.appendChild(pkgCard("Basic", basic, per, T[0], false, "", 0)); pk.lastChild.dataset.floor = fB;
+    pk.appendChild(pkgCard("Standard", P, per, T[1], true, "", 1)); pk.lastChild.dataset.floor = r.floorUnit;
+    pk.appendChild(pkgCard("Premium", prem, per, T[2], false, "", 2)); pk.lastChild.dataset.floor = fP;
+    $("pkgNote").textContent = "Click any scope line to edit it. Basic assumes 60% of the work and Premium 150%, and neither can go below the cost floor for that scope.";
+  } else {
+    $("pkgTitle").innerHTML = '<span class="ico">' + svg("pkg") + "</span>Rate card to send";
+    if (S.basis === "day") {
+      pk.appendChild(pkgCard("Half day", roundUp(Math.max(P * 0.6, r.floorUnit * 0.5), R), "/ half day", ["Up to 4 hours", "Short on-site visits"], false)); pk.lastChild.dataset.floor = r.floorUnit * 0.5;
+      pk.appendChild(pkgCard("Standard day", P, "/ day", ["Full working day", "Booked in advance"], true)); pk.lastChild.dataset.floor = r.floorUnit;
+      pk.appendChild(pkgCard("Rush or weekend", roundUp(P * 1.3, R), "/ day", ["Under 48 hours notice", "Fridays and holidays"], false)); pk.lastChild.dataset.floor = r.floorUnit;
+      $("pkgNote").textContent = "Half day is 60% of the day rate (you lose the rest of the day). Rush is +30%. Offer a 5 to 10% discount for blocks of 10+ days.";
+    } else {
+      const minH = 2;
+      pk.appendChild(pkgCard("Minimum call-out", P * minH, "/ visit", ["Covers first " + minH + " hours", "Stops tiny jobs eating your day"], false)); pk.lastChild.dataset.floor = r.floorUnit * minH;
+      pk.appendChild(pkgCard("Standard hour", P, "/ hour", ["Billed in 30 minute blocks", "Tracked and reported"], true)); pk.lastChild.dataset.floor = r.floorUnit;
+      pk.appendChild(pkgCard("Rush hour", roundUp(P * 1.3, R), "/ hour", ["Same-day requests", "Out of hours"], false)); pk.lastChild.dataset.floor = r.floorUnit;
+      $("pkgNote").textContent = "Always set a minimum charge for hourly work. Consider prepaid hour bundles (for example 10 hours) to get paid upfront.";
+    }
+  }
+  const B = renderBusiness();
+  renderHome(r, B);
+  if (S.tab === "quote") paintPreview();
+  paintMbar();
+  save();
+  return r;
+}
+function paintMbar() {
+  if (!$("mb-k")) return;
+  const biz = S.tab === "business";
+  const st = biz ? document.querySelector("#b-status .status") : $("status");
+  $("mb-k").textContent = biz ? "Available to pay you / month" : "Your price / " + BASES[S.basis].unit;
+  $("mb-v").textContent = biz ? $("b-own").textContent : $("t-quote").textContent;
+  const lvl = st && st.classList.contains("bad") ? "var(--bad)" : st && st.classList.contains("warn") ? "var(--warn)" : "var(--good)";
+  $("mb-dot").style.background = lvl;
+}
+
+/* jobs */
+function allJobs() { return JOBS.concat(S.myJobs || []); }
+function drawJobs() {
+  const box = $("jobs"); box.innerHTML = "";
+  allJobs().forEach(j => {
+    const bt = document.createElement("button");
+    bt.type = "button"; bt.className = "job" + (j.mine ? " mine" : "");
+    bt.setAttribute("aria-pressed", S.job === j.id);
+    bt.innerHTML = '<i class="ji">' + svg(j.mine ? "bookmark" : (JOB_ICON[j.id] || "tag")) + '</i><span class="b"></span><strong></strong><span class="d"></span>';
+    bt.querySelector(".b").textContent = (j.mine ? "My job · " : "") + BASES[j.basis].label;
+    bt.querySelector("strong").textContent = j.name;
+    bt.querySelector(".d").textContent = j.desc || "";
+    bt.addEventListener("click", () => { jobInto(S, j); drawJobs(); fillInputs(); render(); });
+    if (j.mine) {
+      const del = document.createElement("span"); del.className = "del"; del.textContent = "×";
+      del.setAttribute("role", "button"); del.setAttribute("aria-label", "Delete " + j.name); del.tabIndex = 0;
+      const kill = e => { e.stopPropagation(); S.myJobs = S.myJobs.filter(x => x.id !== j.id); if (S.job === j.id) S.job = ""; drawJobs(); save(); };
+      del.addEventListener("click", kill);
+      del.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") kill(e); });
+      bt.appendChild(del);
+    }
+    box.appendChild(bt);
+  });
+}
+$("saveJob").addEventListener("click", () => {
+  const name = $("jobName").value.trim();
+  if (!name) { $("jobName").focus(); $("jobName").placeholder = "Type a name first, for example: Clinic website"; return; }
+  const j = { id: "my-" + Date.now(), mine: true, name, desc: "Saved " + new Date().toLocaleDateString("en-GB"), basis: S.basis,
+    qty: S.qty[S.basis], lines: clone(S.lines), mkt: S.mkt[S.basis].slice(), cValue: S.cValue[S.basis], pkgs: clone(S.pkgs),
+    hoursPerDay: S.hoursPerDay, months: S.months };
+  S.myJobs = (S.myJobs || []).concat(j); S.job = j.id; $("jobName").value = "";
+  drawJobs(); save();
+});
+
+$("reset").addEventListener("click", () => {
+  const j = allJobs().find(x => x.id === S.job) || JOBS[0];
+  const keep = {}; ["myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
+  S = clone(DEFAULTS); Object.assign(S, keep); jobInto(S, j);
+  drawJobs(); fillInputs(); render();
+});
+$("copy").addEventListener("click", async () => {
+  const r = calc(), b = r.b;
+  const cards = [...$("pkgs").querySelectorAll(".pkg")].map(p => p.querySelector(".name span").textContent + ": " + p.querySelector(".price").textContent.trim());
+  const txt = [
+    "Pricing (" + b.label + ")", ...cards, "",
+    S.vat > 0 ? "Prices exclude " + (S.taxName || "tax") + " (" + S.vat + "%)." : "",
+    "Payment schedule: " + parseSched(S.schedule).join("/") + "%.", "",
+    "Internal: floor " + fmt(r.floorUnit) + " per " + b.unit + ", market " + fmt(r.mLow) + " to " + fmt(r.mHigh) + ", max discount " + Math.max(0, Math.round((r.quote - r.floor) / Math.max(r.quote, 1) * 100)) + "%."
+  ].filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n");
+  try { await navigator.clipboard.writeText(txt); $("toast").textContent = "Copied"; }
+  catch (e) { $("toast").textContent = "Copy blocked by browser"; }
+  setTimeout(() => $("toast").textContent = "", 2000);
+});
+
+
+
+/* ---------- Business plan ---------- */
+function yearlyExp(st) { return (st.expenses || []).reduce((s, e) => s + (e.freq === "y" ? e.amt : e.amt * 12), 0); }
+function parseSched(t) {
+  const a = String(t || "").split(/[^\d.]+/).map(Number).filter(x => x > 0);
+  return a.length ? a : [100];
+}
+function changeRateFor(r) {
+  if (S.changeRate > 0) return S.changeRate;
+  const hpd = Math.max(1, S.hoursPerDay);
+  return roundUp(r.dayRate / hpd * (1 + S.cont / 100) / (1 - Math.min(Math.max(S.margin, 0), 90) / 100), 1);
+}
+const MIX_UNIT = { project: ["project", "projects"], month: ["client", "retainer clients"], hour: ["hour", "hours"], day: ["day", "days"] };
+
+function bizCalc() {
+  const hpd = Math.max(1, S.hoursPerDay);
+  const capHours = Math.max(1, S.billDays) / 12 * hpd;
+  const targetPay = S.rateMode === "hour" ? S.hourRate * capHours : S.income / 12;
+  const fixedM = yearlyExp(S) / 12;
+  const rows = allJobs().map(j => {
+    const st = clone(Object.assign({}, S, { logo: "" }));
+    jobInto(st, j);
+    const r = calc(st), bs = j.basis;
+    let price, direct, hours;
+    if (bs === "project" || bs === "month") { price = r.quote; direct = r.direct; hours = r.days * hpd + r.salesHours; }
+    else { price = r.unitPrice; direct = r.direct / Math.max(1, r.q); hours = bs === "hour" ? 1 : hpd; }
+    const count = Math.max(0, num((S.mix || {})[j.id] || 0));
+    return { j, bs, price, direct, hours, count, rev: price * count, dir: direct * count, hrs: hours * count, sales: (r.salesHours || 0) * count };
+  });
+  const R = rows.reduce((s, x) => s + x.rev, 0);
+  const D = rows.reduce((s, x) => s + x.dir, 0);
+  const H = rows.reduce((s, x) => s + x.hrs, 0);
+  const salesH = rows.reduce((s, x) => s + x.sales, 0);
+  const gross = R - D, owner = gross - fixedM, after = owner - targetPay;
+  const taxRes = Math.max(0, after) * S.taxReserve / 100, net = after - taxRes;
+  const avgD = R > 0 ? D / R : (() => { const v = rows.filter(x => x.price > 0); return v.length ? v.reduce((s, x) => s + x.direct / x.price, 0) / v.length : 0; })();
+  const be = (fixedM + targetPay) / Math.max(0.05, 1 - avgD);
+  const beJobs = rows.filter(x => x.price > x.direct).map(x => ({ x, n: (fixedM + targetPay) / (x.price - x.direct) }));
+  const capUsed = H / capHours;
+  const dp = Math.min(100, S.deposit) / 100, k = Math.max(0, Math.ceil(S.payDelay / 30));
+  const out = D + fixedM + targetPay + taxRes;
+  let cash = S.startCash; const months = [];
+  for (let m = 1; m <= 12; m++) {
+    const inflow = k === 0 ? R : R * dp + (m > k ? R * (1 - dp) : 0);
+    cash += inflow - out;
+    months.push({ m, inflow, out, net: inflow - out, cash });
+  }
+  const wc = R * (1 - dp) * S.payDelay / 30;
+  const runway = (fixedM + targetPay) > 0 ? S.startCash / (fixedM + targetPay) : Infinity;
+  return { hpd, capHours, targetPay, fixedM, rows, R, D, H, salesH, gross, owner, after, taxRes, net, be, beJobs, capUsed, months, wc, runway, k, dp };
+}
+
+function drawExps() {
+  const box = $("exps"); box.innerHTML = "";
+  (S.expenses || []).forEach((e, i) => {
+    const row = document.createElement("div"); row.className = "line eline";
+    row.innerHTML = '<input class="name" aria-label="Expense name"><div class="inp"><input aria-label="Amount" inputmode="decimal"></div><div class="seg mini"><button type="button" data-f="m">Month</button><button type="button" data-f="y">Year</button></div><button class="x" type="button" aria-label="Remove expense">×</button>';
+    const nm = row.querySelector(".name"), am = row.querySelector(".inp input");
+    nm.value = e.name; am.value = fmtIn(e.amt); nm.id = "ex-n-" + i; am.id = "ex-a-" + i;
+    nm.addEventListener("input", () => { e.name = nm.value; save(); });
+    am.addEventListener("input", () => { e.amt = num(am.value); render(); });
+    am.addEventListener("blur", () => am.value = fmtIn(e.amt));
+    row.querySelectorAll(".seg button").forEach(b => {
+      b.setAttribute("aria-pressed", b.dataset.f === e.freq);
+      b.addEventListener("click", () => { e.freq = b.dataset.f; row.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.f === e.freq)); render(); });
+    });
+    row.querySelector(".x").addEventListener("click", () => { S.expenses.splice(i, 1); drawExps(); render(); });
+    box.appendChild(row);
+  });
+}
+$("addExp").addEventListener("click", () => {
+  S.expenses.push({ name: "New expense", amt: 0, freq: "m" }); drawExps(); render();
+  const el = $("ex-n-" + (S.expenses.length - 1)); if (el) { el.focus(); el.select(); }
+});
+
+let mixDrawnFor = "";
+function drawMix(B) {
+  const key = B.rows.map(x => x.j.id).join("|");
+  const box = $("mix");
+  if (key !== mixDrawnFor) {
+    box.innerHTML = "";
+    B.rows.forEach(x => {
+      const row = document.createElement("div"); row.className = "mixrow"; row.dataset.id = x.j.id;
+      row.innerHTML = '<span class="mj"><i class="ji">' + svg(x.j.mine ? "bookmark" : (JOB_ICON[x.j.id] || "tag")) + '</i><span><strong></strong><small></small></span></span><span class="r num mp"></span><span class="r"><span class="inp mc"><input inputmode="decimal" aria-label="Count per month"><span class="u"></span></span></span><span class="r num mr"></span>';
+      row.querySelector("strong").textContent = x.j.name;
+      const inp = row.querySelector("input");
+      inp.id = "mix-" + x.j.id;
+      inp.value = fmtIn(x.count);
+      inp.addEventListener("input", () => { S.mix = S.mix || {}; S.mix[x.j.id] = num(inp.value); render(); });
+      inp.addEventListener("blur", () => inp.value = fmtIn(num(S.mix[x.j.id] || 0)));
+      box.appendChild(row);
+    });
+    mixDrawnFor = key;
+  }
+  B.rows.forEach(x => {
+    const row = box.querySelector('[data-id="' + x.j.id + '"]'); if (!row) return;
+    const u = MIX_UNIT[x.bs];
+    row.querySelector("small").innerHTML = esc(BASES[x.bs].label) + ' · <em class="mpm">' + esc(fmt(x.price) + " / " + u[0]) + " · </em>" + esc(fmtIn(Math.round(x.hours * 10) / 10)) + " h each";
+    row.querySelector(".mp").textContent = fmt(x.price) + " / " + u[0];
+    row.querySelector(".mc .u").textContent = u[1];
+    row.querySelector(".mr").textContent = fmt(x.rev);
+    row.classList.toggle("on", x.count > 0);
+  });
+  $("o-mixr").textContent = fmt(B.R);
+  $("o-mixh").textContent = fmtIn(Math.round(B.H)) + " h";
+}
+
+function renderBusiness() {
+  const B = bizCalc();
+  $("o-exp").textContent = fmt(B.fixedM) + " / month · " + fmt(B.fixedM * 12) + " / year";
+  $("o-target").textContent = fmt(B.targetPay) + " / month";
+  $("o-cap").textContent = fmtIn(Math.round(B.capHours)) + " hours";
+  const sh = (S.propHours || 0) / Math.max(1, S.winRate) * 100;
+  $("o-sales").textContent = fmtIn(Math.round(sh * 10) / 10) + " hours";
+  const PEG = { BHD: "pegged to the US dollar", SAR: "pegged to the US dollar", AED: "pegged to the US dollar", QAR: "pegged to the US dollar", OMR: "pegged to the US dollar", USD: "the US dollar", KWD: "linked to a basket of currencies" };
+  $("o-peg").textContent = PEG[S.cur]
+    ? S.cur + " is " + PEG[S.cur] + (S.cur === "KWD" ? ", so USD-priced tools can move a little in cost." : ", so tools billed in USD carry little currency risk.")
+    : S.cur + " floats against the US dollar. Tools billed in USD can change in cost, so review prices every few months.";
+  drawMix(B);
+
+  $("b-rev").textContent = fmt(B.R);
+  $("b-own").textContent = fmt(B.owner);
+  $("b-after").textContent = (B.after >= 0 ? "+" : "") + fmt(B.after);
+  $("b-after").style.color = B.after >= 0 ? "var(--good)" : "var(--bad)";
+  $("b-be").textContent = fmt(B.be);
+  $("b-target").textContent = fmt(B.targetPay);
+  $("b-cap").textContent = Math.round(B.capUsed * 100) + "%";
+  $("b-wc").textContent = fmt(B.wc);
+  $("b-run").textContent = isFinite(B.runway) ? fmtIn(Math.round(B.runway * 10) / 10) + " months" : "No costs set";
+
+  /* status list */
+  const issues = [];
+  if (B.R === 0) issues.push(["warn", "No jobs in your mix yet. Add how many of each job you expect per month."]);
+  if (B.after < 0 && B.R > 0) {
+    const best = B.beJobs.slice().sort((a, b) => (b.x.price - b.x.direct) - (a.x.price - a.x.direct))[0];
+    const gap = -B.after;
+    issues.push(["bad", "You are " + fmt(gap) + " a month short of your pay target." + (best ? " That is about " + fmtIn(Math.ceil(gap / (best.x.price - best.x.direct) * 10) / 10) + " more " + MIX_UNIT[best.x.bs][1] + " of " + best.x.j.name + "." : "")]);
+  }
+  if (B.capUsed > 1) issues.push(["bad", "This mix needs " + Math.round(B.H) + " hours but you have " + Math.round(B.capHours) + ". Raise prices, cut scope or bring in a freelancer."]);
+  else if (B.capUsed > 0.85) issues.push(["warn", "You are at " + Math.round(B.capUsed * 100) + "% of your hours. No room for delays or new clients."]);
+  const low = B.months.reduce((a, m) => m.cash < a.cash ? m : a, B.months[0]);
+  if (low.cash < 0) issues.push(["bad", "Cash goes negative in month " + low.m + " (" + fmt(low.cash) + "). Ask for a bigger deposit, shorter payment terms, or keep more in reserve."]);
+  if (S.winRate < 25) issues.push(["warn", "A win rate under 25% makes every won project carry a lot of unpaid sales time."]);
+  if (!issues.length) issues.push(["good", "The business covers expenses and your pay, with " + fmt(B.after) + " a month extra and " + Math.round(B.capUsed * 100) + "% of your hours used."]);
+  $("b-status").innerHTML = "";
+  issues.forEach(([lvl, t]) => {
+    const d = document.createElement("div"); d.className = "status" + (lvl === "good" ? "" : " " + lvl);
+    d.innerHTML = '<span class="pill"></span><span></span>';
+    d.querySelector(".pill").textContent = lvl === "good" ? "Healthy" : lvl === "warn" ? "Watch" : "Fix";
+    d.lastChild.textContent = t; $("b-status").appendChild(d);
+  });
+
+  /* P&L */
+  const pl = [
+    ["Revenue", B.R, "", "strong"],
+    ["Direct job costs", -B.D, "Hosting, licences, transport per job"],
+    ["Gross profit", B.gross, B.R > 0 ? Math.round(B.gross / B.R * 100) + "% of revenue" : "", "sub"],
+    ["Business expenses", -B.fixedM, "From your expense list"],
+    ["Available to pay you", B.owner, "After costs and expenses, before your pay", "sub"],
+    ["Your pay target", -B.targetPay, "Rate × billable hours"],
+    ["Profit after your pay", B.after, "", "sub"],
+    ["Tax reserve (" + S.taxReserve + "%)", -B.taxRes, ""],
+    ["Left in the business", B.net, "", "total"]
+  ];
+  $("pnl").innerHTML = "";
+  pl.forEach(([a, v, note, cls]) => {
+    const tr = document.createElement("tr"); if (cls) tr.className = "pl-" + cls;
+    tr.innerHTML = "<td><span></span><small></small></td><td class='r'></td>";
+    tr.querySelector("span").textContent = a; tr.querySelector("small").textContent = note || "";
+    tr.children[1].textContent = (v < 0 ? "−" : "") + fmt(Math.abs(v));
+    if (cls === "total" || cls === "sub") tr.children[1].style.color = v < 0 ? "var(--bad)" : "";
+    $("pnl").appendChild(tr);
+  });
+  /* where money goes */
+  const segs = [["Direct costs", B.D, "#93a1b0"], ["Expenses", B.fixedM, "#b7791f"], ["Your pay", Math.min(B.targetPay, Math.max(0, B.R - B.D - B.fixedM)), "#1e4d3c"], ["Profit", Math.max(0, B.after), "#2f7d4f"]];
+  const tot = Math.max(B.R, B.D + B.fixedM + B.targetPay, 1);
+  $("where").innerHTML = ""; $("whereLeg").innerHTML = "";
+  segs.forEach(([n, v, c]) => {
+    if (v <= 0) return;
+    const s = document.createElement("span"); s.style.width = (v / tot * 100) + "%"; s.style.background = c; s.title = n + ": " + fmt(v);
+    $("where").appendChild(s);
+    const l = document.createElement("span"); l.innerHTML = '<i style="background:' + c + '"></i>'; l.append(n + " " + (B.R > 0 ? Math.round(v / B.R * 100) + "%" : fmt(v)));
+    $("whereLeg").appendChild(l);
+  });
+  if (B.after < 0 && B.R > 0) { const l = document.createElement("span"); l.style.color = "var(--bad)"; l.textContent = "Shortfall " + fmt(-B.after); $("whereLeg").appendChild(l); }
+
+  /* break-even */
+  $("o-be").textContent = fmt(B.be);
+  $("beList").innerHTML = "";
+  B.beJobs.forEach(({ x, n }) => {
+    const c = document.createElement("span"); c.className = "bechip";
+    c.innerHTML = "<b></b> <span></span>";
+    c.querySelector("b").textContent = fmtIn(Math.ceil(n * 10) / 10);
+    c.querySelector("span").textContent = MIX_UNIT[x.bs][1] + " of " + x.j.name;
+    $("beList").appendChild(c);
+  });
+
+  /* capacity */
+  const pct = B.capUsed * 100;
+  $("capFill").style.width = Math.min(100, pct / 1.3) + "%";
+  $("capFill").style.background = pct > 100 ? "var(--bad)" : pct > 85 ? "var(--warn)" : "var(--good)";
+  $("capText").textContent = Math.round(B.H) + " of " + Math.round(B.capHours) + " billable hours used (" + Math.round(pct) + "%), including " + Math.round(B.salesH) + " hours of unpaid sales time. The line marks 100%.";
+
+  /* cash chart */
+  const W = 640, Hh = 200, pad = 28, bw = (W - pad * 2) / 12;
+  const vals = B.months.map(m => m.cash).concat([0, S.startCash]);
+  const mx = Math.max(...vals), mn = Math.min(...vals), span = (mx - mn) || 1;
+  const y = v => 14 + (Hh - 40) * (1 - (v - mn) / span);
+  let g = '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--line)" stroke-width="1.5"/>';
+  B.months.forEach((m, i) => {
+    const x = pad + i * bw + bw * 0.18, w = bw * 0.64, y0 = y(0), y1 = y(m.cash);
+    g += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, Math.abs(y1 - y0)).toFixed(1) + '" rx="2" fill="' + (m.cash < 0 ? "var(--bad)" : "var(--accent)") + '" opacity="' + (i === 11 || m === low ? 1 : 0.75) + '"/>';
+    g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (Hh - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">M' + m.m + "</text>";
+  });
+  const last = B.months[11];
+  const lx = pad + 11 * bw + bw / 2;
+  g += '<text x="' + lx.toFixed(1) + '" y="' + (Math.min(y(0), y(last.cash)) - 5).toFixed(1) + '" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">' + esc(fmt(last.cash)) + "</text>";
+  $("cashChart").innerHTML = g;
+  $("cashText").textContent = "Starts at " + fmt(S.startCash) + ", ends month 12 at " + fmt(last.cash) + ". Lowest point: " + fmt(low.cash) + " in month " + low.m + ". Assumes " + Math.round(B.dp * 100) + "% is paid upfront and the rest after " + fmtIn(S.payDelay) + " days, with this mix every month. This is a scenario, not a forecast: real months vary.";
+  return B;
+}
+
+/* tabs */
+function showTab(t) {
+  S.tab = VIEWS.includes(t) ? t : "home";
+  document.querySelectorAll(".view").forEach(v => v.hidden = v.id !== "view-" + S.tab);
+  document.querySelectorAll(".navbtn").forEach(b => b.setAttribute("aria-current", b.dataset.view === S.tab ? "page" : "false"));
+  const v = $("view-" + S.tab); $("viewTitle").textContent = v.dataset.title; $("viewSub").textContent = v.dataset.sub;
+  ["reset", "copy"].forEach(id => $(id).hidden = S.tab !== "price");
+  try { if (location.hash !== "#" + S.tab) history.replaceState(null, "", "#" + S.tab); } catch (e) {}
+  if (S.tab === "quote") paintPreview();
+  save();
+}
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { showTab(b.dataset.tab); window.scrollTo(0, 0); }));
+document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => { showTab(b.dataset.goto); window.scrollTo(0, 0); }));
+window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
+
+/* payment schedule */
+$("schedule").addEventListener("input", () => { S.schedule = $("schedule").value; S.deposit = parseSched(S.schedule)[0]; render(); });
+$("schedChips").querySelectorAll("button").forEach(b => b.addEventListener("click", e => { e.preventDefault(); S.schedule = b.dataset.v; $("schedule").value = S.schedule; S.deposit = parseSched(S.schedule)[0]; render(); }));
+
+/* Excel export */
+async function exportExcel() {
+  try { if (!window.ExcelJS) await loadScript("lib/exceljs.min.js"); }
+  catch (e) { toast("The Excel tool could not load. Check your connection and try again."); return; }
+  const B = bizCalc(), r = calc(), cur = S.cur;
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Pricing Studio"; wb.created = new Date();
+  wb.calcProperties = { fullCalcOnLoad: true };
+  const C = { dark: "FF1E4D3C", lime: "FFB9EC7E", soft: "FFE3EFE7", zebra: "FFF6F9F7", line: "FFD9E2DC", ink: "FF13241C", muted: "FF65766D", input: "FF1F4E9E", inFill: "FFFFF7DD", bad: "FFC2453D", badFill: "FFFBE3E1", white: "FFFFFFFF" };
+  const MF = '"' + cur + '" #,##0;[Red]-"' + cur + '" #,##0;"' + cur + '" 0';
+  const PF = "0%", HF = "#,##0.0", NF = "#,##0";
+  const fill = a => ({ type: "pattern", pattern: "solid", fgColor: { argb: a } });
+  const thin = { style: "thin", color: { argb: C.line } };
+  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const sub = (S.bizName || "Your business") + "   ·   Currency " + cur + "   ·   " + today;
+  const F = (formula, result) => ({ formula, result });
+
+  function mk(name, tab, widths, title) {
+    const ws = wb.addWorksheet(name, {
+      properties: { tabColor: { argb: tab } }, views: [{ showGridLines: false }],
+      pageSetup: { paperSize: 9, orientation: "portrait", fitToPage: true, fitToWidth: 1, fitToHeight: 0, margins: { left: 0.5, right: 0.5, top: 0.6, bottom: 0.6, header: 0.3, footer: 0.3 } }
+    });
+    ws.columns = widths.map(w => ({ width: w }));
+    const n = widths.length;
+    ws.mergeCells(1, 1, 1, n); ws.mergeCells(2, 1, 2, n);
+    const t = ws.getCell(1, 1); t.value = title;
+    t.font = { name: "Calibri", size: 16, bold: true, color: { argb: C.white } };
+    const s2 = ws.getCell(2, 1); s2.value = sub; s2.font = { name: "Calibri", size: 10, color: { argb: C.lime } };
+    [1, 2].forEach(i => { const c = ws.getCell(i, 1); c.fill = fill(C.dark); c.alignment = { vertical: "middle", indent: 1 }; });
+    ws.getRow(1).height = 32; ws.getRow(2).height = 20; ws.getRow(3).height = 10;
+    ws.headerFooter.oddFooter = "&L&8Pricing Studio · " + name + "&R&8Page &P of &N";
+    return ws;
+  }
+  function head(ws, row, labels, alignFirst) {
+    const R = ws.getRow(row); R.height = 24;
+    labels.forEach((l, i) => {
+      const c = R.getCell(i + 1); c.value = l;
+      c.font = { name: "Calibri", bold: true, size: 10, color: { argb: C.white } };
+      const leftCol = i === 0 || /^(Notes|What it means|How|Charged per|Every)$/.test(l);
+      c.fill = fill(C.dark); c.alignment = { vertical: "middle", horizontal: leftCol ? "left" : "right", wrapText: true, indent: leftCol ? 1 : 0 };
+    });
+  }
+  function body(ws, row, n, zebra) {
+    const R = ws.getRow(row); R.height = 20;
+    for (let i = 1; i <= n; i++) {
+      const c = R.getCell(i);
+      c.border = { bottom: thin };
+      if (zebra && !c.fill) c.fill = fill(C.zebra);
+      if (!c.font || !c.font.color) c.font = { name: "Calibri", size: 10, color: { argb: C.ink } };
+      c.alignment = Object.assign({ vertical: "middle" }, i === 1 ? { indent: 1 } : { horizontal: "right" }, c.alignment || {});
+    }
+  }
+  function total(ws, row, n, strong) {
+    const R = ws.getRow(row); R.height = strong ? 24 : 22;
+    for (let i = 1; i <= n; i++) {
+      const c = R.getCell(i);
+      c.font = { name: "Calibri", bold: true, size: strong ? 12 : 11, color: { argb: C.ink } };
+      c.fill = fill(strong ? C.lime : C.soft);
+      c.border = { top: { style: "thin", color: { argb: C.dark } }, bottom: strong ? { style: "double", color: { argb: C.dark } } : thin };
+      c.alignment = Object.assign({ vertical: "middle" }, i === 1 ? { indent: 1 } : { horizontal: "right" });
+    }
+  }
+  function input(c) {
+    c.font = { name: "Calibri", bold: true, size: 10, color: { argb: C.input } };
+    c.fill = fill(C.inFill);
+    c.border = { top: thin, bottom: thin, left: thin, right: thin };
+  }
+  function section(ws, row, text, n) {
+    ws.mergeCells(row, 1, row, n);
+    const c = ws.getCell(row, 1); c.value = text.toUpperCase();
+    c.font = { name: "Calibri", bold: true, size: 9, color: { argb: C.dark } };
+    c.border = { bottom: { style: "medium", color: { argb: C.lime } } };
+    c.alignment = { vertical: "bottom", indent: 1 };
+    ws.getRow(row).height = 26;
+  }
+  function note(ws, row, text, n) {
+    ws.mergeCells(row, 1, row, n);
+    const c = ws.getCell(row, 1); c.value = text;
+    c.font = { name: "Calibri", italic: true, size: 9, color: { argb: C.muted } };
+    c.alignment = { wrapText: true, vertical: "top", indent: 1 };
+    ws.getRow(row).height = 30;
+  }
+
+  const sum = mk("Summary", C.lime, [30, 20, 3, 30, 20], "Pricing and business plan");
+  const as = mk("Assumptions", C.input, [36, 18, 54], "Assumptions");
+  const ex = mk("Expenses", "FFC08A1E", [38, 16, 12, 18], "Business expenses");
+  const jm = mk("Job mix", C.dark, [30, 14, 16, 14, 16, 16, 16, 12, 12], "Job mix per month");
+  const pl = mk("Profit & loss", C.dark, [40, 20, 46], "Monthly profit and loss");
+  const cf = mk("Cash 12 months", C.dark, [16, 18, 18, 18, 20], "Cash flow scenario, 12 months");
+  const cj = mk("Current job", C.dark, [34, 36, 20, 16], "Current job price");
+
+  /* ---------- Assumptions ---------- */
+  head(as, 4, ["Assumption", "Value", "Notes"]);
+  const hourMode = S.rateMode === "hour";
+  const A = [
+    ["Rate set by", hourMode ? "Hourly rate" : "Yearly income", "text", "Change this in the app"],
+    [hourMode ? "Hourly rate" : "Target yearly income", hourMode ? S.hourRate : S.income, MF, hourMode ? "Your time, before contingency and margin" : "What you want to pay yourself a year", 1],
+    ["Billable hours per day", S.hoursPerDay, HF, "Hours you can charge, not hours at your desk", 1],
+    ["Billable days per year", S.billDays, NF, "120 to 150 is realistic for a solo founder", 1],
+    ["Monthly pay target", null, MF, "Worked out from the three lines above"],
+    ["Billable hours per month", null, NF, "Billable days ÷ 12 × hours per day"],
+    ["Contingency", S.cont / 100, PF, "Buffer added to costs for overruns", 1],
+    ["Profit margin (share of price)", S.margin / 100, PF, "20% means 20 of every 100 charged is profit", 1],
+    ["Tax name", S.taxName || "Tax", "text", "As printed on quotes"],
+    ["Tax rate on quotes", S.vat / 100, PF, "Check registration and exempt or zero-rated supplies with an adviser", 1],
+    ["Tax reserve on profit", S.taxReserve / 100, PF, "Money set aside for income or corporate tax", 1],
+    ["Hours per proposal", S.propHours, HF, "Unpaid time to win a project", 1],
+    ["Win rate", S.winRate / 100, PF, "Share of proposals that turn into paid work", 1],
+    ["Deposit (first payment stage)", Math.min(100, S.deposit) / 100, PF, "Payment schedule: " + parseSched(S.schedule).join("/") + "%", 1],
+    ["Days until balance is paid", S.payDelay, NF, "From invoice to money in the bank", 1],
+    ["Cash in the bank today", S.startCash, MF, "Starting balance for the cash scenario", 1],
+    ["Months until balance arrives", null, NF, "Days until paid ÷ 30, rounded up"]
+  ];
+  A.forEach((a, i) => {
+    const row = 5 + i, R = as.getRow(row);
+    R.getCell(1).value = a[0]; R.getCell(3).value = a[3];
+    const c = R.getCell(2);
+    if (a[1] !== null) c.value = a[1];
+    if (a[2] !== "text") c.numFmt = a[2];
+    body(as, row, 3, i % 2 === 1);
+    R.getCell(3).alignment = { horizontal: "left", vertical: "middle", wrapText: true };
+    R.getCell(3).font = { name: "Calibri", size: 9, color: { argb: C.muted } };
+    if (a[4]) input(c);
+  });
+  const AR = k => "Assumptions!$B$" + (5 + k);
+  as.getCell("B9").value = F(hourMode ? "B6*B7*B8/12" : "B6/12", B.targetPay); as.getCell("B9").font = { bold: true, size: 10, color: { argb: C.ink } };
+  as.getCell("B10").value = F("B8/12*B7", B.capHours);
+  as.getCell("B21").value = F("ROUNDUP(B19/30,0)", B.k);
+  const lastA = 5 + A.length;
+  note(as, lastA + 1, "Blue cells on a yellow background are inputs. Change them here, on Expenses and on Job mix; every total in the workbook updates by formula.", 3);
+  as.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
+
+  /* ---------- Expenses ---------- */
+  head(ex, 4, ["Expense", "Amount", "Every", "Per month"]);
+  S.expenses.forEach((e, i) => {
+    const row = 5 + i, R = ex.getRow(row);
+    R.getCell(1).value = e.name; R.getCell(2).value = e.amt; R.getCell(2).numFmt = MF;
+    R.getCell(3).value = e.freq === "y" ? "Year" : "Month";
+    R.getCell(4).value = F('IF(C' + row + '="Year",B' + row + '/12,B' + row + ')', e.freq === "y" ? e.amt / 12 : e.amt); R.getCell(4).numFmt = MF;
+    body(ex, row, 4, i % 2 === 1); input(R.getCell(2)); input(R.getCell(3));
+    R.getCell(3).dataValidation = { type: "list", allowBlank: false, formulae: ['"Month,Year"'] };
+  });
+  const te = 5 + S.expenses.length;
+  ex.getCell(te, 1).value = "Total per month"; ex.getCell(te, 4).value = F("SUM(D5:D" + (te - 1) + ")", B.fixedM); ex.getCell(te, 4).numFmt = MF; total(ex, te, 4);
+  ex.getCell(te + 1, 1).value = "Total per year"; ex.getCell(te + 1, 4).value = F("D" + te + "*12", B.fixedM * 12); ex.getCell(te + 1, 4).numFmt = MF; body(ex, te + 1, 4);
+  ex.getCell(te + 1, 1).font = { bold: true, size: 10, color: { argb: C.ink } };
+  note(ex, te + 3, "Add rows above the total and extend the SUM range. These expenses are shared across every job price in the app.", 4);
+  ex.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
+  const EXP = "Expenses!$D$" + te;
+
+  /* ---------- Job mix ---------- */
+  head(jm, 4, ["Job", "Charged per", "Price", "Count / month", "Revenue", "Direct cost each", "Direct cost total", "Hours each", "Hours total"]);
+  B.rows.forEach((x, i) => {
+    const row = 5 + i, R = jm.getRow(row);
+    R.values = [x.j.name, MIX_UNIT[x.bs][0], x.price, x.count, F("C" + row + "*D" + row, x.rev), x.direct, F("F" + row + "*D" + row, x.dir), x.hours, F("H" + row + "*D" + row, x.hrs)];
+    [3, 5, 6, 7].forEach(k => R.getCell(k).numFmt = MF); [4].forEach(k => R.getCell(k).numFmt = HF); [8, 9].forEach(k => R.getCell(k).numFmt = HF);
+    body(jm, row, 9, i % 2 === 1); input(R.getCell(4)); R.getCell(2).alignment = { horizontal: "left", vertical: "middle" };
+  });
+  const tj = 5 + B.rows.length;
+  jm.getCell(tj, 1).value = "Total per month";
+  jm.getCell(tj, 5).value = F("SUM(E5:E" + (tj - 1) + ")", B.R);
+  jm.getCell(tj, 7).value = F("SUM(G5:G" + (tj - 1) + ")", B.D);
+  jm.getCell(tj, 9).value = F("SUM(I5:I" + (tj - 1) + ")", B.H);
+  [5, 7].forEach(k => jm.getCell(tj, k).numFmt = MF); jm.getCell(tj, 9).numFmt = HF; total(jm, tj, 9);
+  jm.getCell(tj + 2, 1).value = "Billable hours available"; jm.getCell(tj + 2, 2).value = F(AR(5), B.capHours); jm.getCell(tj + 2, 2).numFmt = NF;
+  jm.getCell(tj + 3, 1).value = "Capacity used"; jm.getCell(tj + 3, 2).value = F("IF(B" + (tj + 2) + "=0,0,I" + tj + "/B" + (tj + 2) + ")", B.capUsed); jm.getCell(tj + 3, 2).numFmt = PF;
+  body(jm, tj + 2, 2); body(jm, tj + 3, 2);
+  jm.getCell(tj + 3, 2).font = { bold: true, size: 11, color: { argb: C.ink } };
+  jm.addConditionalFormatting({ ref: "B" + (tj + 3), rules: [{ type: "cellIs", operator: "greaterThan", formulae: [1], style: { font: { color: { argb: C.bad }, bold: true }, fill: fill(C.badFill) } }] });
+  note(jm, tj + 5, "Prices come from the app at export time. Hours include unpaid sales time for projects. Change the yellow counts to test a different month.", 9);
+  jm.views = [{ showGridLines: false, state: "frozen", ySplit: 4, xSplit: 1 }];
+  const REV = "'Job mix'!$E$" + tj, DIR = "'Job mix'!$G$" + tj, CAP = "'Job mix'!$B$" + (tj + 3);
+
+  /* ---------- Profit & loss ---------- */
+  head(pl, 4, ["Line", "Per month", "What it means"]);
+  const PL = [
+    ["Revenue", F(REV, B.R), "All jobs in the mix", 0],
+    ["Direct job costs", F("-" + DIR, -B.D), "Hosting, licences, transport per job", 0],
+    ["Gross profit", F("B5+B6", B.gross), "Revenue minus job costs", 1],
+    ["Gross margin", F("IF(B5=0,0,B7/B5)", B.R ? B.gross / B.R : 0), "Gross profit as a share of revenue", 0, PF],
+    ["Business expenses", F("-" + EXP, -B.fixedM), "From the Expenses sheet", 0],
+    ["Available to pay you", F("B7+B9", B.owner), "After costs and expenses, before your pay", 1],
+    ["Your pay target", F("-" + AR(4), -B.targetPay), "From Assumptions", 0],
+    ["Profit after your pay", F("B10+B11", B.after), "What the business earns beyond your pay", 1],
+    ["Tax reserve", F("-MAX(0,B12)*" + AR(10), -B.taxRes), "Set aside on profit", 0],
+    ["Left in the business", F("B12+B13", B.net), "Kept for growth and reserves", 2],
+    [null],
+    ["Break-even revenue", F("(" + EXP + "+" + AR(4) + ")/(1-IF(B5=0,0,-B6/B5))", B.be), "Revenue that covers expenses and your pay", 1]
+  ];
+  PL.forEach((p, i) => {
+    const row = 5 + i; if (!p[0]) return;
+    const R = pl.getRow(row); R.getCell(1).value = p[0]; R.getCell(2).value = p[1]; R.getCell(2).numFmt = p[4] || MF; R.getCell(3).value = p[2];
+    if (p[3] === 2) total(pl, row, 3, true); else if (p[3] === 1) total(pl, row, 3); else body(pl, row, 3, false);
+    R.getCell(3).alignment = { horizontal: "left", vertical: "middle" };
+    R.getCell(3).font = { name: "Calibri", size: 9, color: { argb: C.muted }, bold: false };
+  });
+  note(pl, 18, "Negative numbers show in red. Edit inputs on Assumptions, Expenses and Job mix; this sheet only holds formulas.", 3);
+  pl.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
+
+  /* ---------- Cash 12 months ---------- */
+  head(cf, 4, ["Month", "Money in", "Money out", "Net", "Cash at month end"]);
+  cf.getCell("A5").value = "Start"; cf.getCell("E5").value = F(AR(15), S.startCash); cf.getCell("E5").numFmt = MF; body(cf, 5, 5);
+  const now = new Date().getMonth();
+  B.months.forEach((m, i) => {
+    const row = 6 + i, R = cf.getRow(row), n = i + 1;
+    R.getCell(1).value = MONTHS[(now + i) % 12];
+    R.getCell(2).value = F("IF(" + AR(16) + "=0,'Profit & loss'!$B$5,'Profit & loss'!$B$5*" + AR(13) + "+IF(" + n + ">" + AR(16) + ",'Profit & loss'!$B$5*(1-" + AR(13) + "),0))", m.inflow);
+    R.getCell(3).value = F("-('Profit & loss'!$B$6+'Profit & loss'!$B$9+'Profit & loss'!$B$11+'Profit & loss'!$B$13)", m.out);
+    R.getCell(4).value = F("B" + row + "-C" + row, m.net);
+    R.getCell(5).value = F("E" + (row - 1) + "+D" + row, m.cash);
+    [2, 3, 4, 5].forEach(k => R.getCell(k).numFmt = MF);
+    body(cf, row, 5, i % 2 === 1); R.getCell(5).font = { bold: true, size: 10, color: { argb: C.ink } };
+  });
+  cf.addConditionalFormatting({ ref: "E6:E17", rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { fill: fill(C.badFill), font: { color: { argb: C.bad }, bold: true } } }] });
+  cf.getCell("A19").value = "Lowest cash"; cf.getCell("E19").value = F("MIN(E6:E17)", Math.min(...B.months.map(m => m.cash))); cf.getCell("E19").numFmt = MF; total(cf, 19, 5);
+  note(cf, 21, "Scenario, not a forecast: it repeats the same job mix every month. The deposit arrives in the month of the work and the balance after the delay set on Assumptions.", 5);
+  cf.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
+
+  /* ---------- Current job ---------- */
+  const job = allJobs().find(j => j.id === S.job);
+  section(cj, 4, "Price", 4);
+  const CJ = [["Job", job ? job.name : "Custom job"], ["Charged", r.b.label], ["Your price per " + r.b.unit, r.unitPrice, MF], ["Cost floor per " + r.b.unit, r.floorUnit, MF], ["Value price per " + r.b.unit, r.valuePrice > 0 ? r.valueUnit : "Not set", MF], ["Market range", fmt(r.mLow) + " to " + fmt(r.mHigh)]];
+  CJ.forEach((c, i) => { const row = 5 + i, R = cj.getRow(row); R.getCell(1).value = c[0]; R.getCell(2).value = c[1]; if (c[2] && typeof c[1] === "number") R.getCell(2).numFmt = c[2]; body(cj, row, 2, i % 2 === 1); R.getCell(2).alignment = { horizontal: "right" }; });
+  cj.getCell("B7").font = { bold: true, size: 13, color: { argb: C.dark } };
+  section(cj, 12, "How the floor is built", 4);
+  head(cj, 13, ["Item", "How", "Amount"]);
+  let rr = 14;
+  [...$("breakdown").querySelectorAll("tr")].forEach(tr => {
+    const c = [...tr.children].map(td => td.textContent);
+    const R = cj.getRow(rr); R.getCell(1).value = c[0]; R.getCell(2).value = c[1] || ""; R.getCell(3).value = num((c[2] || "").replace(/[^\d.,-]/g, "")); R.getCell(3).numFmt = MF;
+    if (tr.classList.contains("total")) total(cj, rr, 3); else body(cj, rr, 3, rr % 2 === 1);
+    R.getCell(2).alignment = { horizontal: "left", vertical: "middle", wrapText: true };
+    rr++;
+  });
+  rr++; section(cj, rr, "Options you can send", 4); rr++;
+  head(cj, rr, ["Option", "Price", "Floor for this scope", "Above floor"]); rr++;
+  [...$("pkgs").querySelectorAll(".pkg")].forEach((p, i) => {
+    const price = num(p.querySelector(".price span").textContent.replace(/[^\d.,-]/g, ""));
+    const pf = num(p.dataset.floor || r.floorUnit);
+    const R = cj.getRow(rr);
+    R.values = [p.querySelector(".name span").textContent + " (" + p.querySelector(".price .per").textContent + ")", price, pf, F("IF(B" + rr + "=0,0,(B" + rr + "-C" + rr + ")/B" + rr + ")", price ? (price - pf) / price : 0)];
+    R.getCell(2).numFmt = MF; R.getCell(3).numFmt = MF; R.getCell(4).numFmt = PF;
+    body(cj, rr, 4, i % 2 === 1); rr++;
+  });
+  cj.addConditionalFormatting({ ref: "D" + (rr - 3) + ":D" + (rr - 1), rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { fill: fill(C.badFill), font: { color: { argb: C.bad }, bold: true } } }] });
+
+  /* ---------- Summary ---------- */
+  section(sum, 4, "Monthly results", 5);
+  const K = [
+    ["Monthly revenue", F("'Profit & loss'!B5", B.R), MF, "Available to pay you", F("'Profit & loss'!B10", B.owner), MF],
+    ["Your pay target", F(AR(4), B.targetPay), MF, "Profit after your pay", F("'Profit & loss'!B12", B.after), MF],
+    ["Break-even revenue", F("'Profit & loss'!B16", B.be), MF, "Capacity used", F(CAP, B.capUsed), PF],
+    ["Cash at month 12", F("'Cash 12 months'!E17", B.months[11].cash), MF, "Lowest cash in 12 months", F("'Cash 12 months'!E19", Math.min(...B.months.map(m => m.cash))), MF]
+  ];
+  K.forEach((k, i) => {
+    const lr = 5 + i * 2, vr = lr + 1;
+    [[1, 2, k[0], k[1], k[2]], [4, 5, k[3], k[4], k[5]]].forEach(([c1, c2, lab, val, fmtc]) => {
+      sum.mergeCells(lr, c1, lr, c2); sum.mergeCells(vr, c1, vr, c2);
+      const L = sum.getCell(lr, c1), V = sum.getCell(vr, c1);
+      L.value = lab; L.font = { name: "Calibri", size: 9, color: { argb: C.muted } }; L.alignment = { indent: 1, vertical: "bottom" };
+      V.value = val; V.numFmt = fmtc; V.font = { name: "Calibri", size: 18, bold: true, color: { argb: C.dark } }; V.alignment = { indent: 1, horizontal: "left", vertical: "middle" };
+      [L, V].forEach(x => x.fill = fill(i === 0 && c1 === 4 ? C.lime : C.soft));
+      V.border = { bottom: { style: "thin", color: { argb: C.white } } };
+    });
+    sum.getRow(lr).height = 18; sum.getRow(vr).height = 30;
+  });
+  sum.addConditionalFormatting({ ref: "D8:E8", rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { font: { color: { argb: C.bad }, bold: true, size: 18 } } }] });
+  sum.addConditionalFormatting({ ref: "A12:E12", rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { font: { color: { argb: C.bad }, bold: true, size: 18 } } }] });
+  section(sum, 14, "This job", 5);
+  const jr = [["Job", job ? job.name : "Custom job"], ["Price per " + r.b.unit, r.unitPrice], ["Cost floor per " + r.b.unit, r.floorUnit], ["Client pays incl. " + (S.taxName || "tax"), r.quote * (1 + S.vat / 100)]];
+  jr.forEach((j, i) => { const row = 15 + i; sum.getCell(row, 1).value = j[0]; sum.mergeCells(row, 2, row, 5); const c = sum.getCell(row, 2); c.value = j[1]; if (typeof j[1] === "number") c.numFmt = MF; body(sum, row, 5, i % 2 === 1); c.alignment = { horizontal: "left", indent: 1 }; });
+  section(sum, 20, "Health check", 5);
+  const msgs = [[$("s-pill").textContent, "Job price: " + $("s-text").textContent]];
+  document.querySelectorAll("#b-status .status").forEach(st => msgs.push([st.querySelector(".pill").textContent, "Business: " + st.lastChild.textContent]));
+  msgs.forEach((m, i) => {
+    const row = 21 + i; sum.getCell(row, 1).value = m[0].toUpperCase(); sum.mergeCells(row, 2, row, 5); sum.getCell(row, 2).value = m[1];
+    const lvl = /fix|check/i.test(m[0]) ? C.bad : /watch|thin|low/i.test(m[0]) ? "FFC08A1E" : "FF2F8A57";
+    sum.getCell(row, 1).font = { name: "Calibri", bold: true, size: 9, color: { argb: C.white } }; sum.getCell(row, 1).fill = fill(lvl); sum.getCell(row, 1).alignment = { horizontal: "center", vertical: "middle" };
+    sum.getCell(row, 2).alignment = { wrapText: true, vertical: "middle", indent: 1 }; sum.getCell(row, 2).font = { name: "Calibri", size: 10, color: { argb: C.ink } };
+    sum.getRow(row).height = 32;
+  });
+  const nr = 22 + msgs.length;
+  note(sum, nr, "How to use: change the blue inputs on Assumptions, Expenses and Job mix and every figure updates. The cash view is a scenario. This workbook is a planning aid, not financial or tax advice.", 5);
+  sum.getRow(nr).height = 42;
+
+  try {
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = ((S.bizName || "Pricing") + " plan " + new Date().toISOString().slice(0, 10)).replace(/[^\w\- ]+/g, "").replace(/\s+/g, "-") + ".xlsx";
+    document.body.appendChild(a); a.click(); a.remove();
+    toast("Excel downloaded");
+  } catch (e) { toast("Downloads are blocked here. Use the live site."); }
+  return wb;
+}
+
+$("xlsx").addEventListener("click", exportExcel);
+
+/* ---------- PDF quote ---------- */
+function autoQNo() { return "Q-" + new Date().getFullYear() + "-" + String(S.qSeq || 1).padStart(3, "0"); }
+const QCSS = `
+      .q-doc { width: 680px; padding: 4px 2px; font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #16202b; font-size: 12.5px; line-height: 1.5; background: #fff; }
+      .q-doc * { box-sizing: border-box; }
+      .q-top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #1e4d3c; padding-bottom: 14px; }
+      .q-biz { display: flex; gap: 10px; align-items: center; }
+      .q-logo { width: 38px; height: 38px; border-radius: 9px; background: #1e4d3c; display: flex; align-items: center; justify-content: center; }
+      .q-logo svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .q-bn { font-size: 18px; font-weight: 700; }
+      .q-title { text-align: right; }
+      .q-title h1 { margin: 0; font-size: 24px; color: #1e4d3c; text-transform: uppercase; white-space: nowrap; }
+      .q-meta { color: #5d6b7a; font-size: 11.5px; }
+      .q-info { display: flex; gap: 12px; margin: 16px 0; }
+      .q-info > div { flex: 1; background: #f3f6f4; border-radius: 8px; padding: 10px 12px; }
+      .q-k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #5d6b7a; }
+      .q-v { font-weight: 600; font-size: 14px; }
+      .q-h { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #5d6b7a; margin: 18px 0 8px; font-weight: 600; }
+      .q-pkgs { width: 100%; border-collapse: separate; border-spacing: 8px 0; table-layout: fixed; }
+      .q-pkg { vertical-align: top; border: 1px solid #dde2e8; border-radius: 8px; padding: 12px; }
+      .q-mid { border: 2px solid #1e4d3c; background: #f3f8f5; }
+      .q-rec { display: inline-block; font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; background: #1e4d3c; color: #fff; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; }
+      .q-pn { font-weight: 700; font-size: 13px; }
+      .q-pp { font-size: 17px; font-weight: 700; margin: 2px 0 6px; }
+      .q-pp span { font-size: 11px; font-weight: 400; color: #5d6b7a; }
+      .q-pkg ul { margin: 0; padding-left: 16px; color: #3c4855; }
+      .q-tot { width: 340px; margin-left: auto; border-collapse: collapse; margin-top: 4px; }
+      .q-tot td { padding: 6px 4px; border-bottom: 1px solid #dde2e8; }
+      .q-tot td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+      .q-tot tr.q-grand td { font-weight: 700; font-size: 14px; border-top: 2px solid #16202b; border-bottom: 0; }
+      .q-tot tr.q-dep td { color: #1e4d3c; font-weight: 600; border-bottom: 0; }
+      .q-terms { margin: 0; padding-left: 18px; color: #3c4855; }
+      .q-notes { white-space: pre-wrap; background: #f3f6f4; border-radius: 8px; padding: 10px 12px; color: #3c4855; }
+      .q-sign { display: flex; gap: 40px; margin-top: 46px; }
+      .q-sign > div { flex: 1; border-top: 1px solid #16202b; padding-top: 6px; font-size: 11px; color: #5d6b7a; }
+      .q-foot { margin-top: 22px; font-size: 10.5px; color: #93a1b0; text-align: center; }
+      .q-int { background: #fff7e6; border: 1px solid #f0d9a8; color: #8a5a00; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; margin-top: 10px; }
+      .q-tiles { display: flex; gap: 8px; flex-wrap: wrap; }
+      .q-tile { flex: 1 1 150px; border: 1px solid #dde2e8; border-radius: 8px; padding: 8px 10px; }
+      .q-tile b { display: block; font-size: 15px; font-variant-numeric: tabular-nums; }
+      .q-tile.hl { border: 2px solid #1e4d3c; }
+      .q-tbl { width: 100%; border-collapse: collapse; }
+      .q-tbl td, .q-tbl th { padding: 6px 4px; border-bottom: 1px solid #dde2e8; text-align: left; font-size: 12px; }
+      .q-tbl th { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #5d6b7a; }
+      .q-tbl td.r, .q-tbl th.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .q-tbl tr.t td { font-weight: 700; border-top: 2px solid #16202b; }
+      .q-pill { display: inline-block; padding: 1px 8px; border-radius: 999px; color: #fff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+      .q-ok { background: #2f7d4f; } .q-warn { background: #b7791f; } .q-bad { background: #b23a3a; }
+      .q-care { margin-top: 12px; background: #eef6f1; border: 1px solid #cfe5d8; border-radius: 8px; padding: 9px 12px; color: #1f5a37; }
+      .q-meta { white-space: nowrap; line-height: 1.6; }
+      .q-meta b { color: #16202b; }
+      .q-bizd { font-size: 10.5px; color: #5d6b7a; line-height: 1.5; margin-top: 4px; max-width: 360px; }
+      .q-left { display: flex; flex-direction: column; }
+      .q-party { font-size: 11.5px; color: #3c4855; line-height: 1.5; margin-top: 2px; }
+      .q-one { width: 100%; }
+      .q-pay { white-space: pre-wrap; background: #f3f6f4; border-radius: 8px; padding: 10px 12px; color: #3c4855; font-size: 11.5px; }
+      .q-sign .q-sn { color: #16202b; font-weight: 600; font-size: 11.5px; margin-bottom: 2px; }
+      .q-mark { background: none !important; }
+      .q-mark svg { width: 38px !important; height: 38px !important; stroke: none !important; }
+      .q-logoimg { max-height: 46px; max-width: 170px; object-fit: contain; }
+`;
+const logoHTML = () => S.logo ? '<img class="q-logoimg" src="' + S.logo + '" alt="">' : '<div class="q-logo q-mark">' + MARK_SVG + "</div>";
+function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function buildQuoteHTML() {
+  const r = calc(), b = r.b;
+  const cards = [...$("pkgs").querySelectorAll(".pkg")].map(p => ({
+    name: p.querySelector(".name span").textContent,
+    price: p.querySelector(".price span").textContent,
+    per: p.querySelector(".price .per").textContent,
+    mid: p.classList.contains("mid"),
+    items: [...p.querySelectorAll("li")].map(li => li.textContent)
+  }));
+  const now = new Date();
+  const d = dt => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const valid = new Date(now.getTime() + Math.max(1, S.validDays || 14) * 864e5);
+  const qno = (S.qNo || "").trim() || autoQNo();
+  const tax = S.vat > 0, taxN = S.taxName || "Tax";
+  const sub = r.quote, taxAmt = sub * S.vat / 100, tot = sub + taxAmt, dep = tot * S.deposit / 100;
+  const estLabel = S.basis === "month" ? "Monthly fee (Standard)" : S.basis === "project" ? "Project price (Standard)" : "Estimate: " + fmtIn(r.q) + " " + b.qtyUnit + " × " + fmt(r.unitPrice);
+  const sched = parseSched(S.schedule);
+  const stageNames = n => n === 1 ? ["On signing"] : n === 2 ? ["On signing", "On delivery"] : n === 3 ? ["On signing", "At midpoint (design approval)", "On delivery"] : Array.from({ length: n }, (_, i) => i === 0 ? "On signing" : i === n - 1 ? "On delivery" : "Milestone " + (i + 1));
+  const names = stageNames(sched.length);
+  const amts = sched.map(p => Math.round(tot * p / 100)); if (amts.length > 1) amts[amts.length - 1] = Math.round(tot) - amts.slice(0, -1).reduce((x, y) => x + y, 0);
+  const schedRows = (S.basis === "project" && sched.length > 1) ? sched.map((p, i) => `<tr><td>${esc(names[i])} (${p}%)</td><td>${fmt(amts[i])}</td></tr>`).join("") : "";
+  const cr = changeRateFor(r);
+  const terms = [
+    S.basis === "month" ? "Invoiced monthly in advance." : S.basis === "project" ? (sched.length > 1 ? "Payment in " + sched.length + " stages: " + sched.join("/") + "%, as shown above." : "Full payment " + (sched[0] >= 100 ? "on signing." : sched[0] + "% on signing.")) : (S.deposit > 0 ? S.deposit + "% deposit before work starts, the rest invoiced as worked." : "Invoiced as worked."),
+    "All prices in " + S.cur + (tax ? ", excluding " + taxN + " (" + S.vat + "%), shown separately." : "."),
+    S.basis === "month" ? "Minimum term: " + fmtIn(Math.max(1, S.months)) + " months. Contract value: " + fmt(r.total) + (tax ? " before " + taxN : "") + "." : "",
+    (S.basis === "hour" || S.basis === "day") ? "Final amount is based on actual " + b.qtyUnit + " worked, reported with each invoice." : "Changes or extra work outside the agreed scope: " + fmt(cr) + " per hour, agreed in writing first.",
+    S.lateFee > 0 ? "Invoices are due within 14 days. Overdue invoices incur " + S.lateFee + "% per month." : "Invoices are due within 14 days.",
+    "This quote is valid until " + d(valid) + "."
+  ].filter(Boolean);
+  const oneOnly = S.showPkgs === "one" && (S.basis === "project" || S.basis === "month");
+  const pk = cards.filter(c => !oneOnly || c.mid).map(c => `
+    <td class="q-pkg${c.mid ? " q-mid" : ""}">
+      ${c.mid && !oneOnly ? '<div class="q-rec">Recommended</div>' : ""}
+      <div class="q-pn">${esc(c.name)}</div>
+      <div class="q-pp">${esc(c.price)} <span>${esc(c.per)}</span></div>
+      <ul>${c.items.map(i => "<li>" + esc(i) + "</li>").join("")}</ul>
+    </td>`).join("");
+  const project = S.qTitle || (allJobs().find(j => j.id === S.job) || {}).name || "Project";
+  const tl = S.taxName || "Tax";
+  const join = arr => arr.filter(x => x && String(x).trim()).map(esc).join("<br>");
+  const bizLines = join([S.bizAddr, [S.bizPhone, S.bizEmail, S.bizWeb].filter(Boolean).join(" · "), [S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? tl + " no. " + S.bizTax : ""].filter(Boolean).join(" · ")]);
+  const clientLines = join([S.clientContact, S.clientAddr, S.clientPhone, S.clientTax ? tl + " no. " + S.clientTax : ""]);
+  return `
+  <div class="q-doc">
+    <style>${QCSS}</style>
+    <div class="q-top">
+      <div class="q-left">
+        <div class="q-biz">${logoHTML()}<div class="q-bn">${esc(S.bizName || "Your business")}</div></div>
+        ${bizLines ? `<div class="q-bizd">${bizLines}</div>` : ""}
+      </div>
+      <div class="q-title"><h1>Quotation</h1><div class="q-meta">No. <b>${esc(qno)}</b><br>Date: ${d(now)}<br>Valid until: ${d(valid)}</div></div>
+    </div>
+    <div class="q-info">
+      <div><div class="q-k">Prepared for</div><div class="q-v">${esc(S.client || "Client")}</div>${clientLines ? `<div class="q-party">${clientLines}</div>` : ""}</div>
+      <div><div class="q-k">Project</div><div class="q-v">${esc(project)}</div><div class="q-party">${esc(b.label)}${S.delivery ? "<br>Delivery: " + esc(S.delivery) : ""}</div></div>
+    </div>
+    <div class="q-h">${oneOnly ? "Scope and price" : (S.basis === "project" || S.basis === "month") ? "Choose your package" : "Rates"}</div>
+    <table class="q-pkgs${oneOnly ? " q-one" : ""}"><tr>${pk}</tr></table>
+    <div class="q-h">Summary</div>
+    <table class="q-tot">
+      <tr><td>${esc(estLabel)}</td><td>${fmt(sub)}</td></tr>
+      ${tax ? `<tr><td>${esc(taxN)} (${S.vat}%)</td><td>${fmt(taxAmt)}</td></tr>` : ""}
+      <tr class="q-grand"><td>Total${S.basis === "month" ? " per month" : ""}</td><td>${fmt(tot)}</td></tr>
+      ${S.deposit > 0 ? `<tr class="q-dep"><td>Deposit due now (${S.deposit}%)</td><td>${fmt(dep)}</td></tr>` : ""}
+    </table>
+    ${schedRows ? `<div class="q-h">Payment schedule</div><table class="q-tot">${schedRows}</table>` : ""}
+    ${S.careOffer > 0 && S.basis === "project" ? `<div class="q-care"><b>Optional care plan:</b> ${fmt(S.careOffer)} per month after launch for hosting, updates, backups and small changes.</div>` : ""}
+    <div class="q-h">Terms</div>
+    <ul class="q-terms">${terms.map(t => "<li>" + esc(t) + "</li>").join("")}</ul>
+    ${S.notes ? `<div class="q-h">Notes</div><div class="q-notes">${esc(S.notes)}</div>` : ""}
+    ${S.bank ? `<div class="q-h">Payment details</div><div class="q-pay">${esc(S.bank)}</div>` : ""}
+    <div class="q-sign">
+      <div><div class="q-sn">${esc(S.preparedBy || S.bizName || "")}</div>For ${esc(S.bizName || "the supplier")} (signature and stamp)</div>
+      <div><div class="q-sn">${esc(S.clientContact || "")}</div>Accepted by ${esc(S.client || "the client")} (signature, stamp and date)</div>
+    </div>
+    <div class="q-foot">${[S.bizName, S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? tl + " no. " + S.bizTax : "", qno].filter(Boolean).map(esc).join(" · ")}</div>
+  </div>`;
+}
+function printFallback(html) {
+  let pd = $("printDoc");
+  if (!pd) { pd = document.createElement("div"); pd.id = "printDoc"; document.body.appendChild(pd); }
+  pd.innerHTML = html;
+  try { window.print(); } catch (e) { $("toast").textContent = "Open the live site to save as PDF"; }
+}
+
+function buildInternalHTML() {
+  const r = calc(), b = r.b, per = "/ " + b.unit;
+  const now = new Date();
+  const d = dt => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const disc = r.quote > 0 ? Math.max(0, (r.quote - r.floor) / r.quote * 100) : 0;
+  const hpd = Math.max(1, S.hoursPerDay);
+  const pill = $("s-pill").textContent, pcls = $("status").classList.contains("bad") ? "q-bad" : $("status").classList.contains("warn") ? "q-warn" : "q-ok";
+  const rows = [...$("breakdown").querySelectorAll("tr")].map(tr => {
+    const c = [...tr.children].map(td => esc(td.textContent));
+    return '<tr' + (tr.classList.contains("total") ? ' class="t"' : "") + "><td>" + c[0] + "</td><td>" + (c[1] || "") + '</td><td class="r">' + (c[2] || "") + "</td></tr>";
+  }).join("");
+  const cards = [...$("pkgs").querySelectorAll(".pkg")].map(p => {
+    const name = p.querySelector(".name span").textContent;
+    const priceTxt = p.querySelector(".price span").textContent;
+    const price = num(priceTxt.replace(/[^\d.,-]/g, ""));
+    const pf = num(p.dataset.floor || r.floorUnit);
+    const ok = price >= pf - 0.5;
+    const m = price > 0 ? (price - pf) / price * 100 : 0;
+    return "<tr><td>" + esc(name) + '</td><td class="r">' + esc(priceTxt) + " " + esc(p.querySelector(".price .per").textContent) + '</td><td class="r">' + m.toFixed(0) + '%</td><td><span class="q-pill ' + (ok ? "q-ok" : "q-bad") + '">' + (ok ? "Profitable" : "Below floor") + "</span></td></tr>";
+  }).join("");
+  const rateLine = S.rateMode === "hour"
+    ? fmt(S.hourRate) + " per hour × " + fmtIn(hpd) + " billable hours"
+    : fmt(S.income) + " a year ÷ " + fmtIn(S.billDays) + " billable days";
+  const project = S.qTitle || (allJobs().find(j => j.id === S.job) || {}).name || "Project";
+  return `
+  <div class="q-doc">
+    <style>${QCSS}</style>
+    <div class="q-top">
+      <div class="q-biz">${logoHTML()}<div class="q-bn">${esc(S.bizName || "Your business")}</div></div>
+      <div class="q-title"><h1>Pricing report</h1><div class="q-meta">Internal · ${d(now)}<br>${esc(project)}${S.client ? " · " + esc(S.client) : ""}</div></div>
+    </div>
+    <div class="q-int">Confidential. Internal use only, do not send to the client.</div>
+    <div class="q-h">Result</div>
+    <div class="q-tiles">
+      <div class="q-tile hl"><div class="q-k">Your price</div><b>${fmt(r.unitPrice)} ${per}</b></div>
+      <div class="q-tile"><div class="q-k">Cost floor</div><b>${fmt(r.floorUnit)} ${per}</b></div>
+      <div class="q-tile"><div class="q-k">Value price</div><b>${r.valuePrice > 0 ? fmt(r.valueUnit) + " " + per : "Not set"}</b></div>
+      <div class="q-tile"><div class="q-k">Market range</div><b>${fmt(r.mLow)} to ${fmt(r.mHigh)}</b></div>
+      <div class="q-tile"><div class="q-k">You earn per hour</div><b>${fmt(r.eff / hpd)}</b></div>
+      <div class="q-tile"><div class="q-k">Max discount before loss</div><b>${disc.toFixed(0)}%</b></div>
+    </div>
+    <p style="margin:10px 0 0"><span class="q-pill ${pcls}">${esc(pill)}</span> ${esc($("s-text").textContent)}</p>
+    <div class="q-h">Rate basis</div>
+    <table class="q-tbl">
+      <tr><td>How you charge</td><td class="r">${esc(b.label)}</td></tr>
+      <tr><td>Your rate</td><td class="r">${esc(rateLine)}</td></tr>
+      <tr><td>Overhead</td><td class="r">${fmt(S.overhead)} a year over ${fmtIn(S.billDays)} days</td></tr>
+      <tr><td>Your cost per day</td><td class="r">${fmt(r.dayRate)}</td></tr>
+      <tr><td>Contingency / margin</td><td class="r">${S.cont}% / ${S.margin}%</td></tr>
+    </table>
+    <div class="q-h">Floor breakdown</div>
+    <table class="q-tbl"><tr><th>Item</th><th>How</th><th class="r">Amount</th></tr>${rows}</table>
+    <div class="q-h">Packages vs floor</div>
+    <table class="q-tbl"><tr><th>Option</th><th class="r">Price</th><th class="r">Above its floor</th><th>Check</th></tr>${cards}</table>
+    <div class="q-h">Client totals</div>
+    <table class="q-tot">
+      <tr><td>${S.basis === "month" ? "Monthly fee" : "Engagement total"}</td><td>${fmt(r.quote)}</td></tr>
+      ${S.vat > 0 ? `<tr><td>${esc(S.taxName || "Tax")} (${S.vat}%)</td><td>${fmt(r.quote * S.vat / 100)}</td></tr>` : ""}
+      <tr class="q-grand"><td>Client pays</td><td>${fmt(r.quote * (1 + S.vat / 100))}</td></tr>
+      ${S.deposit > 0 ? `<tr class="q-dep"><td>Deposit (${S.deposit}%)</td><td>${fmt(r.quote * (1 + S.vat / 100) * S.deposit / 100)}</td></tr>` : ""}
+      ${S.basis === "month" ? `<tr><td>Contract value (${fmtIn(Math.max(1, S.months))} months)</td><td>${fmt(r.total)}</td></tr>` : ""}
+    </table>
+  </div>`;
+}
+
+function scheduleOK() { const a = parseSched(S.schedule); return Math.abs(a.reduce((x, y) => x + y, 0) - 100) < 0.01; }
+async function downloadPDF(mode) {
+  closeMenus();
+  if (mode !== "internal" && S.basis === "project" && !scheduleOK()) {
+    toast("Payment stages must add up to 100% before you send a quote.");
+    showTab("quote"); const tb = document.querySelector('.tcard[data-card="quote"] [data-pane="terms"]'); if (tb) tb.click();
+    setTimeout(() => $("schedule").focus(), 50); return;
+  }
+  if (!window.html2pdf) { try { await loadScript("lib/html2pdf.bundle.min.js"); } catch (e) {} }
+  const html = mode === "internal" ? buildInternalHTML() : buildQuoteHTML();
+  const base = (mode === "internal" ? "Internal " : "Quote ") + (S.client || "") + " " + (S.qTitle || "");
+  const fileName = (base.trim().replace(/[^\w\- ]+/g, "").replace(/\s+/g, "-") || "Quote") + ".pdf";
+  if (!window.html2pdf) { printFallback(html); return; }
+  const btn = $("pdf"); btn.disabled = true; const label = btn.innerHTML; btn.textContent = "Preparing PDF...";
+  const holder = document.createElement("div");
+  holder.innerHTML = html;
+  try {
+    await html2pdf().set({
+      margin: [12, 12, 12, 12], filename: fileName,
+      image: { type: "jpeg", quality: 0.96 },
+      html2canvas: { scale: 2, backgroundColor: "#ffffff", windowWidth: 1000, scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"], avoid: [".q-pkg", ".q-tot", ".q-sign", ".q-tbl tr", ".q-tile"] }
+    }).from(holder.firstElementChild).save();
+    $("toast").textContent = "PDF downloaded";
+    if (mode !== "internal" && !(S.qNo || "").trim()) { S.qSeq = (S.qSeq || 1) + 1; save(); render(); }
+  } catch (e) {
+    printFallback(html);
+  } finally {
+    btn.disabled = false; btn.innerHTML = label;
+    setTimeout(() => $("toast").textContent = "", 2500);
+  }
+}
+$("pdf").addEventListener("click", e => { e.stopPropagation(); const open = $("pdfPop").hidden; closeMenus(); $("pdfPop").hidden = !open; $("pdf").setAttribute("aria-expanded", open); });
+if ($("mb-pdf")) $("mb-pdf").addEventListener("click", e => { e.stopPropagation(); const open = $("pdfPop").hidden; closeMenus(); $("pdfPop").hidden = !open; });
+$("pdfPop").querySelectorAll("button").forEach(bt => bt.addEventListener("click", () => downloadPDF(bt.dataset.mode)));
+
+
+/* ---------- app shell: views, card tabs, home, preview, setup, backup ---------- */
+const _loaded = {};
+function loadScript(src) {
+  if (!_loaded[src]) _loaded[src] = new Promise((ok, no) => { const t = document.createElement("script"); t.src = src; t.onload = ok; t.onerror = () => { delete _loaded[src]; no(new Error("load")); }; document.head.appendChild(t); });
+  return _loaded[src];
+}
+function toast(msg) { $("toast").textContent = msg; clearTimeout(toast._t); toast._t = setTimeout(() => $("toast").textContent = "", 3200); }
+$("appVer").textContent = "Version " + APP.version + " · Updated " + APP.updated;
+$("appContact").textContent = APP.contact ? "Questions or feedback: " + APP.contact : "";
+const VIEWS = ["home", "price", "quote", "business", "settings"];
+document.querySelectorAll(".navbtn").forEach(b => b.addEventListener("click", () => { showTab(b.dataset.view); window.scrollTo(0, 0); }));
+document.querySelectorAll(".tcard").forEach(card => {
+  card.querySelectorAll(".ctabs button").forEach(b => b.addEventListener("click", () => {
+    card.querySelectorAll(".ctabs button").forEach(x => x.setAttribute("aria-selected", x === b));
+    card.querySelectorAll(".pane").forEach(p => p.hidden = p.dataset.pane !== b.dataset.pane);
+  }));
+});
+document.querySelectorAll("[data-pdf]").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); downloadPDF(b.dataset.pdf); }));
+$("h-xlsx").addEventListener("click", () => exportExcel());
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function lvlOf(el) { return !el ? "good" : el.classList.contains("bad") ? "bad" : el.classList.contains("warn") ? "warn" : "good"; }
+function renderHome(r, B) {
+  const job = allJobs().find(j => j.id === S.job);
+  $("h-job").textContent = "Your price · " + (job ? job.name : "Custom job");
+  const pl = lvlOf($("status"));
+  $("h-badge").textContent = $("s-pill").textContent; $("h-badge").dataset.lvl = pl;
+  $("h-price").textContent = fmt(r.unitPrice);
+  $("h-sub").textContent = "per " + r.b.unit + " · cost floor " + fmt(r.floorUnit) + " · " + (S.vat > 0 ? "excl. " + (S.taxName || "tax") : "no tax");
+  $("h-rev").textContent = fmt(B.R);
+  $("h-own").textContent = fmt(B.owner);
+  $("h-cap").textContent = Math.round(B.capUsed * 100) + "%";
+  const last = B.months[11];
+  $("h-cash").textContent = fmt(last.cash); $("h-cash").style.color = last.cash < 0 ? "var(--bad)" : "";
+  /* cash flow chart: money in up, money out down */
+  const W = 640, H = 220, mid = 100, pad = 30, bw = (W - pad * 2) / 12;
+  const mx = Math.max(1, ...B.months.map(m => Math.max(m.inflow, m.out)));
+  const sc = v => v / mx * 82;
+  const now = new Date().getMonth();
+  let g = "";
+  [-1, -0.5, 0, 0.5, 1].forEach(t => { const y = mid - t * 82; g += '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y + '" y2="' + y + '" stroke="var(--line)" stroke-dasharray="' + (t === 0 ? "0" : "3 4") + '"/>'; });
+  B.months.forEach((m, i) => {
+    const x = pad + i * bw + bw * 0.22, w = bw * 0.56;
+    const hi = sc(m.inflow), ho = sc(m.out);
+    g += '<rect x="' + x.toFixed(1) + '" y="' + (mid - hi).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, hi).toFixed(1) + '" rx="4" fill="var(--accent)"><title>' + MONTHS[(now + i) % 12] + " in " + esc(fmt(m.inflow)) + "</title></rect>";
+    g += '<rect x="' + x.toFixed(1) + '" y="' + mid + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, ho).toFixed(1) + '" rx="4" fill="var(--lime)"><title>' + MONTHS[(now + i) % 12] + " out " + esc(fmt(m.out)) + "</title></rect>";
+    g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + MONTHS[(now + i) % 12] + "</text>";
+  });
+  $("h-chart").innerHTML = g;
+  /* donut */
+  const pay = Math.min(B.targetPay, Math.max(0, B.R - B.D - B.fixedM));
+  const segs = [["Job costs", B.D, "#9fb0a7"], ["Expenses", B.fixedM, "var(--warn)"], ["Your pay", pay, "var(--accent)"], ["Profit", Math.max(0, B.after), "var(--lime)"]];
+  const tot = Math.max(1, B.R);
+  let off = 0, d = '<circle cx="60" cy="60" r="46" fill="none" stroke="var(--line)" stroke-width="16"/>';
+  const C = 2 * Math.PI * 46;
+  segs.forEach(([n, v, c]) => {
+    if (v <= 0 || B.R <= 0) return;
+    const len = Math.min(v / tot, 1 - off) * C;
+    d += '<circle cx="60" cy="60" r="46" fill="none" stroke="' + c + '" stroke-width="16" stroke-dasharray="' + len.toFixed(2) + " " + (C - len).toFixed(2) + '" stroke-dashoffset="' + (-off * C).toFixed(2) + '" transform="rotate(-90 60 60)"/>';
+    off += v / tot;
+  });
+  $("h-donut").innerHTML = d;
+  $("h-donut-v").textContent = fmt(B.R);
+  $("h-donut-list").innerHTML = "";
+  segs.forEach(([n, v, c]) => {
+    const row = document.createElement("div"); row.className = "drow";
+    row.innerHTML = '<span><i style="background:' + c + '"></i></span><span class="dn"></span><span class="dv"></span>';
+    row.querySelector(".dn").textContent = n + (B.R > 0 ? " · " + Math.round(v / tot * 100) + "%" : "");
+    row.querySelector(".dv").textContent = fmt(v);
+    $("h-donut-list").appendChild(row);
+  });
+  if (B.after < 0 && B.R > 0) { const row = document.createElement("div"); row.className = "drow bad"; row.innerHTML = '<span><i style="background:var(--bad)"></i></span><span class="dn">Short of your pay target</span><span class="dv"></span>'; row.querySelector(".dv").textContent = fmt(-B.after); $("h-donut-list").appendChild(row); }
+  /* alerts */
+  const items = [["price", pl, $("s-pill").textContent, $("s-text").textContent]];
+  document.querySelectorAll("#b-status .status").forEach(st => items.push(["business", lvlOf(st), st.querySelector(".pill").textContent, st.lastChild.textContent]));
+  $("h-alerts").innerHTML = "";
+  items.forEach(([view, lvl, t, txt]) => {
+    const it = document.createElement("button"); it.type = "button"; it.className = "alert"; it.dataset.lvl = lvl;
+    it.innerHTML = '<i></i><span><b></b><small></small></span>';
+    it.querySelector("b").textContent = (view === "price" ? "Job price: " : "Business: ") + t;
+    it.querySelector("small").textContent = txt;
+    it.addEventListener("click", () => { showTab(view); window.scrollTo(0, 0); });
+    $("h-alerts").appendChild(it);
+  });
+}
+
+function paintPreview() {
+  const wrap = $("qPrevWrap"), box = $("qPrev");
+  if (!wrap || wrap.offsetParent === null) return;
+  box.innerHTML = buildQuoteHTML();
+  const k = Math.min(1, (wrap.clientWidth - 24) / 700);
+  box.style.transform = "scale(" + k + ")";
+  wrap.style.height = Math.ceil(box.offsetHeight * k + 24) + "px";
+}
+window.addEventListener("resize", () => { if (S.tab === "quote") paintPreview(); });
+
+/* backup and reset */
+$("bkSave").addEventListener("click", () => {
+  try {
+    const blob = new Blob([JSON.stringify(S, null, 1)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "pricing-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    $("toast").textContent = "Backup downloaded";
+  } catch (e) { $("toast").textContent = "Downloads are blocked here. Use the live site."; }
+  setTimeout(() => $("toast").textContent = "", 2500);
+});
+$("bkLoad").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const data = JSON.parse(rd.result);
+      if (!data || typeof data !== "object" || !data.qty) throw new Error("bad");
+      S = Object.assign(clone(DEFAULTS), data); S.onboarded = true;
+      drawJobs(); fillInputs(); render(); showTab("home");
+      $("toast").textContent = "Backup loaded";
+    } catch (err) { $("toast").textContent = "That file is not a pricing backup."; }
+    setTimeout(() => $("toast").textContent = "", 2500);
+  };
+  rd.readAsText(f); e.target.value = "";
+});
+let wipeArmed = 0;
+$("wipe").addEventListener("click", () => {
+  if (Date.now() - wipeArmed > 4000) { wipeArmed = Date.now(); $("wipe").textContent = "Click again to erase"; setTimeout(() => $("wipe").textContent = "Erase all data", 4000); return; }
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  S = clone(DEFAULTS); S.onboarded = false;
+  drawJobs(); fillInputs(); render(); showTab("home"); openWiz();
+});
+$("wizAgain").addEventListener("click", () => openWiz());
+
+/* one-time setup */
+const WIZ_COSTS = [
+  { id: "lean", name: "Lean", desc: "Laptop, tools and phone. Working from home.", list: [["Software and AI tools", 40, "m"], ["Phone and internet", 20, "m"], ["Accounting and bank fees", 200, "y"], ["CR licence and renewals", 150, "y"], ["Laptop and equipment (spread)", 400, "y"]] },
+  { id: "std", name: "Standard", desc: "Tools, transport and some marketing.", list: DEFAULTS.expenses.map(e => [e.name, e.amt, e.freq]) },
+  { id: "office", name: "With an office", desc: "Coworking desk or a small office.", list: DEFAULTS.expenses.map(e => [e.name, e.amt, e.freq]).concat([["Office or coworking rent", 250, "m"]]) }
+];
+let wizStep = 0, wizCost = "std";
+function wizButtons(box, items, isOn, onPick) {
+  box.innerHTML = "";
+  items.forEach(it => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "wopt";
+    b.innerHTML = it.html; b.setAttribute("aria-pressed", isOn(it));
+    b.addEventListener("click", () => { onPick(it); paintWiz(); });
+    box.appendChild(b);
+  });
+}
+function paintWiz() {
+  document.querySelectorAll(".wiz-step").forEach(st => st.hidden = Number(st.dataset.step) !== wizStep);
+  $("wizDots").innerHTML = [0, 1, 2, 3].map(i => '<i class="' + (i <= wizStep ? "on" : "") + '"></i>').join("");
+  $("wizBack").textContent = wizStep === 3 ? "Make a client quote" : "Back";
+  $("wizBack").style.visibility = wizStep === 0 ? "hidden" : "visible";
+  $("wizNext").textContent = wizStep === 3 ? "Open my dashboard" : "Next";
+  document.querySelectorAll(".u-cur").forEach(e => e.textContent = S.cur);
+  if (wizStep === 0) {
+    wizButtons($("wizJobs"), JOBS.map(j => ({ j, html: '<i class="ji">' + svg(JOB_ICON[j.id] || "tag") + "</i><b>" + esc(j.name) + "</b><small>" + esc(BASES[j.basis].label) + "</small>" })), it => S.job === it.j.id, it => jobInto(S, it.j));
+    const curs = CURRENCIES.flatMap(g => g[1]);
+    wizButtons($("wizCur"), curs.map(([c, n]) => ({ c, html: '<span class="flag">' + flagSVG(c) + "</span><b>" + c + "</b>" })), it => S.cur === it.c, it => { S.cur = it.c; });
+  }
+  if (wizStep === 1) {
+    if (document.activeElement !== $("wizRate")) $("wizRate").value = fmtIn(S.hourRate);
+    $("wizRateChips").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", num(b.dataset.v) === S.hourRate));
+    $("wizHrs").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", num(b.dataset.v) === S.hoursPerDay));
+  }
+  if (wizStep === 2) {
+    wizButtons($("wizCosts"), WIZ_COSTS.map(o => ({ o, html: "<b>" + esc(o.name) + ' <span class="wsum">' + esc(fmt(yearlyExp({ expenses: o.list.map(l => ({ amt: l[1], freq: l[2] })) }) / 12)) + " / month</span></b><small>" + esc(o.desc) + "</small>" })), it => wizCost === it.o.id, it => { wizCost = it.o.id; S.expenses = it.o.list.map(l => ({ name: l[0], amt: l[1], freq: l[2] })); });
+  }
+  if (wizStep === 3) {
+    const r = calc(), job = allJobs().find(j => j.id === S.job);
+    $("wz-job").textContent = (job ? job.name : "Your job") + " · " + r.b.label;
+    $("wz-price").textContent = fmt(r.unitPrice);
+    $("wz-sub").textContent = "per " + r.b.unit + " · your cost floor " + fmt(r.floorUnit) + " · at " + fmt(S.hourRate) + " an hour";
+  }
+}
+$("wizRate").addEventListener("input", () => { S.rateMode = "hour"; S.hourRate = num($("wizRate").value); paintWiz(); });
+$("wizRateChips").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.rateMode = "hour"; S.hourRate = num(b.dataset.v); $("wizRate").value = fmtIn(S.hourRate); paintWiz(); }));
+$("wizHrs").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.hoursPerDay = num(b.dataset.v); paintWiz(); }));
+function openWiz() { wizStep = 0; $("wiz").hidden = false; document.body.classList.add("noscroll"); paintWiz(); }
+function closeWiz(go) {
+  S.onboarded = true; $("wiz").hidden = true; document.body.classList.remove("noscroll");
+  drawJobs(); fillInputs(); render(); showTab(go || "home"); window.scrollTo(0, 0);
+}
+$("wizNext").addEventListener("click", () => { if (wizStep < 3) { wizStep++; paintWiz(); } else closeWiz("home"); });
+$("wizBack").addEventListener("click", () => { if (wizStep === 3) closeWiz("quote"); else if (wizStep > 0) { wizStep--; paintWiz(); } });
+$("wizSkip").addEventListener("click", () => closeWiz("home"));
+
+drawJobs(); fillInputs(); render();
+showTab(VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : (VIEWS.includes(S.tab) ? S.tab : "home"));
+if (!S.onboarded) openWiz();
+</script>
+</body>
+</html>
