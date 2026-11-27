@@ -2202,7 +2202,7 @@ function drawTeam(F) {
       row.innerHTML = '<input class="name" aria-label="Role"><div class="inp tp"><input inputmode="decimal" aria-label="People"></div><div class="inp ts"><input inputmode="decimal" aria-label="Monthly salary"></div><select class="tn" aria-label="Status"><option value="1"></option><option value="0">Expatriate</option></select><select class="tf" aria-label="Starts"></select><button class="x" type="button" aria-label="Remove role">×</button><div class="tsub"><label><input type="checkbox"> Billable to clients</label><span class="tcost num"></span></div>';
       const [nm, pp, sl] = [row.querySelector(".name"), row.querySelector(".tp input"), row.querySelector(".ts input")];
       nm.value = t.role; pp.value = fmtIn(t.n); sl.value = fmtIn(t.salary); nm.id = "tm-r-" + i; pp.id = "tm-n-" + i; sl.id = "tm-s-" + i;
-      const sel = row.querySelector(".tn"); sel.options[0].textContent = P.citizen + " (citizen)"; sel.value = t.local ? "1" : "0";
+      const sel = row.querySelector(".tn"); sel.options[0].textContent = P.citizen; sel.value = t.local ? "1" : "0";
       row.querySelector(".tf").innerHTML = monthOpts(num(t.from) || 1);
       const cb = row.querySelector("input[type=checkbox]"); cb.checked = !!t.bill;
       nm.addEventListener("input", () => { t.role = nm.value; render(); });
