@@ -228,6 +228,8 @@ details.grp summary::-webkit-details-marker { display: none; }
 .derivedv { text-align: right; font-weight: 600; display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
 .linkbtn { padding: 3px 10px; font-size: 13px; }
 .elhead, .eline { grid-template-columns: 1fr 84px 104px 28px !important; }
+.eline .epay { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); padding: 2px 0 4px; }
+.eline .epay select { border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 6px; padding: 3px 4px; font-size: 12px; }
 .seg.mini button { font-size: 12px; padding: 5px 2px; }
 .bstat { display: grid; gap: 8px; }
 .mixhead, .mixrow, .mixtot { display: grid; grid-template-columns: 1fr 110px 150px 96px; gap: 8px; align-items: center; }
@@ -659,6 +661,26 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .planout { min-width: 0; } .planout svg { width: 100%; height: auto; display: block; }
 @media (max-width: 1180px) { .plangrid { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .ohead { display: none; } .orow { grid-template-columns: 1fr 1fr 28px; } .orow .name { grid-column: 1 / 3; } .orow .x { grid-column: 3; grid-row: 1; } .scenbar .seg { min-width: 0; flex: 1; } .seasgrid { grid-template-columns: repeat(4, 1fr); } }
+
+.dhead, .drow2 { display: grid; grid-template-columns: minmax(0,1fr) 86px 64px 76px 128px 28px; gap: 6px; align-items: center; }
+.dhead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.drow2 { padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.drow2 .name { border: 1px solid var(--line); background: var(--field); border-radius: 7px; padding: 7px 8px; min-width: 0; font-size: 14px; width: 100%; }
+.drow2 select { border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 7px; padding: 6px 4px; font-size: 13px; min-width: 0; width: 100%; }
+.drow2 .bill { display: flex; gap: 4px; align-items: center; }
+.drow2 .bill .inp { width: 52px; flex: none; }
+.drow2 .x { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 4px 0; font-weight: 400; }
+.drow2 .wsub { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.acttiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
+.acttiles div { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; }
+.acttiles .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.acttiles .v { font-family: var(--font-num); font-weight: 700; font-size: 17px; margin-top: 2px; }
+.acttiles .d { font-size: 12px; margin-top: 2px; }
+.fcgrid.act { min-width: 980px; }
+.fcgrid.act td input { width: 100%; min-width: 86px; border: 1px solid var(--line); background: #fff7dd; border-radius: 6px; padding: 4px 6px; text-align: right; font-family: var(--font-num); font-size: 12.5px; }
+.fcgrid.act tr.closed td:first-child::after { content: " ✓"; color: var(--good); font-weight: 700; }
+.good-t { color: var(--good); } .bad-t { color: var(--bad); }
+@media (max-width: 760px) { .acttiles { grid-template-columns: 1fr 1fr; } .dhead { display: none; } .drow2 { grid-template-columns: 1fr 1fr 28px; } .drow2 .name { grid-column: 1 / 3; } .drow2 .x { grid-column: 3; grid-row: 1; } .drow2 .bill { grid-column: 1 / -1; } }
 /* v3 forecast */
 .thead, .trow { display: grid; grid-template-columns: minmax(0,1fr) 58px 92px 112px 78px 28px; gap: 6px; align-items: center; }
 .thead, .ghead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -1019,6 +1041,12 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
         <div class="seasgrid" id="fc-seasCustom" hidden></div>
         <div class="seasbars" id="fc-seasBars" aria-label="Sales by month"></div>
         <div class="derived"><span>Sales revenue in month 1</span><strong class="num" id="fc-rev1"></strong></div>
+        <h2 style="margin-top:16px"><span class="ico" data-i="target"></span>Pipeline deals <span class="h2hint">(added on top, weighted by chance)</span></h2>
+        <div class="dhead"><span>Deal</span><span class="r">Value</span><span class="r">Chance</span><span>Starts</span><span>Billed</span><span></span></div>
+        <div id="fc-deals"></div>
+        <button class="ghost addline" id="fc-addDeal" type="button">+ Add deal</button>
+        <div class="derived"><span>Weighted pipeline, 12 months</span><strong class="num" id="fc-pipeTot"></strong></div>
+        <p class="note">A 6,000 project at 40% counts as 2,400 in its month. Set the chance to 100% when the deal is signed.</p>
         <h2 style="margin-top:16px"><span class="ico" data-i="wallet"></span>Cash timing</h2>
         <div class="field"><label for="fc-startCash">Cash in the bank at the start</label><div class="inp"><input id="fc-startCash" inputmode="decimal"><span class="u u-cur"></span></div></div>
         <div class="field"><label for="fc-payDelay">Clients pay after<small>Days from invoice. Deposits and retainers come in at once</small></label><div class="inp"><input id="fc-payDelay" inputmode="decimal"><span class="u">days</span></div></div>
@@ -1082,7 +1110,14 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
   <section class="panel fcgrid-p">
     <div class="fcgrid-h"><h2><span class="ico" data-i="list"></span>Profit and loss by month</h2><button type="button" id="fc-xlsx"><span class="ni" data-i="sheet"></span>Download forecast (Excel)</button></div>
     <div class="fcwrap"><table class="fcgrid" id="fcGrid"></table></div>
-    <p class="note">Amounts in <span class="cur-code"></span>. Profit is on an accrual basis (yearly expenses spread evenly, end of service set aside monthly); the cash rows show when money actually moves, including VAT and yearly bills paid upfront. Planning aid, not payroll, tax or legal advice.</p>
+    <p class="note">Amounts in <span class="cur-code"></span>. Profit is on an accrual basis (yearly expenses spread evenly, end of service set aside monthly); the cash rows show when money actually moves, including VAT and yearly bills in the month they are paid. Planning aid, not payroll, tax or legal advice.</p>
+  </section>
+  <section class="panel fcgrid-p">
+    <div class="fcgrid-h"><h2><span class="ico" data-i="clock"></span>Actual vs forecast</h2><span class="muted small">Type each month's real figures from your books. Closed months update the year-end outlook.</span></div>
+    <div class="acttiles" id="actTiles"></div>
+    <div class="fcwrap"><table class="fcgrid act" id="actTable"></table></div>
+    <svg id="actChart" viewBox="0 0 640 180" role="img" aria-label="Forecast and actual operating profit by month"></svg>
+    <p class="note">Costs are everything before tax: cost of sales, expenses, staff and owner pay. Operating profit = income − costs (before grants and tax). A month counts as closed when both income and costs are filled in.</p>
   </section>
   <section class="panel fcgrid-p">
     <div class="fcgrid-h"><h2><span class="ico" data-i="target"></span>3-year plan and goal</h2></div>
@@ -1209,7 +1244,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "3.1", updated: "27 November 2026", contact: "" };
+const APP = { version: "3.2", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1298,6 +1333,8 @@ const SAMPLE_TEAM = [
 ];
 DEFAULTS.fc = { start: "", revLink: true, revBase: 0, revGrowth: 1.5, season: "gcc", ramadanDip: 25, seasonCustom: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100], scen: "base", trading: true,
   oneoff: [{ name: "Brand and website refresh", amt: 500, m: 6, kind: "exp" }, { name: "Laptops for new hires", amt: 800, m: 4, kind: "asset" }],
+  deals: [{ name: "Clinic booking app", value: 6000, prob: 40, m: 3, kind: "once", n: 1 }, { name: "Retail chain social media", value: 1200, prob: 60, m: 2, kind: "monthly", n: 12 }],
+  actuals: {},
   taxRate: null, taxFree: null, plan: { growth: 20, salaryUp: 3, costUp: 3, hires: 1, goalType: "net", goal: 0 }, cogsLink: true, cogsPct: 0, freightPct: 0, ot: 0, housing: 0, ownerPay: true,
   team: JSON.parse(JSON.stringify(SAMPLE_TEAM)), other: [{ name: "", amt: 0, from: 1, to: 12 }], rates: {}, inBiz: true };
 Object.assign(DEFAULTS, { bizIban: "", bizBic: "", taxReg: true, feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
@@ -1317,6 +1354,7 @@ try {
   const hadFc = !!sv.fc, hadOne = !!(sv.fc && sv.fc.oneoff);
   S.fc = Object.assign(clone(DEFAULTS.fc), S.fc);
   if (saved && !hadOne) S.fc.oneoff = [];
+  if (saved && !(sv.fc && sv.fc.deals)) S.fc.deals = [];
   if (saved && hadFc && sv.fc.revGrowth === undefined) S.fc.revGrowth = 0;
   if (!saved) { const old = JSON.parse(localStorage.getItem("pricing-model-v5") || "{}");
     ["myJobs", "logo", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "hourRate", "rateMode", "hoursPerDay", "billDays"].forEach(k => { if (old[k] !== undefined) S[k] = old[k]; }); }
@@ -1366,7 +1404,8 @@ function convertMoney(st, from, to) {
   const f = st.fc;
   if (f) {
     f.revBase = m(f.revBase); f.housing = m(f.housing);
-    (f.team || []).forEach(t => t.salary = m(t.salary)); (f.other || []).forEach(o => o.amt = m(o.amt)); (f.oneoff || []).forEach(o => o.amt = m(o.amt));
+    (f.team || []).forEach(t => t.salary = m(t.salary)); (f.other || []).forEach(o => o.amt = m(o.amt)); (f.oneoff || []).forEach(o => o.amt = m(o.amt)); (f.deals || []).forEach(d => d.value = m(d.value));
+    Object.values(f.actuals || {}).forEach(a => ["inc", "cost", "cash"].forEach(k => { if (a[k] !== undefined && a[k] !== "") a[k] = m(a[k]); }));
     f.rates = {}; f.taxFree = null;
     if (f.plan) f.plan.goal = m(f.plan.goal);
   }
@@ -1375,7 +1414,7 @@ function convertMoney(st, from, to) {
 function changeCurrency(c) {
   const from = S.cur; if (from === c) return;
   const k = convertMoney(S, from, c);
-  S.cur = c; teamDrawn = otherDrawn = oneDrawn = "";
+  S.cur = c; teamDrawn = otherDrawn = oneDrawn = dealDrawn = actDrawn = "";
   applyCountry(c, false);
   const kc = COUNTRIES[c];
   const head = k ? "Amounts converted: 1 " + from + " = " + (Math.round(k * 10000) / 10000) + " " + c + (FX_PEG[from] && FX_PEG[c] ? " (fixed peg)" : " (Nov 2026 rate)") + ". " : "No exchange rate for " + c + ": amounts kept as typed. ";
@@ -2017,9 +2056,19 @@ function drawExps() {
     am.addEventListener("blur", () => am.value = fmtIn(e.amt));
     row.querySelectorAll(".seg button").forEach(b => {
       b.setAttribute("aria-pressed", b.dataset.f === e.freq);
-      b.addEventListener("click", () => { e.freq = b.dataset.f; row.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.f === e.freq)); render(); });
+      b.addEventListener("click", () => { e.freq = b.dataset.f; drawExps(); render(); });
     });
     row.querySelector(".x").addEventListener("click", () => { S.expenses.splice(i, 1); drawExps(); render(); });
+    if (e.freq === "y") {
+      /* yearly bills: profit spreads them evenly; cash pays them in the month chosen here */
+      const pm = document.createElement("label"); pm.className = "epay";
+      pm.innerHTML = 'Paid in <select aria-label="Month this bill is paid"></select><span class="muted">spread over 12 months in profit</span>';
+      const sel = pm.querySelector("select"), first = Number(fcStart().slice(5));
+      sel.innerHTML = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((mn, k) => '<option value="' + (k + 1) + '">' + mn + "</option>").join("");
+      sel.value = String(num(e.payM) || first); sel.id = "ex-p-" + i;
+      sel.addEventListener("change", () => { e.payM = num(sel.value); render(); });
+      row.appendChild(pm);
+    }
     box.appendChild(row);
   });
 }
@@ -2219,18 +2268,21 @@ function fcCalc(B = bizCalc(), st = S) {
   const cogsPct = f.cogsLink ? (B.R > 0 ? B.D / B.R : 0) : Math.max(0, num(f.cogsPct)) / 100;
   const frPct = Math.max(0, num(f.freightPct)) / 100;
   const own = f.ownerPay !== false ? B.targetPay : 0;
-  const opex = (st.expenses || []).map(e => ({ name: e.name, m: e.freq === "y" ? e.amt / 12 : e.amt, y: e.freq === "y", amt: e.amt }));
+  const firstCM = Number(months[0].iso.slice(5));
+  const opex = (st.expenses || []).map(e => ({ name: e.name, m: e.freq === "y" ? e.amt / 12 : e.amt, y: e.freq === "y", amt: e.amt, payM: num(e.payM) || firstCM }));
   const other = (f.other || []).filter(o => num(o.amt) || o.name).map(o => ({ name: o.name || base.grant, amt: num(o.amt), from: Math.max(1, num(o.from) || 1), to: Math.min(12, num(o.to) || 12) }));
   const one = (f.oneoff || []).filter(o => num(o.amt)).map(o => ({ name: o.name || "One-off item", amt: Math.abs(num(o.amt)), m: Math.min(12, Math.max(1, num(o.m) || 1)), kind: o.kind || "exp" }));
+  const deals = (f.deals || []).filter(d => num(d.value) && num(d.prob)).map(d => ({ name: d.name || "Deal", value: Math.abs(num(d.value)), prob: Math.min(100, Math.max(0, num(d.prob))) / 100, m: Math.min(12, Math.max(1, num(d.m) || 1)), monthly: d.kind === "monthly", n: Math.max(1, num(d.n) || 1) }));
+  const pipeAt = k => deals.reduce((a, d) => a + ((d.monthly ? (k >= d.m && k < d.m + d.n) : k === d.m) ? d.value * d.prob : 0), 0) * sc.sales;
   const oneIn = (k, kind) => one.filter(o => o.m === k && o.kind === kind).reduce((a, o) => a + o.amt, 0);
   const tr = taxRule(st), vat = (S.taxReg !== false ? num(st.vat) : 0) / 100;
   const delay = Math.max(0, num(st.payDelay)) + sc.delay, lag = Math.max(0, Math.ceil(delay / 30));
   const adv = f.revLink && B.R > 0 ? (B.Rp * B.dp + B.Rm) / B.R : 0;   /* share paid on invoice: project deposits and retainers */
   const rows = months.map((mo, i) => {
-    const k = mo.i, rev = rev0 * Math.pow(1 + g, k - 1) * sea[i], cos = rev * cogsPct, fr = rev * frPct, cogs = cos + fr, gp = rev - cogs;
+    const k = mo.i, base = rev0 * Math.pow(1 + g, k - 1) * sea[i], pipe = pipeAt(k), rev = base + pipe, cos = rev * cogsPct, fr = rev * frPct, cogs = cos + fr, gp = rev - cogs;
     const sm = staffMonth(st, k), op = opex.reduce((a, e) => a + e.m, 0), oneExp = oneIn(k, "exp"), exp = op + own + sm.total + oneExp, noi = gp - exp;
     const oth = other.map(o => (k >= o.from && k <= o.to) ? o.amt : 0), othT = oth.reduce((a, b) => a + b, 0);
-    return { k, mo, sea: sea[i], rev, cos, fr, cogs, gp, sm, op, own, oneExp, opv: opex.map(e => e.m), exp, noi, oth, othT, net: noi + othT,
+    return { k, mo, sea: sea[i], base, pipe, rev, cos, fr, cogs, gp, sm, op, own, oneExp, opv: opex.map(e => e.m), exp, noi, oth, othT, net: noi + othT,
       asset: oneIn(k, "asset"), loanIn: oneIn(k, "in"), loanOut: oneIn(k, "out") };
   });
   const preTax = rows.reduce((a, r) => a + r.net, 0), taxY = Math.max(0, preTax - tr.free) * tr.rate / 100;
@@ -2241,7 +2293,7 @@ function fcCalc(B = bizCalc(), st = S) {
     r.tax = taxY / 12; r.netAT = r.net - r.tax;
     const later = i - lag >= 0 ? rows[i - lag].rev : hist;
     r.recv = (adv * r.rev + (1 - adv) * later) * (1 + vat);
-    r.opCash = opex.reduce((a, e) => a + (e.y ? (r.k === 1 ? e.amt : 0) : e.m), 0);
+    r.opCash = opex.reduce((a, e) => a + (e.y ? (Number(r.mo.iso.slice(5)) === e.payM ? e.amt : 0) : e.m), 0);
     r.buyNet = r.cogs + r.opCash + r.oneExp + r.asset;
     r.vatOut = r.rev * vat; r.vatIn = r.buyNet * vat;
     r.paySup = r.cogs + r.opCash + r.oneExp;
@@ -2259,14 +2311,23 @@ function fcCalc(B = bizCalc(), st = S) {
   const tot = { rev: T("rev"), cos: T("cos"), fr: T("fr"), cogs: T("cogs"), gp: T("gp"), op: T("op"), own: T("own"), oneExp: T("oneExp"), exp: T("exp"), noi: T("noi"), othT: T("othT"), net: preTax, tax: taxY, netAT: preTax - taxY, staff: T(r => r.sm.total), recv: T("recv"), cashNet: T("cashNet") };
   STAFF_LINES.forEach(([k]) => tot["s_" + k] = T(r => r.sm[k]));
   const low = rows.reduce((a, r) => r.close < a.close ? r : a, rows[0]);
-  return { P, base, months, rows, tot, opex, other, one, cogsPct, frPct, rev0, g, own, tr, vat, lag, adv, hist, eosCash, sc, low, sea };
+  tot.pipe = T("pipe"); tot.base = T("base");
+  /* actuals: months with both actual income and actual costs are closed; outlook = actuals + forecast for open months */
+  const A = f.actuals || {}, has = v => v !== undefined && v !== null && v !== "";
+  rows.forEach(r => { const a = A[r.mo.iso] || {}; r.fcCost = r.cogs + r.exp; r.aInc = has(a.inc) ? num(a.inc) : null; r.aCost = has(a.cost) ? num(a.cost) : null; r.aCash = has(a.cash) ? num(a.cash) : null;
+    r.closed = r.aInc !== null && r.aCost !== null; r.aNoi = r.closed ? r.aInc - r.aCost : null; });
+  const cl = rows.filter(r => r.closed);
+  const act = { n: cl.length, incF: cl.reduce((a, r) => a + r.rev, 0), incA: cl.reduce((a, r) => a + r.aInc, 0), noiF: cl.reduce((a, r) => a + r.noi, 0), noiA: cl.reduce((a, r) => a + r.aNoi, 0),
+    outInc: rows.reduce((a, r) => a + (r.closed ? r.aInc : r.rev), 0), outNoi: rows.reduce((a, r) => a + (r.closed ? r.aNoi : r.noi), 0), lastCash: [...rows].reverse().find(r => r.aCash !== null) || null };
+  return { deals, act, P, base, months, rows, tot, opex, other, one, cogsPct, frPct, rev0, g, own, tr, vat, lag, adv, hist, eosCash, sc, low, sea };
 }
 function fcGridRows(F) {
   const R = F.rows, P = F.P, L = [];
   const line = (label, cls, vals, noTotal) => L.push({ label, cls, vals, total: vals && !noTotal ? vals.reduce((a, b) => a + b, 0) : null });
   line("Ordinary income and expense", "sec");
   line("Income", "sec2");
-  line("Sales revenue", "l1", R.map(r => r.rev));
+  line("Sales revenue", "l1", R.map(r => r.base));
+  if (F.deals.length) line("Pipeline deals (weighted by chance)", "l1", R.map(r => r.pipe));
   line("Total income", "sub", R.map(r => r.rev));
   line("Cost of goods sold", "sec2");
   line("Cost of sales", "l1", R.map(r => r.cos));
@@ -2351,6 +2412,10 @@ function renderForecast(B) {
   if (t.othT > 0 && t.net >= 0 && t.net - t.othT < 0) iss.push(["warn", "The year is only profitable with grants (" + fmt(t.othT) + "). Without them the company loses " + fmt(t.othT - t.net) + "."]);
   const kc = ctry();
   if (kc && kc.threshold && kc.vat && S.taxReg === false && t.rev > kc.threshold) iss.push(["bad", "Forecast income of " + fmt0(t.rev) + " is above the " + fmt0(kc.threshold) + " VAT registration threshold. Register with the " + kc.authority + "."]);
+  if (t.rev > 0 && t.pipe / t.rev > 0.4) iss.push(["warn", Math.round(t.pipe / t.rev * 100) + "% of income comes from unsigned deals. Plan costs on signed work; hire when deals close."]);
+  const AC = F.act;
+  if (AC.n && AC.incF > 0) { const d = (AC.incA - AC.incF) / AC.incF; if (d < -0.1) iss.push([d < -0.2 ? "bad" : "warn", "Actual income is " + Math.round(-d * 100) + "% below the forecast over " + AC.n + " month" + (AC.n > 1 ? "s" : "") + " (" + fmt(AC.incA - AC.incF) + "). Year-end outlook: " + fmt(AC.outNoi) + " operating profit."]);
+    else if (d > 0.1) iss.push(["good", "Actual income is " + Math.round(d * 100) + "% above the forecast. Consider raising the base or hiring earlier."]); }
   if (F.low.close < 0) iss.push(["bad", "Cash runs out in " + F.low.mo.label + " (" + fmt(F.low.close) + "), even if the year is profitable. Ask for deposits, shorten payment terms, delay the asset purchase or arrange finance."]);
   else if (F.low.close < F.rows[11].staffCash) iss.push(["warn", "Cash falls to " + fmt(F.low.close) + " in " + F.low.mo.label + ", less than one month of salaries. Keep at least two months of costs in the bank."]);
   if (!iss.length) iss.push(["good", "Profitable in every month with cash never below " + fmt0(F.low.close) + ": " + fmt(t.netAT) + " net income over 12 months, team cost " + (t.rev > 0 ? Math.round(t.staff / t.rev * 100) : 0) + "% of income."]);
@@ -2406,8 +2471,8 @@ function renderForecast(B) {
   const best = F.rows.reduce((a, r) => r.netAT > a.netAT ? r : a, F.rows[0]), worst = F.rows.reduce((a, r) => r.netAT < a.netAT ? r : a, F.rows[0]);
   $("fcChartText").textContent = F.months[0].iso + " to " + F.months[11].iso + ". Best month " + best.mo.label + " (" + fmt(best.netAT) + "), weakest " + worst.mo.label + " (" + fmt(worst.netAT) + "). Sales grow " + fmtIn(num(S.fc.revGrowth)) + "% a month" + (S.fc.season === "flat" ? "" : ", with " + (S.fc.season === "gcc" ? "Ramadan, summer and December" : "your") + " seasonality") + ".";
   $("fcCash").innerHTML = lineChart([num(S.startCash)].concat(F.rows.map(r => r.close)), ["Start"].concat(F.rows.map(r => r.mo.label)));
-  $("fcCashText").textContent = "Starts at " + fmt(num(S.startCash)) + ", ends at " + fmt(F.rows[11].close) + ". Lowest: " + fmt(F.low.close) + " in " + F.low.mo.label + ". " + (F.vat ? "VAT is paid each quarter. " : "") + "Yearly bills are paid in the first month" + (F.lag ? "; clients pay about " + F.lag + " month" + (F.lag > 1 ? "s" : "") + " after the invoice" : "") + ".";
-  renderPlan(F);
+  $("fcCashText").textContent = "Starts at " + fmt(num(S.startCash)) + ", ends at " + fmt(F.rows[11].close) + ". Lowest: " + fmt(F.low.close) + " in " + F.low.mo.label + ". " + (F.vat ? "VAT is paid each quarter. " : "") + "Yearly bills are paid in the month set in Business › Expenses" + (F.lag ? "; clients pay about " + F.lag + " month" + (F.lag > 1 ? "s" : "") + " after the invoice" : "") + ".";
+  renderPlan(F); drawDeals(F); renderActuals(F);
   document.querySelectorAll(".cur-code").forEach(el => el.textContent = S.cur);
   return F;
 }
@@ -2452,6 +2517,75 @@ function drawOne(F) {
     box.appendChild(row);
   });
   oneDrawn = key;
+}
+
+let dealDrawn = "", actDrawn = "";
+function drawDeals(F) {
+  const key = JSON.stringify([(S.fc.deals || []).length, fcStart(), S.cur]); const box = $("fc-deals");
+  if (key !== dealDrawn) {
+    box.innerHTML = ""; S.fc.deals = S.fc.deals || [];
+    S.fc.deals.forEach((d, i) => {
+      const row = document.createElement("div"); row.className = "drow2";
+      row.innerHTML = '<input class="name" aria-label="Deal"><div class="inp"><input inputmode="decimal" aria-label="Value"></div><div class="inp"><input inputmode="decimal" aria-label="Chance"><span class="u">%</span></div><select aria-label="Starts"></select><span class="bill"><select aria-label="Billed"><option value="once">Once</option><option value="monthly">Monthly for</option></select><span class="inp"><input inputmode="decimal" aria-label="Months"></span></span><button class="x" type="button" aria-label="Remove deal">×</button><span class="wsub"></span>';
+      const [nm, val, pr] = [row.querySelector(".name"), row.querySelectorAll(".inp input")[0], row.querySelectorAll(".inp input")[1]], nn = row.querySelector(".bill input");
+      const [mo, kd] = [row.querySelectorAll("select")[0], row.querySelectorAll("select")[1]];
+      nm.value = d.name; val.value = fmtIn(d.value); pr.value = fmtIn(d.prob); nn.value = fmtIn(d.n || 1); nm.id = "dl-n-" + i; val.id = "dl-v-" + i; pr.id = "dl-p-" + i;
+      mo.innerHTML = monthOpts(num(d.m) || 1); kd.value = d.kind || "once"; nn.parentElement.hidden = kd.value !== "monthly";
+      nm.addEventListener("input", () => { d.name = nm.value; render(); });
+      val.addEventListener("input", () => { d.value = Math.abs(num(val.value)); render(); });
+      pr.addEventListener("input", () => { d.prob = Math.min(100, Math.max(0, num(pr.value))); render(); });
+      nn.addEventListener("input", () => { d.n = Math.max(1, Math.round(num(nn.value))); render(); });
+      [val, pr, nn].forEach(el => el.addEventListener("blur", () => { val.value = fmtIn(d.value); pr.value = fmtIn(d.prob); nn.value = fmtIn(d.n || 1); }));
+      mo.addEventListener("change", () => { d.m = num(mo.value); render(); });
+      kd.addEventListener("change", () => { d.kind = kd.value; nn.parentElement.hidden = d.kind !== "monthly"; render(); });
+      row.querySelector(".x").addEventListener("click", () => { S.fc.deals.splice(i, 1); dealDrawn = ""; render(); });
+      box.appendChild(row);
+    });
+    dealDrawn = key;
+  }
+  [...box.children].forEach((row, i) => { const d = S.fc.deals[i]; if (!d) return; const w = num(d.value) * num(d.prob) / 100, mths = d.kind === "monthly" ? Math.min(num(d.n) || 1, 13 - (num(d.m) || 1)) : 1;
+    row.querySelector(".wsub").textContent = "Counts as " + fmt(w) + (d.kind === "monthly" ? " a month for " + mths + " month" + (mths > 1 ? "s" : "") + " in this forecast" : " in " + fcMonths()[(num(d.m) || 1) - 1].label) + (num(d.prob) >= 100 ? " · signed" : ""); });
+  $("fc-pipeTot").textContent = fmt(F.tot.pipe);
+}
+function renderActuals(F) {
+  const R = F.rows, A = (S.fc.actuals = S.fc.actuals || {}), AC = F.act, act = document.activeElement;
+  const key = JSON.stringify([fcStart(), S.cur]);
+  const cells = [["inc", "Actual income"], ["cost", "Actual costs"], ["cash", "Actual cash at month end"]];
+  if (key !== actDrawn) {
+    let h = "<thead><tr><th>Month</th><th>Forecast income</th><th>Actual income</th><th>Forecast costs</th><th>Actual costs</th><th>Forecast profit</th><th>Actual profit</th><th>Variance</th><th>Forecast cash</th><th>Actual cash</th></tr></thead><tbody>";
+    R.forEach((r, i) => { h += '<tr data-i="' + i + '"><td>' + r.mo.label + " <small class='muted'>" + r.mo.iso + "</small></td><td class='fi'></td><td><input data-k='inc' inputmode='decimal' aria-label='Actual income " + r.mo.label + "'></td><td class='fc'></td><td><input data-k='cost' inputmode='decimal' aria-label='Actual costs " + r.mo.label + "'></td><td class='fp'></td><td class='ap'></td><td class='vr'></td><td class='fca'></td><td><input data-k='cash' inputmode='decimal' aria-label='Actual cash " + r.mo.label + "'></td></tr>"; });
+    $("actTable").innerHTML = h + '</tbody><tfoot><tr class="sub"><td>Closed months</td><td class="t-fi"></td><td class="t-ai"></td><td></td><td></td><td class="t-fp"></td><td class="t-ap"></td><td class="t-vr"></td><td></td><td></td></tr></tfoot>';
+    $("actTable").querySelectorAll("input").forEach(inp => { const r = R[+inp.closest("tr").dataset.i], iso = r.mo.iso, k = inp.dataset.k; inp.id = "act-" + k + "-" + iso;
+      inp.addEventListener("input", () => { A[iso] = A[iso] || {}; if (inp.value.trim() === "") delete A[iso][k]; else A[iso][k] = num(inp.value); if (!Object.keys(A[iso]).length) delete A[iso]; render(); });
+      inp.addEventListener("blur", () => { const v = (A[iso] || {})[k]; inp.value = v === undefined ? "" : fmtIn(v); }); });
+    actDrawn = key;
+  }
+  const f = v => (v < 0 ? "−" : "") + esc(fmt(Math.abs(v)).replace(S.cur + " ", ""));
+  $("actTable").querySelectorAll("tbody tr").forEach(tr => { const r = R[+tr.dataset.i], a = A[r.mo.iso] || {};
+    tr.classList.toggle("closed", r.closed);
+    tr.querySelector(".fi").innerHTML = f(r.rev); tr.querySelector(".fc").innerHTML = f(r.fcCost); tr.querySelector(".fp").innerHTML = f(r.noi); tr.querySelector(".fca").innerHTML = f(r.close);
+    tr.querySelector(".ap").innerHTML = r.closed ? f(r.aNoi) : "–";
+    const vr = tr.querySelector(".vr"); vr.innerHTML = r.closed ? (r.aNoi - r.noi >= 0 ? "+" : "") + f(r.aNoi - r.noi) : "–"; vr.className = "vr " + (r.closed ? (r.aNoi >= r.noi ? "good-t" : "bad-t") : "");
+    tr.querySelectorAll("input").forEach(inp => { if (inp !== act) { const v = a[inp.dataset.k]; inp.value = v === undefined ? "" : fmtIn(v); } }); });
+  const ft = $("actTable").querySelector("tfoot");
+  ft.querySelector(".t-fi").innerHTML = f(AC.incF); ft.querySelector(".t-ai").innerHTML = AC.n ? f(AC.incA) : "–"; ft.querySelector(".t-fp").innerHTML = f(AC.noiF); ft.querySelector(".t-ap").innerHTML = AC.n ? f(AC.noiA) : "–";
+  ft.querySelector(".t-vr").innerHTML = AC.n ? ((AC.noiA - AC.noiF >= 0 ? "+" : "") + f(AC.noiA - AC.noiF)) : "–";
+  const pct = (a, b) => b ? Math.round((a - b) / Math.abs(b) * 1000) / 10 : 0, tile = (k, v, d, good) => '<div><div class="k">' + k + '</div><div class="v">' + v + '</div><div class="d ' + (d ? (good ? "good-t" : "bad-t") : "muted") + '">' + (d || "&nbsp;") + "</div></div>";
+  const planNoi = F.tot.noi;
+  $("actTiles").innerHTML = tile("Months closed", AC.n + " of 12", AC.n ? "Last: " + R.filter(r => r.closed).slice(-1)[0].mo.label : "Fill in a month to start", true)
+    + tile("Income vs forecast", AC.n ? esc(fmt0(AC.incA)) : "–", AC.n ? (pct(AC.incA, AC.incF) >= 0 ? "+" : "") + pct(AC.incA, AC.incF) + "% vs " + esc(fmt0(AC.incF)) : "", AC.incA >= AC.incF)
+    + tile("Profit vs forecast", AC.n ? esc(fmt0(AC.noiA)) : "–", AC.n ? (AC.noiA - AC.noiF >= 0 ? "+" : "−") + esc(fmt0(Math.abs(AC.noiA - AC.noiF))) : "", AC.noiA >= AC.noiF)
+    + tile("Year-end outlook (profit)", esc(fmt0(AC.outNoi)), "Plan " + esc(fmt0(planNoi)) + (AC.n ? " · " + (AC.outNoi >= planNoi ? "+" : "−") + esc(fmt0(Math.abs(AC.outNoi - planNoi))) : ""), AC.outNoi >= planNoi);
+  /* chart: forecast profit bars, actual profit dots */
+  const W = 640, H = 180, pad = 28, bw = (W - pad * 2) / 12, vals = R.map(r => r.noi).concat(R.filter(r => r.closed).map(r => r.aNoi)).concat([0]);
+  const mx = Math.max(...vals), mn = Math.min(...vals), span = (mx - mn) || 1, y = v => 12 + (H - 38) * (1 - (v - mn) / span);
+  let g = '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--line)"/>';
+  R.forEach((r, i) => { const x = pad + i * bw + bw * 0.2, w = bw * 0.6;
+    g += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y(0), y(r.noi)).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, Math.abs(y(r.noi) - y(0))).toFixed(1) + '" rx="2" fill="var(--accent)" opacity=".25"><title>' + r.mo.label + " forecast " + esc(fmt(r.noi)) + "</title></rect>";
+    if (r.closed) g += '<circle cx="' + (x + w / 2).toFixed(1) + '" cy="' + y(r.aNoi).toFixed(1) + '" r="6" fill="' + (r.aNoi >= r.noi ? "var(--good)" : "var(--bad)") + '" stroke="#fff" stroke-width="2"><title>' + r.mo.label + " actual " + esc(fmt(r.aNoi)) + "</title></circle>";
+    g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + r.mo.label.slice(0, 3) + "</text>"; });
+  g += '<text x="' + pad + '" y="11" font-size="11" fill="var(--muted)">Bars: forecast profit · dots: actual (green above, red below)</text>';
+  $("actChart").innerHTML = g;
 }
 function renderPlan(F) {
   const PL = planCalc(F), p = PL.p, act = document.activeElement, setV = (id, v) => { if (act !== $(id)) $(id).value = v; };
@@ -2542,7 +2676,7 @@ function drawOther(F) {
   nb("fc-ot", v => S.fc.ot = v, 0, 100); nb("fc-housing", v => S.fc.housing = Math.max(0, v));
   RULE_KEYS.forEach(k => nb("fc-" + k, v => { S.fc.rates = S.fc.rates || {}; S.fc.rates[k] = Math.max(0, v); }, 0, k === "cap" || k === "permit" || k === "health" ? 1e9 : 100));
   $("fc-resetRules").addEventListener("click", () => { S.fc.taxRate = null; S.fc.taxFree = null; });
-  $("fc-start").addEventListener("change", () => { const v = $("fc-start").value; if (/^\d{4}-(0[1-9]|1[0-2])$/.test(v)) { S.fc.start = v; teamDrawn = otherDrawn = ""; render(); } });
+  $("fc-start").addEventListener("change", () => { const v = $("fc-start").value; if (/^\d{4}-(0[1-9]|1[0-2])$/.test(v)) { S.fc.start = v; teamDrawn = otherDrawn = oneDrawn = dealDrawn = actDrawn = ""; render(); } });
   $("fc-resetRules").addEventListener("click", () => { S.fc.rates = {}; render(); toast("Back to " + (ctry() ? ctry().name : S.cur) + " rules."); });
   $("fc-addTeam").addEventListener("click", () => { S.fc.team.push({ role: "New role", n: 1, local: false, salary: 0, from: 1, bill: true }); teamDrawn = ""; render(); const el = $("tm-r-" + (S.fc.team.length - 1)); if (el) { el.focus(); el.select(); } });
   $("fc-addOther").addEventListener("click", () => { S.fc.other.push({ name: "", amt: 0, from: 1, to: 12 }); otherDrawn = ""; render(); const el = $("ot-n-" + (S.fc.other.length - 1)); if (el) el.focus(); });
@@ -2553,6 +2687,7 @@ function drawOther(F) {
   nb("fc-ramadanDip", v => S.fc.ramadanDip = v, 0, 90);
   nb("fc-startCash", v => S.startCash = v); nb("fc-payDelay", v => S.payDelay = Math.max(0, v), 0, 365);
   nb("fc-taxRate", v => S.fc.taxRate = v, 0, 100); nb("fc-taxFree", v => S.fc.taxFree = Math.max(0, v));
+  $("fc-addDeal").addEventListener("click", () => { S.fc.deals = S.fc.deals || []; S.fc.deals.push({ name: "", value: 0, prob: 50, m: 1, kind: "once", n: 1 }); dealDrawn = ""; render(); const el = $("dl-n-" + (S.fc.deals.length - 1)); if (el) el.focus(); });
   $("fc-addOne").addEventListener("click", () => { S.fc.oneoff = S.fc.oneoff || []; S.fc.oneoff.push({ name: "", amt: 0, m: 1, kind: "exp" }); oneDrawn = ""; render(); const el = $("one-n-" + (S.fc.oneoff.length - 1)); if (el) el.focus(); });
   const plan = () => (S.fc.plan = Object.assign({ growth: 20, salaryUp: 3, costUp: 3, hires: 1, goalType: "net", goal: 0 }, S.fc.plan || {}));
   [["growth", -50, 500], ["hires", 0, 500], ["salaryUp", -50, 100], ["costUp", -50, 100]].forEach(([k, lo, hi]) => nb("pl-" + k, v => plan()[k] = v, lo, hi));
@@ -2952,7 +3087,8 @@ async function exportForecast(opts = {}) {
     ["Cash in the bank at the start", num(S.startCash), MF, "Opening balance for the cash flow"],
     [Fc.tr.name + ", rate", Fc.tr.rate / 100, PF, Fc.tr.note],
     ["Tax-free profit a year", Fc.tr.free, MF, "Profit below this is not taxed"],
-    ["End of service paid monthly in cash (1 = yes)", Fc.eosCash ? 1 : 0, NF, Fc.eosCash ? "Bahrain: paid to SIO every month" : "0: set aside as a provision and paid when people leave"]
+    ["End of service paid monthly in cash (1 = yes)", Fc.eosCash ? 1 : 0, NF, Fc.eosCash ? "Bahrain: paid to SIO every month" : "0: set aside as a provision and paid when people leave"],
+    ["Scenario sales factor", Fc.sc.sales, "0.00", "Applied to pipeline deals. Scenario: " + Fc.sc.label + " (monthly sales on Forecast already include it)"]
   ];
   RU.forEach((r, i) => { const row = 5 + i, R = tr.getRow(row); R.height = 20;
     R.getCell(1).value = r[0]; R.getCell(2).value = r[1]; R.getCell(2).numFmt = r[2]; inp(R.getCell(2)); R.getCell(3).value = r[3];
@@ -2984,6 +3120,27 @@ async function exportForecast(opts = {}) {
   nc.font = { name: "Calibri", italic: true, size: 9, color: { argb: C.muted } }; nc.alignment = { wrapText: true, vertical: "top", indent: 1 };
   tr.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
 
+  /* ---- Pipeline ---- */
+  const pp = mk("Pipeline", "FFC08A1E", [30, 13, 10, 12, 12, 10].concat(Array(12).fill(11)), "Pipeline deals, weighted by chance");
+  headRow(pp, 4, ["Deal", "Value", "Chance", "Start month (1 to 12)", "Monthly (1 = yes)", "Months"].concat(Fc.months.map(m => m.label)));
+  const P5 = pp.getRow(5); P5.getCell(1).value = "Month number"; Fc.months.forEach((m, i) => { const c = P5.getCell(i + 7); c.value = m.i; c.font = { name: "Calibri", size: 8, color: { argb: C.muted } }; c.alignment = { horizontal: "right" }; });
+  const PT = 26;
+  for (let r = 6; r < PT; r++) {
+    const d = (S.fc.deals || [])[r - 6], R = pp.getRow(r); R.height = 19;
+    if (d) { R.getCell(1).value = d.name || "Deal"; R.getCell(2).value = num(d.value); R.getCell(3).value = num(d.prob) / 100; R.getCell(4).value = Math.max(1, num(d.m) || 1); R.getCell(5).value = d.kind === "monthly" ? 1 : 0; R.getCell(6).value = Math.max(1, num(d.n) || 1); }
+    for (let k = 1; k <= 6; k++) { inp(R.getCell(k)); R.getCell(k).alignment = k === 1 ? { indent: 1 } : { horizontal: "right" }; }
+    R.getCell(2).numFmt = MF; R.getCell(3).numFmt = "0%";
+    Fc.months.forEach((m, i) => { const c = R.getCell(i + 7), L = pp.getColumn(i + 7).letter;
+      const w = d && num(d.value) && num(d.prob) ? ((d.kind === "monthly" ? (m.i >= (num(d.m) || 1) && m.i < (num(d.m) || 1) + Math.max(1, num(d.n) || 1)) : m.i === (num(d.m) || 1)) ? Math.abs(num(d.value)) * Math.min(100, num(d.prob)) / 100 : 0) : 0;
+      c.value = F('IF($B' + r + '="",0,IF($E' + r + '=1,IF(AND(' + L + '$5>=$D' + r + ',' + L + '$5<$D' + r + '+$F' + r + '),$B' + r + '*$C' + r + ',0),IF(' + L + '$5=$D' + r + ',$B' + r + '*$C' + r + ',0)))', w);
+      c.numFmt = MF; c.font = { name: "Calibri", size: 10, color: { argb: C.ink } }; c.border = { bottom: thin }; });
+  }
+  const PR = pp.getRow(PT); PR.getCell(1).value = "Weighted total";
+  Fc.months.forEach((m, i) => { const c = PR.getCell(i + 7), L = pp.getColumn(i + 7).letter; c.value = F("SUM(" + L + "6:" + L + (PT - 1) + ")", Fc.rows[i].pipe / (Fc.sc.sales || 1)); c.numFmt = MF; });
+  for (let k = 1; k <= 18; k++) { const c = PR.getCell(k); c.font = { name: "Calibri", bold: true, size: 10, color: { argb: C.ink } }; c.fill = fill(C.soft); c.border = { top: { style: "thin", color: { argb: C.dark } } }; }
+  pp.mergeCells(PT + 2, 1, PT + 3, 18); const pn = pp.getCell(PT + 2, 1); pn.value = "A deal counts as value × chance in its start month, or every month for the number of months if billed monthly. Set chance to 100% once signed. Totals feed the Pipeline row on Forecast.";
+  pn.font = { name: "Calibri", italic: true, size: 9, color: { argb: C.muted } }; pn.alignment = { wrapText: true, vertical: "top", indent: 1 };
+  pp.views = [{ showGridLines: false, state: "frozen", xSplit: 1, ySplit: 5 }];
   /* ---- Forecast ---- */
   const cols = Fc.months.map((m, i) => i + 2), TC = 14, colL = i => fs.getColumn(i).letter;
   headRow(fs, 4, [cur].concat(Fc.months.map(m => m.label.replace(" ", " 20"))).concat(["Total"]));
@@ -3004,8 +3161,9 @@ async function exportForecast(opts = {}) {
   const sumOf = (a, b) => (i, L) => ({ f: "SUM(" + L + a + ":" + L + b + ")" });
   put("Ordinary income and expense", "sec");
   put("Income", "sec2");
-  const rev0 = row; put("Sales revenue", "l1", i => ({ r: Fc.rows[i].rev, input: true }), "rev");
-  put("Total income", "sub", (i, L) => ({ f: "SUM(" + L + rev0 + ":" + L + rev0 + ")", r: Fc.rows[i].rev }), "inc");
+  const rev0 = row; put("Sales revenue", "l1", i => ({ r: Fc.rows[i].base, input: true }), "rev");
+  put("Pipeline deals (weighted by chance)", "l1", (i, L) => ({ f: "Pipeline!" + fs.getColumn(i + 7).letter + "$" + PT + "*" + rr(22), r: Fc.rows[i].pipe }), "pipe");
+  put("Total income", "sub", (i, L) => ({ f: "SUM(" + L + rev0 + ":" + L + (rev0 + 1) + ")", r: Fc.rows[i].rev }), "inc");
   put("Cost of goods sold", "sec2");
   const c0 = row;
   put("Cost of sales", "l1", (i, L) => ({ f: L + at.inc + "*" + rr(12), r: Fc.rows[i].cos }));
@@ -3014,7 +3172,7 @@ async function exportForecast(opts = {}) {
   put("Gross profit", "sub", (i, L) => ({ f: L + at.inc + "-" + L + at.cogs, r: Fc.rows[i].gp }), "gp");
   put("Expense", "sec2");
   const e0 = row, opM = [], opY = [];
-  Fc.opex.forEach((e, j) => { (e.y ? opY : opM).push(row); put(e.name + (e.y ? " (yearly bill ÷ 12)" : ""), "l1", i => ({ r: Fc.rows[i].opv[j], input: true })); });
+  Fc.opex.forEach((e, j) => { (e.y ? opY : opM).push(e.y ? [row, Fc.months.findIndex(m => Number(m.iso.slice(5)) === e.payM) + 1] : row); put(e.name + (e.y ? " (yearly bill ÷ 12)" : ""), "l1", i => ({ r: Fc.rows[i].opv[j], input: true })); });
   if (Fc.own) put("Owner pay", "l1", i => ({ r: Fc.rows[i].own, input: true }), "own");
   put("One-off expenses", "l1", i => ({ r: Fc.rows[i].oneExp, input: true }), "oneExp");
   put("Staff cost", "sec2");
@@ -3038,7 +3196,7 @@ async function exportForecast(opts = {}) {
   const prevL = L => fs.getColumn(fs.getColumn(L).number - 1).letter;
   const openRow = row;
   put("Cash at start of month", "l1", (i, L) => ({ f: i === 0 ? rr(18) : prevL(L) + (openRow + 99), r: Fc.rows[i].open }), "open");
-  put("Expenses paid this month (before VAT)", "l2", (i, L) => ({ f: (opM.length ? opM.map(r => L + r).join("+") : "0") + (opY.length ? "+IF(" + L + "$5=1,12*(" + opY.map(r => L + r).join("+") + "),0)" : ""), r: Fc.rows[i].opCash }), "opc");
+  put("Expenses paid this month (before VAT)", "l2", (i, L) => ({ f: (opM.length ? opM.map(r => L + r).join("+") : "0") + opY.map(([r, k]) => "+IF(" + L + "$5=" + k + ",12*" + L + r + ",0)").join(""), r: Fc.rows[i].opCash }), "opc");
   put("Assets bought (before VAT)", "l2", i => ({ r: Fc.rows[i].asset, input: true }), "asset");
   put("VAT on sales", "l2", (i, L) => ({ f: L + at.inc + "*" + rr(14), r: Fc.rows[i].vatOut }), "vo");
   put("VAT on purchases", "l2", (i, L) => ({ f: "(" + L + at.cogs + "+" + L + at.opc + "+" + L + at.oneExp + "+" + L + at.asset + ")*" + rr(14), r: Fc.rows[i].vatIn }), "vi");
@@ -3068,10 +3226,33 @@ async function exportForecast(opts = {}) {
   fs.eachRow(R => { const tc = R.getCell(TC); if (tc.value && tc.value.formula && /^SUM\(B/.test(tc.value.formula) && !opts.noCache) { let t = 0; for (let k = 2; k <= 13; k++) { const v = R.getCell(k).value; t += typeof v === "number" ? v : (v && typeof v.result === "number" ? v.result : 0); } tc.value = { formula: tc.value.formula, result: t }; } });
   row++;
   fs.mergeCells(row, 1, row + 1, TC);
-  const nn = fs.getCell(row, 1); nn.value = "Blue cells on yellow are inputs: monthly sales (seasonality and growth already applied), expenses, one-off items and grants. Cost of sales, staff cost, tax and the whole cash flow are formulas driven by 'Team & rates'. Profit is on an accrual basis; the cash rows show when money moves (VAT, yearly bills paid in month 1, payment delays, end of service). Scenario: " + Fc.sc.label + ". Amounts in " + cur + ". Planning aid, not payroll, tax or legal advice.";
+  const nn = fs.getCell(row, 1); nn.value = "Blue cells on yellow are inputs: monthly sales (seasonality and growth already applied), expenses, one-off items and grants. Cost of sales, staff cost, tax and the whole cash flow are formulas driven by 'Team & rates'. Profit is on an accrual basis; the cash rows show when money moves (VAT, yearly bills in the month they are paid, payment delays, end of service). Scenario: " + Fc.sc.label + ". Amounts in " + cur + ". Planning aid, not payroll, tax or legal advice.";
   nn.font = { name: "Calibri", italic: true, size: 9, color: { argb: C.muted } }; nn.alignment = { wrapText: true, vertical: "top", indent: 1 };
   fs.views = [{ showGridLines: false, state: "frozen", xSplit: 1, ySplit: 5 }];
   fs.addConditionalFormatting({ ref: "B" + at.net + ":N" + at.net, rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { font: { color: { argb: C.bad }, bold: true } } }] });
+  /* ---- Actuals ---- */
+  const ac = mk("Actual vs forecast", "FF2F8A57", [16, 10, 15, 15, 15, 15, 15, 15, 14, 15, 15, 15], "Actual vs forecast");
+  headRow(ac, 4, ["Month", "ISO 8601", "Forecast income", "Actual income", "Forecast costs", "Actual costs", "Forecast profit", "Actual profit", "Variance", "Forecast cash", "Actual cash", "Outlook profit"]);
+  const AA = S.fc.actuals || {}, FR = c => "Forecast!" + fs.getColumn(c).letter;
+  Fc.rows.forEach((r, i) => { const row = 5 + i, R = ac.getRow(row), a = AA[r.mo.iso] || {}, c = i + 2, has = v => v !== undefined && v !== "";
+    R.getCell(1).value = r.mo.label; R.getCell(2).value = r.mo.iso;
+    R.getCell(3).value = F(FR(c) + at.inc, r.rev); R.getCell(5).value = F(FR(c) + at.cogs + "+" + FR(c) + at.exp, r.fcCost); R.getCell(7).value = F(FR(c) + at.noi, r.noi); R.getCell(10).value = F(FR(c) + at.close, r.close);
+    if (has(a.inc)) R.getCell(4).value = num(a.inc); if (has(a.cost)) R.getCell(6).value = num(a.cost); if (has(a.cash)) R.getCell(11).value = num(a.cash);
+    R.getCell(8).value = F('IF(AND(D' + row + '<>"",F' + row + '<>""),D' + row + '-F' + row + ',"")', r.closed ? r.aNoi : "");
+    R.getCell(9).value = F('IF(H' + row + '="","",H' + row + '-G' + row + ')', r.closed ? r.aNoi - r.noi : "");
+    R.getCell(12).value = F('IF(H' + row + '="",G' + row + ',H' + row + ')', r.closed ? r.aNoi : r.noi);
+    for (let k = 1; k <= 12; k++) { const cc = R.getCell(k); cc.border = { bottom: thin }; cc.font = { name: "Calibri", size: 10, color: { argb: C.ink } }; cc.alignment = k <= 2 ? { indent: 1 } : { horizontal: "right" }; if (k >= 3) cc.numFmt = MF; }
+    [4, 6, 11].forEach(k => inp(R.getCell(k))); });
+  const AT = 18, rng = col => col + "5:" + col + "16", cl = '(' + rng("D") + '<>"")*(' + rng("F") + '<>"")';
+  const AS = [["Months closed", "SUMPRODUCT(" + cl + ")", Fc.act.n, NF], ["Forecast income, closed months", "SUMPRODUCT(" + cl + "*" + rng("C") + ")", Fc.act.incF, MF], ["Actual income, closed months", "SUMPRODUCT(" + cl + "*" + rng("D") + ")", Fc.act.incA, MF],
+    ["Forecast profit, closed months", "SUMPRODUCT(" + cl + "*" + rng("G") + ")", Fc.act.noiF, MF], ["Actual profit, closed months", "SUM(" + rng("H") + ")", Fc.act.noiA, MF],
+    ["Year-end outlook, operating profit", "SUM(" + rng("L") + ")", Fc.act.outNoi, MF], ["Plan, operating profit", "SUM(" + rng("G") + ")", Fc.tot.noi, MF]];
+  AS.forEach((x, j) => { const row = AT + j, R = ac.getRow(row); R.getCell(1).value = x[0]; ac.mergeCells(row, 1, row, 4); R.getCell(5).value = F(x[1], x[2]); R.getCell(5).numFmt = x[3];
+    [1, 5].forEach(k => { R.getCell(k).font = { name: "Calibri", bold: j >= 5, size: 10, color: { argb: C.ink } }; R.getCell(k).fill = fill(j >= 5 ? C.lime : C.soft); R.getCell(k).alignment = k === 1 ? { indent: 1 } : { horizontal: "right" }; }); });
+  ac.addConditionalFormatting({ ref: "I5:I16", rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { font: { color: { argb: C.bad }, bold: true } } }] });
+  ac.mergeCells(AT + 8, 1, AT + 9, 12); const an = ac.getCell(AT + 8, 1); an.value = "Type real income, costs (everything before tax) and month-end cash from your books in the blue cells. A month is closed when income and costs are filled in. Outlook = actual profit for closed months + forecast for the rest.";
+  an.font = { name: "Calibri", italic: true, size: 9, color: { argb: C.muted } }; an.alignment = { wrapText: true, vertical: "top", indent: 1 };
+  ac.views = [{ showGridLines: false, state: "frozen", ySplit: 4 }];
   if (opts.noDownload) return wb;
   try {
     const buf = await wb.xlsx.writeBuffer();
