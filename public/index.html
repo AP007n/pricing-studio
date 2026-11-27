@@ -681,6 +681,20 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .fcgrid.act tr.closed td:first-child::after { content: " ✓"; color: var(--good); font-weight: 700; }
 .good-t { color: var(--good); } .bad-t { color: var(--bad); }
 @media (max-width: 760px) { .acttiles { grid-template-columns: 1fr 1fr; } .dhead { display: none; } .drow2 { grid-template-columns: 1fr 1fr 28px; } .drow2 .name { grid-column: 1 / 3; } .drow2 .x { grid-column: 3; grid-row: 1; } .drow2 .bill { grid-column: 1 / -1; } }
+
+.imp-card { width: min(760px, 100%); }
+.imp-top { display: flex; justify-content: space-between; align-items: center; }
+.imp-top h2 { margin: 0; }
+.drop { display: grid; justify-items: center; gap: 4px; border: 2px dashed var(--line); border-radius: 16px; padding: 22px; cursor: pointer; text-align: center; color: var(--ink); background: var(--field); }
+.drop.on, .drop:hover { border-color: var(--accent); background: var(--accent-soft); }
+.drop small { color: var(--muted); }
+.drop .ni svg { width: 26px; height: 26px; }
+.imp-kind { font-size: 13px; padding: 8px 10px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 8px; }
+.imp-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.imp-map label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.imp-map select { border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 7px; padding: 6px; font-size: 13px; }
+.fcgrid.imp { min-width: 520px; max-height: 260px; }
+.imp-rep { display: flex; gap: 8px; align-items: center; font-size: 13px; }
 /* v3 forecast */
 .thead, .trow { display: grid; grid-template-columns: minmax(0,1fr) 58px 92px 112px 78px 28px; gap: 6px; align-items: center; }
 .thead, .ghead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -1113,7 +1127,8 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     <p class="note">Amounts in <span class="cur-code"></span>. Profit is on an accrual basis (yearly expenses spread evenly, end of service set aside monthly); the cash rows show when money actually moves, including VAT and yearly bills in the month they are paid. Planning aid, not payroll, tax or legal advice.</p>
   </section>
   <section class="panel fcgrid-p">
-    <div class="fcgrid-h"><h2><span class="ico" data-i="clock"></span>Actual vs forecast</h2><span class="muted small">Type each month's real figures from your books. Closed months update the year-end outlook.</span></div>
+    <div class="fcgrid-h"><h2><span class="ico" data-i="clock"></span>Actual vs forecast</h2><div class="btnrow"><button type="button" id="actImport"><span class="ni" data-i="sheet"></span>Import from accounting</button><button type="button" class="ghost" id="actTpl">Template</button></div></div>
+    <p class="muted small" style="margin:0 0 10px">Import an Excel or CSV export (QuickBooks, Xero, Zoho Books, Odoo, Tally, your bank or your own sheet), or type each month's figures. Closed months update the year-end outlook.</p>
     <div class="acttiles" id="actTiles"></div>
     <div class="fcwrap"><table class="fcgrid act" id="actTable"></table></div>
     <svg id="actChart" viewBox="0 0 640 180" role="img" aria-label="Forecast and actual operating profit by month"></svg>
@@ -1174,6 +1189,22 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
   <nav class="bnav" aria-label="Main"><button type="button" class="navbtn" data-view="home" aria-label="Overview"><span class="ni" data-i="grid"></span><span>Overview</span></button><button type="button" class="navbtn" data-view="price" aria-label="Price a job"><span class="ni" data-i="tag"></span><span>Price</span></button><button type="button" class="navbtn" data-view="quote" aria-label="Quote"><span class="ni" data-i="file"></span><span>Quote</span></button><button type="button" class="navbtn" data-view="business" aria-label="Business"><span class="ni" data-i="chart"></span><span>Business</span></button><button type="button" class="navbtn" data-view="forecast" aria-label="Forecast"><span class="ni" data-i="layers"></span><span>Forecast</span></button><button type="button" class="navbtn" data-view="settings" aria-label="Settings"><span class="ni" data-i="gear"></span><span>Settings</span></button></nav>
 </div>
 
+<div class="wiz" id="imp" hidden role="dialog" aria-modal="true" aria-labelledby="impTitle">
+  <div class="wiz-card imp-card">
+    <div class="imp-top"><h2 id="impTitle">Import actuals</h2><button type="button" class="ghost linkbtn" id="impClose">Close</button></div>
+    <p class="muted">Excel (.xlsx) or CSV from QuickBooks, Xero, Zoho Books, Odoo, Tally, your bank, or your own sheet. Best: a "Profit and Loss by month" report.</p>
+    <label class="drop" for="impFile" id="impDrop"><span class="ni" data-i="sheet"></span><b>Choose a file</b> or drop it here<small>Read in this browser only. Nothing is uploaded.</small></label>
+    <input type="file" id="impFile" accept=".xlsx,.xlsm,.csv,.txt,text/csv" hidden>
+    <div id="impBody" hidden>
+      <div class="imp-kind" id="impKind"></div>
+      <div class="imp-map" id="impMap"></div>
+      <div class="fcwrap"><table class="fcgrid imp" id="impPrev"></table></div>
+      <p class="note" id="impNotes"></p>
+      <label class="imp-rep"><input type="checkbox" id="impReplace" checked> Replace months I already filled in</label>
+    </div>
+    <div class="wiz-foot"><button type="button" class="ghost" id="impTpl">Download template</button><button type="button" id="impApply" disabled>Import</button></div>
+  </div>
+</div>
 <div class="wiz" id="wiz" hidden role="dialog" aria-modal="true" aria-labelledby="wizTitle">
   <div class="wiz-card">
     <div class="wiz-top"><div class="logo sm" data-mark></div><div class="wiz-dots" id="wizDots"></div><button type="button" class="ghost linkbtn" id="wizSkip">Skip</button></div>
@@ -1244,7 +1275,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "3.2", updated: "27 November 2026", contact: "" };
+const APP = { version: "3.3", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -2694,6 +2725,218 @@ function drawOther(F) {
   nb("pl-goal", v => plan().goal = Math.max(0, v));
   $("pl-goalType").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { plan().goalType = b.dataset.v; render(); }));
 })();
+/* ---------- v3.3: import actuals from accounting exports (Excel or CSV) ----------
+   Reads three common shapes: a profit-and-loss by month (QuickBooks, Xero, Zoho Books, Odoo, Tally or a sheet like the GCC forecast),
+   a monthly summary (month, income, costs, cash), or a transaction list (date, amount, type or debit/credit). Nothing leaves the browser. */
+const MONTH_NAMES = { jan: 1, january: 1, feb: 2, february: 2, mar: 3, march: 3, apr: 4, april: 4, may: 5, jun: 6, june: 6, jul: 7, july: 7, aug: 8, august: 8, sep: 9, sept: 9, september: 9, oct: 10, october: 10, nov: 11, november: 11, dec: 12, december: 12,
+  "يناير": 1, "فبراير": 2, "مارس": 3, "أبريل": 4, "ابريل": 4, "مايو": 5, "يونيو": 6, "يوليو": 7, "أغسطس": 8, "اغسطس": 8, "سبتمبر": 9, "أكتوبر": 10, "اكتوبر": 10, "نوفمبر": 11, "ديسمبر": 12 };
+const isoYM = (y, m) => (y >= 1990 && y <= 2100 && m >= 1 && m <= 12) ? y + "-" + String(m).padStart(2, "0") : null;
+const isDate = v => Object.prototype.toString.call(v) === "[object Date]";
+function cellVal(v) {
+  if (v === null || v === undefined) return "";
+  if (isDate(v)) return v;
+  if (typeof v === "object") { if ("result" in v) return cellVal(v.result); if (v.richText) return v.richText.map(t => t.text).join(""); if ("text" in v) return String(v.text); if (v.error) return ""; return ""; }
+  return v;
+}
+function parseYM(v) {
+  v = cellVal(v);
+  if (isDate(v) && !isNaN(v)) return isoYM(v.getUTCFullYear(), v.getUTCMonth() + 1);
+  if (typeof v === "number") { if (v > 20000 && v < 80000) { const d = new Date(Math.round((v - 25569) * 864e5)); return isoYM(d.getUTCFullYear(), d.getUTCMonth() + 1); } return null; }
+  const s = String(v).trim().toLowerCase().replace(/\s+/g, " "); if (!s || s.length > 40 || /total|ytd|year to date|إجمالي/.test(s)) return null;
+  let m;
+  if ((m = s.match(/^(\d{4})[-/.](\d{1,2})(?:[-/.](\d{1,2}))?(?:[ t].*)?$/))) return isoYM(+m[1], +m[2]);
+  if ((m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?: .*)?$/))) { let a = +m[1], b = +m[2], y = +m[3]; if (y < 100) y += 2000; return b > 12 && a <= 12 ? isoYM(y, a) : isoYM(y, b); } /* day first, as used in the GCC */
+  if ((m = s.match(/^(\d{1,2})[-/.](\d{4})$/))) return isoYM(+m[2], +m[1]);
+  const names = Object.keys(MONTH_NAMES).filter(k => new RegExp("(^|[^a-z\\u0600-\\u06ff])" + k + "([^a-z\\u0600-\\u06ff]|$)").test(s));
+  const uniq = [...new Set(names.map(k => MONTH_NAMES[k]))]; if (uniq.length !== 1) return null;
+  const y = s.match(/(\d{4})/) || s.match(/(?:^|[^\d])(\d{2})(?:[^\d]|$)/); if (!y) return null;
+  let yr = +y[1]; if (yr < 100) yr += 2000; return isoYM(yr, uniq[0]);
+}
+function parseAmt(v) {
+  v = cellVal(v); if (typeof v === "number") return isFinite(v) ? v : null; if (isDate(v)) return null;
+  let s = String(v).trim(); if (!s || s === "-" || s === "–") return s ? 0 : null;
+  const neg = /^\(.*\)$/.test(s) || /-\s*$/.test(s) || /^-/.test(s.replace(/^[^\d(-]+/, ""));
+  s = s.replace(/[()]/g, "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[^\d.,-]/g, "");
+  if (/,\d{1,2}$/.test(s) && (s.indexOf(".") < 0 || s.indexOf(".") < s.lastIndexOf(","))) s = s.replace(/\./g, "").replace(",", "."); else s = s.replace(/,/g, "");
+  s = s.replace(/-/g, ""); if (!s || !/\d/.test(s)) return null;
+  const x = parseFloat(s); return isFinite(x) ? (neg ? -x : x) : null;
+}
+const KW = {
+  inc: [/^total (ordinary |operating |trading )?(income|revenues?|sales|turnover)$/, /^(income|revenues?|sales|turnover|total income)$/, /إجمالي الإيرادات|اجمالي الايرادات/, /^(total )?(sales revenue|operating revenue|net sales)$/],
+  cogs: [/^total (cogs|cost of (goods sold|sales|revenue))$/, /^(cost of (goods sold|sales|revenue)|cogs)$/, /تكلفة المبيعات/],
+  exp: [/^total (operating )?(expenses?|overheads?|operating costs)$/, /^(expenses?|operating expenses)$/, /إجمالي المصروفات|اجمالي المصروفات/],
+  net: [/^net (ordinary )?(income|profit|earnings)( ?\/ ?\(?loss\)?)?$/, /^net (profit|income) (before|after) tax$/, /^net (loss|profit)$/, /صافي (الربح|الدخل)/],
+  oth: [/other income/]
+};
+const lab = v => String(cellVal(v) || "").trim().toLowerCase().replace(/\s+/g, " ").replace(/[:*]+$/, "").replace(/^total for /, "total ").replace(/^total (operating )?expense$/, "total expenses");
+function scoreLabel(l, role) { const L = KW[role]; for (let i = 0; i < L.length; i++) if (L[i].test(l)) return L.length - i + (/^total|إجمالي/.test(l) ? 2 : 0); return 0; }
+/* turn a sheet into rows of plain values */
+function gridFromSheet(ws) { const g = []; ws.eachRow({ includeEmpty: true }, (row, r) => { const a = []; row.eachCell({ includeEmpty: true }, (c, k) => { a[k - 1] = cellVal(c.value); }); g[r - 1] = a; }); return g.map(r => r || []); }
+function parseCSV(text) {
+  text = text.replace(/^﻿/, ""); const first = text.split(/\r?\n/)[0] || "";
+  const d = [",", ";", "\t"].map(c => [c, first.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < text.length; i++) { const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { f += '"'; i++; } else if (c === '"') q = false; else f += c; continue; }
+    if (c === '"') q = true; else if (c === d) { row.push(f); f = ""; } else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; } else f += c; }
+  if (f !== "" || row.length) { row.push(f); rows.push(row); }
+  return rows;
+}
+/* detect the layout and suggest a mapping */
+function detectImport(g) {
+  const rows = g.slice(0, 400), W = Math.max(...rows.map(r => r.length), 0);
+  /* 1. profit and loss by month: a header row with 3+ month cells */
+  for (let r = 0; r < Math.min(rows.length, 40); r++) {
+    const mc = []; for (let c = 0; c < (rows[r] || []).length; c++) { const ym = parseYM(rows[r][c]); if (ym) mc.push({ c, ym }); }
+    const gap = mc.length === 2 ? (() => { const [a, b] = mc.map(x => x.ym.split("-").map(Number)); return Math.abs((b[0] - a[0]) * 12 + b[1] - a[1]); })() : 0;
+    if ((mc.length >= 3 || (mc.length === 2 && gap === 1)) && new Set(mc.map(x => x.ym)).size === mc.length) {
+      const firstC = mc[0].c, lines = [];
+      for (let i = r + 1; i < rows.length; i++) { const R = rows[i] || []; let label = ""; for (let c = 0; c < firstC; c++) { const t = String(cellVal(R[c]) || "").trim(); if (t && parseAmt(t) === null) label = t; }
+        const vals = mc.map(m => parseAmt(R[m.c])); if (label && vals.some(v => v !== null)) lines.push({ i, label, vals: vals.map(v => v || 0) }); }
+      const pick = role => { let best = -1, s0 = 0; lines.forEach((ln, k) => { const sc = scoreLabel(lab(ln.label), role); if (sc > s0) { s0 = sc; best = k; } }); return best; };
+      return { kind: "pl", hdr: r, months: mc, lines, map: { inc: pick("inc"), cogs: pick("cogs"), exp: pick("exp"), exp2: -1, net: pick("net") } };
+    }
+  }
+  /* find a header row for column-based layouts */
+  let hdr = -1, H = [];
+  for (let r = 0; r < Math.min(rows.length, 20); r++) { const t = (rows[r] || []).map(lab); if (t.filter(Boolean).length >= 2 && t.some(x => /date|month|period|تاريخ|الشهر/.test(x))) { hdr = r; H = t; break; } }
+  if (hdr < 0) return { kind: "none" };
+  const col = re => H.findIndex(x => re.test(x));
+  const cMonth = col(/^(month|period|الشهر)/), cInc = col(/income|revenue|sales|الإيرادات|الايرادات/), cCost = col(/cost|expense|spend|المصروفات|التكاليف/), cCash = col(/cash|balance|bank|الرصيد/);
+  if (cMonth >= 0 && cInc >= 0 && cCost >= 0) return { kind: "sum", hdr, head: H, map: { month: cMonth, inc: cInc, cost: cCost, cash: cCash } };
+  /* 3. transaction list */
+  const cDate = col(/date|تاريخ/), cAmt = col(/^(amount|value|total|net|المبلغ|مبلغ)/), cDr = col(/debit|withdrawal|money out|paid out|مدين/), cCr = col(/credit|deposit|money in|paid in|دائن/);
+  const cType = col(/^(type|category|account|class|transaction type|nature|الحساب|النوع)/), cDesc = col(/desc|memo|narration|details|payee|البيان/);
+  return { kind: "txn", hdr, head: H, map: { date: cDate, amt: cAmt, dr: cDr, cr: cCr, type: cType, desc: cDesc, rule: cDr >= 0 && cCr >= 0 ? "drcr" : cType >= 0 ? "type" : "sign" } };
+}
+const INC_RE = /income|revenue|sales|invoice|receipt|deposit|fee|إيراد|ايراد|مبيعات/i, COST_RE = /expense|cost|bill|purchase|payroll|salary|salaries|rent|fee paid|payment to|withdrawal|مصروف|رواتب|إيجار|ايجار/i, SKIP_RE = /transfer|opening balance|vat (payment|refund)|loan|capital|drawings|تحويل|رصيد افتتاحي/i;
+/* apply a mapping: returns { iso: { inc, cost, cash } } */
+function buildImport(g, D) {
+  const out = {}, add = (ym, k, v) => { if (!ym || v === null || v === undefined) return; out[ym] = out[ym] || { inc: 0, cost: 0 }; out[ym][k] = (out[ym][k] || 0) + v; };
+  const notes = [];
+  if (D.kind === "pl") {
+    const L = D.lines, m = D.map, get = k => m[k] >= 0 ? L[m[k]] : null, inc = get("inc"), cogs = get("cogs"), exp = get("exp"), exp2 = get("exp2"), net = get("net");
+    D.months.forEach((mo, j) => {
+      if (!inc) return;
+      const I = inc.vals[j]; let C = 0;
+      if (cogs || exp || exp2) C = Math.abs(cogs ? cogs.vals[j] : 0) + Math.abs(exp ? exp.vals[j] : 0) + Math.abs(exp2 ? exp2.vals[j] : 0);
+      else if (net) C = I - net.vals[j];
+      if (!I && !C) return;   /* empty months in a template or a future period */
+      add(mo.ym, "inc", I); add(mo.ym, "cost", C);
+    });
+    if (inc && !cogs && !exp && !exp2 && net) notes.push("Costs worked out as income minus net income.");
+    if (inc && (cogs || exp) && net) notes.push("Check: net income in the file vs income − costs is shown per month.");
+  } else if (D.kind === "sum") {
+    for (let i = D.hdr + 1; i < g.length; i++) { const R = g[i] || [], ym = parseYM(R[D.map.month]); if (!ym) continue;
+      const iv = parseAmt(R[D.map.inc]), cv = parseAmt(R[D.map.cost]); if (iv === null && cv === null) continue;
+      add(ym, "inc", iv || 0); add(ym, "cost", Math.abs(cv || 0));
+      if (D.map.cash >= 0) { const c = parseAmt(R[D.map.cash]); if (c !== null) out[ym].cash = c; } }
+  } else if (D.kind === "txn") {
+    let skipped = 0, unk = 0;
+    for (let i = D.hdr + 1; i < g.length; i++) { const R = g[i] || [], ym = parseYM(R[D.map.date]); if (!ym) continue;
+      const txt = [D.map.type, D.map.desc].filter(c => c >= 0).map(c => String(cellVal(R[c]) || "")).join(" ");
+      if (SKIP_RE.test(txt)) { skipped++; continue; }
+      if (D.map.rule === "drcr") { const cr = Math.abs(parseAmt(R[D.map.cr]) || 0), dr = Math.abs(parseAmt(R[D.map.dr]) || 0); if (cr) add(ym, "inc", cr); if (dr) add(ym, "cost", dr); continue; }
+      const a = parseAmt(R[D.map.amt]); if (a === null || !a) continue;
+      if (D.map.rule === "type") { const t = String(cellVal(R[D.map.type]) || ""); if (INC_RE.test(t) && !COST_RE.test(t)) add(ym, "inc", Math.abs(a)); else if (COST_RE.test(t)) add(ym, "cost", Math.abs(a)); else { unk++; a > 0 ? add(ym, "inc", a) : add(ym, "cost", -a); } }
+      else a > 0 ? add(ym, "inc", a) : add(ym, "cost", -a);
+    }
+    if (skipped) notes.push(skipped + " transfers, loans, VAT payments or opening balances left out.");
+    if (unk) notes.push(unk + " rows had an unknown type and were sorted by sign (+ income, − cost).");
+    notes.push("Transactions give a cash view of income and costs; accrual figures from your accounts are more exact.");
+  }
+  return { months: out, notes };
+}
+/* import dialog */
+let IMP = null;
+function openImport() { IMP = null; $("impBody").hidden = true; $("impApply").disabled = true; $("impFile").value = ""; $("impDrop").classList.remove("on"); $("imp").hidden = false; document.body.classList.add("noscroll"); }
+function closeImport() { $("imp").hidden = true; document.body.classList.remove("noscroll"); }
+async function readImportFile(file) {
+  if (!file) return;
+  const name = file.name || "file", isX = /\.(xlsx|xlsm)$/i.test(name);
+  try {
+    let grids = [];
+    if (isX) {
+      if (!window.ExcelJS) await loadScript("lib/exceljs.min.js");
+      const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await file.arrayBuffer());
+      wb.worksheets.forEach(ws => grids.push({ name: ws.name, g: gridFromSheet(ws) }));
+    } else if (/\.xls$/i.test(name)) { toast("Old .xls files are not supported. Save it as .xlsx or CSV and try again."); return; }
+    else grids.push({ name, g: parseCSV(await file.text()) });
+    loadImportGrids(name, grids);
+  } catch (e) { toast("Could not read " + name + ". Save it as .xlsx or CSV and try again."); }
+}
+function loadImportGrids(name, grids) {
+  const rank = { pl: 3, sum: 2, txn: 1, none: 0 };
+  const ds = grids.map(x => detectImport(x.g)); let si = 0; ds.forEach((d, i) => { if (rank[d.kind] > rank[ds[si].kind]) si = i; });
+  IMP = { name, grids, si, D: ds[si] };
+  renderImport();
+}
+const IMP_KIND = { pl: "Profit and loss by month (QuickBooks, Xero, Zoho Books, Odoo, Tally or a forecast-style sheet)", sum: "Monthly summary (month, income, costs)", txn: "Transaction list (bank statement or ledger export)", none: "Layout not recognised" };
+function renderImport() {
+  const D = IMP.D, g = IMP.grids[IMP.si].g; $("impBody").hidden = false;
+  $("impKind").innerHTML = "<b>" + esc(IMP.name) + "</b> · " + esc(IMP_KIND[D.kind]);
+  let h = "";
+  if (IMP.grids.length > 1) h += '<label>Sheet<select id="imp-sheet">' + IMP.grids.map((x, i) => '<option value="' + i + '"' + (i === IMP.si ? " selected" : "") + ">" + esc(x.name) + "</option>").join("") + "</select></label>";
+  const sel = (id, label, opts, v, none) => '<label>' + label + '<select id="' + id + '">' + (none ? '<option value="-1">' + none + "</option>" : "") + opts.map(([val, t]) => '<option value="' + val + '"' + (String(val) === String(v) ? " selected" : "") + ">" + esc(t) + "</option>").join("") + "</select></label>";
+  if (D.kind === "pl") {
+    const opts = D.lines.map((l, k) => [k, l.label + " (" + fmt0(l.vals.reduce((a, b) => a + b, 0)) + ")"]);
+    h += sel("imp-inc", "Income row", opts, D.map.inc, "Choose…") + sel("imp-cogs", "Cost of sales row", opts, D.map.cogs, "None") + sel("imp-exp", "Expenses row", opts, D.map.exp, "None") + sel("imp-exp2", "Another cost row", opts, D.map.exp2, "None") + sel("imp-net", "Net income row (check)", opts, D.map.net, "None");
+  } else if (D.kind === "sum" || D.kind === "txn") {
+    const opts = D.head.map((t, k) => [k, t || "Column " + (k + 1)]);
+    if (D.kind === "sum") h += sel("imp-month", "Month column", opts, D.map.month) + sel("imp-incc", "Income column", opts, D.map.inc) + sel("imp-cost", "Costs column", opts, D.map.cost) + sel("imp-cash", "Cash column", opts, D.map.cash, "None");
+    else h += sel("imp-date", "Date column", opts, D.map.date) + sel("imp-rule", "Income or cost by", [["sign", "Sign (+ income, − cost)"], ["type", "Type or account column"], ["drcr", "Debit and credit columns"]], D.map.rule) + sel("imp-amt", "Amount column", opts, D.map.amt, "None") + sel("imp-type", "Type column", opts, D.map.type, "None") + sel("imp-cr", "Credit (money in)", opts, D.map.cr, "None") + sel("imp-dr", "Debit (money out)", opts, D.map.dr, "None");
+  } else h += '<p class="note">No month columns, month rows or date column found. Use the template, or export a "Profit and Loss by month" report from your accounting software.</p>';
+  $("impMap").innerHTML = h;
+  const on = (id, f) => { const el = $(id); if (el) el.addEventListener("change", () => { f(num(el.value), el.value); renderImport(); }); };
+  on("imp-sheet", v => { IMP.si = v; IMP.D = detectImport(IMP.grids[v].g); });
+  [["imp-inc", "inc"], ["imp-cogs", "cogs"], ["imp-exp", "exp"], ["imp-exp2", "exp2"], ["imp-net", "net"], ["imp-month", "month"], ["imp-incc", "inc"], ["imp-cost", "cost"], ["imp-cash", "cash"], ["imp-date", "date"], ["imp-amt", "amt"], ["imp-type", "type"], ["imp-cr", "cr"], ["imp-dr", "dr"]].forEach(([id, k]) => on(id, v => IMP.D.map[k] = v));
+  on("imp-rule", (v, raw) => IMP.D.map.rule = raw);
+  /* preview */
+  const res = D.kind === "none" ? { months: {}, notes: [] } : buildImport(g, D), ms = Object.keys(res.months).sort(), win = new Set(fcMonths().map(m => m.iso));
+  IMP.res = res;
+  const netRow = D.kind === "pl" && D.map.net >= 0 ? D.lines[D.map.net] : null;
+  let t = "<thead><tr><th>Month</th><th>Income</th><th>Costs</th><th>Profit</th>" + (netRow ? "<th>Net in file</th>" : "") + (D.kind === "sum" && D.map.cash >= 0 ? "<th>Cash</th>" : "") + "<th>In forecast</th></tr></thead><tbody>";
+  ms.forEach(ym => { const x = res.months[ym], p = x.inc - x.cost, j = netRow ? D.months.findIndex(m => m.ym === ym) : -1;
+    t += "<tr><td>" + ym + "</td><td>" + esc(fmt(x.inc)) + "</td><td>" + esc(fmt(x.cost)) + '</td><td class="' + (p < 0 ? "neg" : "") + '">' + esc(fmt(p)) + "</td>" + (netRow ? '<td class="' + (j >= 0 && Math.abs(netRow.vals[j] - p) > 1 ? "neg" : "") + '">' + (j >= 0 ? esc(fmt(netRow.vals[j])) : "") + "</td>" : "") + (D.kind === "sum" && D.map.cash >= 0 ? "<td>" + (x.cash !== undefined ? esc(fmt(x.cash)) : "") + "</td>" : "") + "<td>" + (win.has(ym) ? "✓" : "outside") + "</td></tr>"; });
+  $("impPrev").innerHTML = t + "</tbody>";
+  const inWin = ms.filter(m => win.has(m)).length;
+  $("impNotes").textContent = (ms.length ? ms.length + " month" + (ms.length > 1 ? "s" : "") + " found, " + inWin + " inside this forecast (" + fcMonths()[0].iso + " to " + fcMonths()[11].iso + "). Amounts are read as " + S.cur + ". " : "No figures found yet. Check the rows or columns above. ") + (netRow ? "Net in file is red where it differs from income − costs (other income, tax or a missing cost row). " : "") + res.notes.join(" ");
+  $("impApply").disabled = !ms.length; $("impApply").textContent = ms.length ? "Import " + ms.length + " month" + (ms.length > 1 ? "s" : "") : "Import";
+}
+function applyImport() {
+  if (!IMP || !IMP.res) return;
+  const A = (S.fc.actuals = S.fc.actuals || {}), rep = $("impReplace").checked; let n = 0, kept = 0;
+  Object.entries(IMP.res.months).forEach(([ym, x]) => {
+    const has = A[ym] && (A[ym].inc !== undefined || A[ym].cost !== undefined);
+    if (has && !rep) { kept++; return; }
+    A[ym] = Object.assign({}, A[ym] || {}, { inc: rnd(x.inc), cost: rnd(x.cost) }); if (x.cash !== undefined) A[ym].cash = rnd(x.cash); n++;
+  });
+  actDrawn = ""; closeImport(); render();
+  toast("Imported " + n + " month" + (n === 1 ? "" : "s") + (kept ? ", kept " + kept + " you had filled in" : "") + ". See Actual vs forecast.");
+  const p = $("actTable"); if (p) p.closest(".panel").scrollIntoView({ block: "start" });
+}
+function importTemplate() {
+  const A = S.fc.actuals || {}, rows = [["Month", "Income", "Costs", "Cash at month end"]].concat(fcMonths().map(m => [m.iso, (A[m.iso] || {}).inc ?? "", (A[m.iso] || {}).cost ?? "", (A[m.iso] || {}).cash ?? ""]));
+  const csv = rows.map(r => r.map(v => /[",]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(",")).join("\r\n");
+  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })); a.download = "actuals-template-" + fcMonths()[0].iso + ".csv"; document.body.appendChild(a); a.click(); a.remove(); toast("Template downloaded. Fill it in Excel and import it back."); }
+  catch (e) { toast("Downloads are blocked here. Use the live site."); }
+  return csv;
+}
+(function bindImport() {
+  if (!$("imp")) return;
+  $("actImport").addEventListener("click", openImport);
+  $("actTpl").addEventListener("click", importTemplate);
+  $("impClose").addEventListener("click", closeImport);
+  $("imp").addEventListener("click", e => { if (e.target === $("imp")) closeImport(); });
+  $("impFile").addEventListener("change", e => readImportFile(e.target.files[0]));
+  $("impApply").addEventListener("click", applyImport);
+  $("impTpl").addEventListener("click", importTemplate);
+  const dz = $("impDrop");
+  ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("on"); }));
+  ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("on"); }));
+  dz.addEventListener("drop", e => readImportFile(e.dataTransfer.files[0]));
+})();
+
 /* tabs */
 function showTab(t) {
   S.tab = VIEWS.includes(t) ? t : "home";
