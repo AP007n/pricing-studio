@@ -682,7 +682,8 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .good-t { color: var(--good); } .bad-t { color: var(--bad); }
 @media (max-width: 760px) { .acttiles { grid-template-columns: 1fr 1fr; } .dhead { display: none; } .drow2 { grid-template-columns: 1fr 1fr 28px; } .drow2 .name { grid-column: 1 / 3; } .drow2 .x { grid-column: 3; grid-row: 1; } .drow2 .bill { grid-column: 1 / -1; } }
 
-.imp-card { width: min(760px, 100%); }
+.imp-card { width: min(760px, 100%); overflow-x: hidden; }
+.imp-card > *, #impBody > * { min-width: 0; max-width: 100%; }
 .imp-top { display: flex; justify-content: space-between; align-items: center; }
 .imp-top h2 { margin: 0; }
 .drop { display: grid; justify-items: center; gap: 4px; border: 2px dashed var(--line); border-radius: 16px; padding: 22px; cursor: pointer; text-align: center; color: var(--ink); background: var(--field); }
@@ -2825,7 +2826,6 @@ function buildImport(g, D) {
       add(mo.ym, "inc", I); add(mo.ym, "cost", C);
     });
     if (inc && !cogs && !exp && !exp2 && net) notes.push("Costs worked out as income minus net income.");
-    if (inc && (cogs || exp) && net) notes.push("Check: net income in the file vs income − costs is shown per month.");
   } else if (D.kind === "sum") {
     for (let i = D.hdr + 1; i < g.length; i++) { const R = g[i] || [], ym = parseYM(R[D.map.month]); if (!ym) continue;
       const iv = parseAmt(R[D.map.inc]), cv = parseAmt(R[D.map.cost]); if (iv === null && cv === null) continue;
