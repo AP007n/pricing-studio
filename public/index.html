@@ -11,6 +11,9 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <style>
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+@font-face { font-family: "Plex Arabic"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
 @font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-500-normal.woff2") format("woff2"); }
 @font-face { font-family: "Plus Jakarta Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/plus-jakarta-sans-latin-600-normal.woff2") format("woff2"); }
@@ -32,7 +35,7 @@
   --good: #2f7d4f;
   --warn: #b7791f;
   --bad: #b23a3a;
-  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Plus Jakarta Sans", "Plex Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-num: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light;
 }
@@ -935,6 +938,7 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
           <div class="logobox"><img id="logoPrev" alt="Your logo" hidden><label class="filebtn" for="logoFile" id="logoLbl">Upload logo</label><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden><button type="button" class="ghost" id="logoDel" hidden style="padding:4px 10px;font-size:13px">Remove</button></div></div>
 
           <div class="field"><label for="bizName">Business name</label><div class="inp"><input id="bizName" class="txt" placeholder="Your company name"></div></div>
+          <div class="field"><label for="bizNameAr">Business name in Arabic<small>Shown on bilingual quotes</small></label><div class="inp"><input id="bizNameAr" class="txt" dir="rtl" placeholder="اسم الشركة"></div></div>
           <div class="field"><label for="bizCR">CR number<small>Company registration number</small></label><div class="inp"><input id="bizCR" class="txt" placeholder="Commercial registration"></div></div>
           <div class="field"><label for="bizTax"><span class="taxidlbl">VAT number</span><small class="vhint" id="bizTaxHint"></small></label><div class="inp"><input id="bizTax" class="txt" inputmode="numeric" placeholder="Tax registration number"></div></div>
           <div class="field"><label for="bizAddr">Address</label><div class="inp"><input id="bizAddr" class="txt" placeholder="Office, building, road, area, city"></div></div>
@@ -948,12 +952,14 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
           <textarea id="bank" rows="2" placeholder="Bank name, account name, or payment link"></textarea>
         </div><div class="pane" data-pane="client" hidden>
           <div class="field"><label for="client">Company</label><div class="inp"><input id="client" class="txt" placeholder="Client company"></div></div>
+          <div class="field"><label for="clientAr">Company name in Arabic<small>Optional, for bilingual quotes</small></label><div class="inp"><input id="clientAr" class="txt" dir="rtl" placeholder="اسم العميل"></div></div>
           <div class="field"><label for="clientContact">Contact person</label><div class="inp"><input id="clientContact" class="txt" placeholder="Name, title"></div></div>
           <div class="field"><label for="clientAddr">Address</label><div class="inp"><input id="clientAddr" class="txt" placeholder="Client address"></div></div>
           <div class="field"><label for="clientPhone">Phone or email</label><div class="inp"><input id="clientPhone" class="txt" placeholder="Client phone or email"></div></div>
           <div class="field"><label for="clientTax">Client <span class="taxidlbl">VAT number</span><small class="vhint" id="clientTaxHint"></small></label><div class="inp"><input id="clientTax" class="txt" inputmode="numeric" placeholder="If they are tax-registered"></div></div>
         </div><div class="pane" data-pane="this" hidden>
           <div class="field"><label for="qNo">Quote number<small>Leave empty to number automatically</small></label><div class="inp"><input id="qNo" class="txt" placeholder="Automatic"></div></div>
+          <div class="field"><label>Quote language<small>Bilingual adds Arabic headings, terms and scope next to the English</small></label><div class="seg" id="qLangSeg"><button type="button" data-v="en">English</button><button type="button" data-v="bi">English + العربية</button></div></div>
           <div class="field"><label for="qRev">Revision<small>0 for the first issue. Raise it each time you send a changed quote</small></label><div class="inp"><input id="qRev" inputmode="numeric"></div></div>
           <div class="field"><label for="qTitle">Project title</label><div class="inp"><input id="qTitle" class="txt" placeholder="New company website"></div></div>
           <div class="field"><label for="delivery">Delivery time</label><div class="inp"><input id="delivery" class="txt" placeholder="4 to 6 weeks from deposit"></div></div>
@@ -1318,7 +1324,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "3.5", updated: "27 November 2026", contact: "" };
+const APP = { version: "3.6", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1437,6 +1443,29 @@ const SCOPE_IND = {
   training: { excl: ["Venue, catering and participant travel unless listed", "Accreditation body fees unless listed"], assume: ["Participant lists are shared 5 working days before the start"], accept: ["Attendance sheets and evaluation forms close each session"] },
   wellness: { excl: ["Products bought for home use", "Medical tests and doctor referrals"], assume: ["Sessions cancelled with less than 24 hours' notice are charged"], accept: ["Sessions are recorded on the client's card or app"], warr: ["Packages are valid for 6 months from purchase and are non-transferable"] }
 };
+/* v3.6: Arabic wording for bilingual quotes (Modern Standard Arabic, as used on GCC commercial documents) */
+const SCOPE_BASE_AR = {
+  excl: ["الرسوم والتراخيص والتصاريح والتكاليف الخارجية ما لم تُذكر", "أي عمل غير موصوف في الباقة المختارة", "الرسوم الحكومية ورسوم الجهات الرسمية"],
+  assume: ["يحدد العميل شخصاً واحداً للتواصل واعتماد الأعمال", "يوفر العميل المعلومات والصلاحيات والموافقات في الوقت المحدد", "أي تأخير بسبب نقص المدخلات يؤجل الجدول الزمني بالمدة نفسها"],
+  accept: ["تُعتمد الأعمال كتابياً (يكفي البريد الإلكتروني) خلال 5 أيام عمل من التسليم، ويُعد عدم الرد قبولاً", "أي تعديلات خارج هذا النطاق تُسعَّر بشكل منفصل قبل البدء"],
+  warr: ["نصلح أي عيوب في عملنا مجاناً لمدة 30 يوماً من تاريخ الاعتماد"]
+};
+const SCOPE_IND_AR = {
+  tech: { excl: ["كتابة المحتوى والترجمة ما لم تُذكر", "رسوم الاستضافة والنطاقات ومتاجر التطبيقات بعد السنة الأولى"], warr: ["إصلاح الأخطاء لمدة 30 يوماً بعد الإطلاق، ثم الدعم ضمن خطة الصيانة"] },
+  consult: { excl: ["أعمال التنفيذ ما لم تُذكر", "الآراء القانونية أو التدقيقية أو الضريبية التي تتطلب ترخيصاً"], assume: ["تُسلَّم البيانات والمستندات خلال 5 أيام عمل من البدء"], accept: ["يُعتمد التقرير النهائي بعد جولة ملاحظات موحدة واحدة"] },
+  facility: { excl: ["قطع الغيار والمواد غير المذكورة، وتُحتسب بالتكلفة مع رسوم المناولة", "الأضرار الناتجة عن سوء الاستخدام أو تذبذب الكهرباء أو أطراف أخرى", "الأعمال على ارتفاع يزيد عن 4 أمتار أو في الأماكن المغلقة ما لم تُذكر"], assume: ["توفير الوصول إلى الموقع والماء والكهرباء خلال ساعات العمل", "يتولى العميل تصاريح المبنى والأمن"], accept: ["يوقَّع تقرير العمل في الموقع في نهاية كل زيارة"], warr: ["ضمان على المصنعية لمدة 90 يوماً، ويسري ضمان الشركة المصنعة على القطع"] },
+  creative: { excl: ["ميزانيات الإعلانات المدفوعة وأتعاب المؤثرين والطباعة", "أجور المواهب والعارضين والمواقع ما لم تُذكر"], assume: ["يوفر العميل ملفات الهوية والشعارات والموافقات"], accept: ["يشمل كل مُخرج جولات التعديل المذكورة، وتُحتسب الجولات الإضافية"], warr: ["نحتفظ بالملفات النهائية لمدة 12 شهراً بعد التسليم"] },
+  events: { excl: ["إيجار القاعة والضيافة والإقامة ما لم تُذكر", "رسوم الوزارة أو البلدية وتصاريح الشرطة"], assume: ["يُؤكَّد عدد الضيوف قبل الفعالية بسبعة أيام", "يُتاح الوصول إلى القاعة للتجهيز قبل يوم من الفعالية"], accept: ["يُعتمد جدول تشغيل الفعالية قبل 3 أيام من موعدها"], warr: ["تُحتسب المعدات المستأجرة التالفة أو المفقودة بتكلفة الاستبدال"] },
+  training: { excl: ["القاعة والضيافة وسفر المشاركين ما لم تُذكر", "رسوم جهات الاعتماد ما لم تُذكر"], assume: ["تُرسل قوائم المشاركين قبل 5 أيام عمل من البدء"], accept: ["تُختتم كل جلسة بكشوف الحضور ونماذج التقييم"] },
+  wellness: { excl: ["المنتجات المشتراة للاستخدام المنزلي", "الفحوصات الطبية وتحويلات الأطباء"], assume: ["تُحتسب الجلسات الملغاة قبل أقل من 24 ساعة"], accept: ["تُسجَّل الجلسات في بطاقة العميل أو التطبيق"], warr: ["الباقات صالحة لمدة 6 أشهر من الشراء وغير قابلة للتحويل"] }
+};
+function scopePresetAr(ind) { const a = SCOPE_IND_AR[ind] || {}, o = {}; ["excl", "assume", "accept", "warr"].forEach(k => o[k] = (a[k] || []).concat(k === "warr" && a.warr ? [] : SCOPE_BASE_AR[k])); return o; }
+const QAR_L = { quotation: "عرض سعر", no: "رقم", rev: "مراجعة", date: "التاريخ", valid: "صالح حتى", replaces: "يحل محل المراجعة", preparedFor: "مقدم إلى", project: "المشروع", delivery: "مدة التسليم",
+  choose: "اختر الباقة", scopePrice: "النطاق والسعر", rates: "الأسعار", summary: "الملخص", scope: "نطاق العمل", included: "مشمول", notIncl: "غير مشمول", clientProv: "التزامات العميل", accept: "الاستلام والتعديلات",
+  warr: "الضمان والدعم", terms: "الشروط والأحكام", notes: "ملاحظات", pay: "بيانات الدفع", recommended: "موصى بها", monthlyFee: "الرسوم الشهرية", price: "السعر", estimate: "التقدير", total: "الإجمالي",
+  perMonth: "شهرياً", dueMonth: "يستحق قبل بداية كل شهر", deposit: "دفعة مقدمة قبل بدء العمل", care: "خطة صيانة اختيارية", cr: "س.ت", vatNo: "الرقم الضريبي",
+  Basic: "الأساسية", Standard: "القياسية", Premium: "المتميزة", "On signing": "عند التوقيع", "On delivery": "عند التسليم", "At midpoint (design approval)": "منتصف المشروع (اعتماد التصميم)" };
+const TAX_AR = { VAT: "ضريبة القيمة المضافة" };
 function scopePreset(ind) { const a = SCOPE_IND[ind] || {}, o = {}; ["excl", "assume", "accept", "warr"].forEach(k => o[k] = (a[k] || []).concat(k === "warr" && a.warr ? [] : SCOPE_BASE[k]).join("\n")); return o; }
 const industry = (st = S) => INDUSTRIES[st.industry] || INDUSTRIES.tech;
 function industryJobs(st = S) { return industry(st).jobs; }
@@ -1489,10 +1518,11 @@ DEFAULTS.fc = { start: "", revLink: true, revBase: 0, revGrowth: 1.5, season: "g
   taxRate: null, taxFree: null, plan: { growth: 20, salaryUp: 3, costUp: 3, hires: 1, goalType: "net", goal: 0 }, cogsLink: true, cogsPct: 0, freightPct: 0, ot: 0, housing: 0, ownerPay: true,
   team: JSON.parse(JSON.stringify(SAMPLE_TEAM)), other: [{ name: "", amt: 0, from: 1, to: 12 }], rates: {}, inBiz: true };
 Object.assign(DEFAULTS, { bizIban: "", bizBic: "", taxReg: true, feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
+Object.assign(DEFAULTS, { qLang: "en", bizNameAr: "", clientAr: "", expEdited: false });
 Object.assign(DEFAULTS, { industry: "tech", scope: scopePreset("tech"), scopeEdited: false, qRev: 0, fcView: "summary" });
 Object.assign(DEFAULTS, { logo: "", taxName: "VAT", validDays: 14, bizName: "", client: "", qTitle: "", notes: "" });
 const KEY = "pricing-model-v6";
-const TXT = ["bizIban", "bizBic", "taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
+const TXT = ["bizNameAr", "clientAr", "bizIban", "bizBic", "taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
 const SIMPLE = ["qRev", "feePct", "pkgWorkB", "pkgWorkP", "vat", "validDays", "hourRate", "income", "billDays", "changeRate", "lateFee", "careOffer", "taxReserve", "propHours", "winRate", "startCash", "payDelay", "hoursPerDay", "months", "cont", "margin", "share"];
 const $ = id => document.getElementById(id);
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -1507,6 +1537,7 @@ try {
   S.fc = Object.assign(clone(DEFAULTS.fc), S.fc);
   if (saved && !hadOne) S.fc.oneoff = [];
   if (saved && !(sv.fc && sv.fc.deals)) S.fc.deals = [];
+  if (saved && sv.expEdited === undefined) S.expEdited = true;   /* keep expenses people already set up */
   if (saved && hadFc && sv.fc.revGrowth === undefined) S.fc.revGrowth = 0;
   if (!saved) { const old = JSON.parse(localStorage.getItem("pricing-model-v5") || "{}");
     ["myJobs", "logo", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "hourRate", "rateMode", "hoursPerDay", "billDays"].forEach(k => { if (old[k] !== undefined) S[k] = old[k]; }); }
@@ -1786,6 +1817,7 @@ $("taxRegSeg").querySelectorAll("button").forEach(b => b.addEventListener("click
 $("taxChips").querySelectorAll("button").forEach(b => b.addEventListener("click", e => { e.preventDefault(); S.vat = num(b.dataset.v); $("vat").value = fmtIn(S.vat); render(); }));
 TXT.forEach(k => $(k).addEventListener("input", () => { S[k] = $(k).value; save(); if (k === "taxName") render(); else { if (["bizTax", "clientTax", "bizIban", "bizBic"].includes(k)) paintCountry(); if (S.tab === "quote") paintPreview(); } }));
 $("pkgSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.showPkgs = b.dataset.v; render(); }));
+$("qLangSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.qLang = b.dataset.v; render(); }));
 
 function drawLines() {
   const box = $("lines"); box.innerHTML = "";
@@ -1900,6 +1932,7 @@ function render() {
   paintCountry();
   $("qNo").placeholder = autoQNo() + " (automatic)";
   $("pkgSeg").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === (S.showPkgs || "all")));
+  $("qLangSeg").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === (S.qLang || "en")));
   $("hpdRow").hidden = S.basis !== "hour" && S.rateMode !== "hour";
   $("hourRateRow").hidden = S.rateMode !== "hour";
   $("incomeRow").hidden = S.rateMode === "hour";
@@ -2081,6 +2114,22 @@ function paintMbar() {
 }
 
 /* jobs */
+
+/* typical running costs by industry (BHD illustrations, converted to the chosen currency) */
+const EXP_IND = {
+  tech: null,
+  consult: [["Office rent", 400, "m"], ["Utilities", 50, "m"], ["Telephone and internet", 45, "m"], ["Software and subscriptions", 100, "m"], ["Travel and client visits", 80, "m"], ["Marketing and networking", 100, "m"], ["Bank service charges", 10, "m"], ["Professional indemnity insurance", 600, "y"], ["Professional fees (audit, accounting)", 900, "y"], ["CR licence and renewals", 250, "y"], ["Laptops and equipment (spread)", 1000, "y"], ["Miscellaneous", 30, "m"]],
+  facility: [["Workshop or store rent", 450, "m"], ["Utilities", 120, "m"], ["Vehicle lease and insurance", 350, "m"], ["Fuel", 300, "m"], ["Telephone and internet", 60, "m"], ["Uniforms and PPE (safety gear)", 600, "y"], ["Tools and equipment (spread)", 2400, "y"], ["Third-party liability insurance", 800, "y"], ["CR and municipality licences", 400, "y"], ["Professional fees (audit, accounting)", 900, "y"], ["Bank service charges", 10, "m"], ["Miscellaneous", 40, "m"]],
+  creative: [["Studio rent", 400, "m"], ["Utilities", 60, "m"], ["Software (design, editing, scheduling)", 150, "m"], ["Stock images and music", 40, "m"], ["Telephone and internet", 45, "m"], ["Marketing", 80, "m"], ["Camera and equipment (spread)", 2400, "y"], ["Professional fees (audit, accounting)", 900, "y"], ["CR licence and renewals", 250, "y"], ["Bank service charges", 10, "m"], ["Miscellaneous", 30, "m"]],
+  events: [["Storage rent", 500, "m"], ["Utilities", 80, "m"], ["Truck or van lease", 400, "m"], ["Fuel", 200, "m"], ["Equipment repairs", 150, "m"], ["Marketing", 150, "m"], ["Telephone and internet", 60, "m"], ["Event and liability insurance", 900, "y"], ["CR, event licences and permits", 500, "y"], ["Professional fees (audit, accounting)", 900, "y"], ["Bank service charges", 10, "m"], ["Miscellaneous", 50, "m"]],
+  training: [["Training room rent", 450, "m"], ["Utilities", 70, "m"], ["Learning platform", 80, "m"], ["Printing and materials", 60, "m"], ["Marketing", 150, "m"], ["Telephone and internet", 45, "m"], ["Accreditation and licence fees", 600, "y"], ["Professional fees (audit, accounting)", 900, "y"], ["CR licence and renewals", 250, "y"], ["Bank service charges", 10, "m"], ["Miscellaneous", 30, "m"]],
+  wellness: [["Clinic or studio rent", 900, "m"], ["Utilities", 180, "m"], ["Booking and payment software", 50, "m"], ["Laundry and cleaning", 120, "m"], ["Marketing", 200, "m"], ["Telephone and internet", 50, "m"], ["Card payment fees", 30, "m"], ["Equipment (spread)", 3000, "y"], ["Health authority licences", 600, "y"], ["Insurance", 700, "y"], ["Professional fees (audit, accounting)", 900, "y"], ["Miscellaneous", 40, "m"]]
+};
+const BASE_EXPENSES = DEFAULTS.expenses.map(e => [e.name, e.amt, e.freq]);
+function industryExpenses(ind, scale = 1) {
+  const L = EXP_IND[ind] || BASE_EXPENSES, k = (fxRate("BHD", S.cur) || 1) * scale;
+  return L.map(([n, a, f]) => ({ name: n, amt: niceMoney(a * k), freq: f }));
+}
 function allJobs() { return industryJobs().concat(S.myJobs || []); }
 /* switch the service industry: its jobs, a starting job mix and scope wording */
 function setIndustry(k) {
@@ -2090,6 +2139,7 @@ function setIndustry(k) {
   S.rateMode = "hour"; S.hourRate = niceMoney(I.rate * (fxRate("BHD", S.cur) || 1));   /* typical cost of a billable hour in this industry; change it any time */
   jobInto(S, I.jobs[0]);
   if (!S.scopeEdited) S.scope = scopePreset(k);
+  if (!S.expEdited) S.expenses = industryExpenses(k);
 }
 function drawJobs() {
   const isel = $("indSel"); if (isel) { if (!isel.options.length) { isel.innerHTML = Object.entries(INDUSTRIES).map(([k, I]) => '<option value="' + k + '">' + esc(I.name) + "</option>").join(""); isel.addEventListener("change", () => { setIndustry(isel.value); drawJobs(); fillInputs(); render(); }); } isel.value = S.industry || "tech"; }
@@ -2213,14 +2263,14 @@ function drawExps() {
     row.innerHTML = '<input class="name" aria-label="Expense name"><div class="inp"><input aria-label="Amount" inputmode="decimal"></div><div class="seg mini"><button type="button" data-f="m">Month</button><button type="button" data-f="y">Year</button></div><button class="x" type="button" aria-label="Remove expense">×</button>';
     const nm = row.querySelector(".name"), am = row.querySelector(".inp input");
     nm.value = e.name; am.value = fmtIn(e.amt); nm.id = "ex-n-" + i; am.id = "ex-a-" + i;
-    nm.addEventListener("input", () => { e.name = nm.value; save(); });
-    am.addEventListener("input", () => { e.amt = num(am.value); render(); });
+    nm.addEventListener("input", () => { e.name = nm.value; S.expEdited = true; save(); });
+    am.addEventListener("input", () => { e.amt = num(am.value); S.expEdited = true; render(); });
     am.addEventListener("blur", () => am.value = fmtIn(e.amt));
     row.querySelectorAll(".seg button").forEach(b => {
       b.setAttribute("aria-pressed", b.dataset.f === e.freq);
-      b.addEventListener("click", () => { e.freq = b.dataset.f; drawExps(); render(); });
+      b.addEventListener("click", () => { e.freq = b.dataset.f; S.expEdited = true; drawExps(); render(); });
     });
-    row.querySelector(".x").addEventListener("click", () => { S.expenses.splice(i, 1); drawExps(); render(); });
+    row.querySelector(".x").addEventListener("click", () => { S.expenses.splice(i, 1); S.expEdited = true; drawExps(); render(); });
     if (e.freq === "y") {
       /* yearly bills: profit spreads them evenly; cash pays them in the month chosen here */
       const pm = document.createElement("label"); pm.className = "epay";
@@ -2235,7 +2285,7 @@ function drawExps() {
   });
 }
 $("addExp").addEventListener("click", () => {
-  S.expenses.push({ name: "New expense", amt: 0, freq: "m" }); drawExps(); render();
+  S.expenses.push({ name: "New expense", amt: 0, freq: "m" }); S.expEdited = true; drawExps(); render();
   const el = $("ex-n-" + (S.expenses.length - 1)); if (el) { el.focus(); el.select(); }
 });
 
@@ -3849,6 +3899,13 @@ const QCSS = `
       .q-tot tr.q-grand td { font-weight: 700; font-size: 14px; border-top: 2px solid #16202b; border-bottom: 0; }
       .q-tot tr.q-dep td { color: #1e4d3c; font-weight: 600; border-bottom: 0; }
       .q-terms { margin: 0; padding-left: 18px; color: #3c4855; }
+      .q-doc .ar, .q-doc .arl { font-family: "Plex Arabic", "Plus Jakarta Sans", sans-serif; direction: rtl; unicode-bidi: isolate; letter-spacing: 0 !important; text-transform: none !important; }
+      .q-doc .arl { display: block; font-size: 0.92em; color: #5d6b7a; font-weight: 500; margin-top: 1px; }
+      .q-doc .arl.big { font-size: 15px; color: #13241c; font-weight: 600; }
+      .q-doc .arl.h1ar { font-size: 20px; color: #1e4d3c; font-weight: 700; margin-top: 2px; text-align: right; direction: rtl; }
+      .q-doc .bi { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+      .q-doc .bi .ar { font-size: 12px; font-weight: 600; }
+      .q-doc td .arl, .q-doc th .arl { font-size: 10px; }
       .q-scope { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
       .q-scope ul { margin: 4px 0 0; padding-left: 18px; color: #3c4855; }
       .q-sh { font-weight: 700; font-size: 12px; color: #1e4d3c; border-bottom: 1px solid #dfe6e2; padding-bottom: 3px; }
@@ -3905,14 +3962,21 @@ function buildQuoteHTML() {
   const valid = new Date(now.getTime() + Math.max(1, S.validDays || 14) * 864e5);
   const qno = (S.qNo || "").trim() || autoQNo(), rev = Math.max(0, Math.round(num(S.qRev)));
   const sc = Object.assign(scopePreset(S.industry), S.scope || {}), lines = t => String(t || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
+  /* bilingual helpers: English first, Arabic after (right to left) */
+  const BI = S.qLang === "bi", A = k => QAR_L[k] || "";
+  const hh = (en, k) => '<div class="q-h' + (BI ? " bi" : "") + '"><span>' + en + "</span>" + (BI && A(k) ? '<span class="ar">' + A(k) + "</span>" : "") + "</div>";
+  const lb = (en, k, raw) => en + (BI && (raw || A(k)) ? '<span class="arl">' + (raw || A(k)) + "</span>" : "");
+  const scAr = !S.scopeEdited ? scopePresetAr(S.industry) : null;
+  const li = (arr, key) => arr.map((x, i) => "<li>" + esc(x) + (BI && scAr && scAr[key] && scAr[key][i] ? '<span class="arl">' + esc(scAr[key][i]) + "</span>" : "") + "</li>").join("");
   const pkgMode = S.basis === "project" || S.basis === "month", mid = cards.find(c => c.mid) || cards[0], jobNow = allJobs().find(j => j.id === S.job);
   const inclItems = pkgMode && mid ? (S.showPkgs === "one" ? mid.items : ["Everything listed in the package you choose above"])
     : [(jobNow ? jobNow.desc || jobNow.name : r.b.label) + ", " + fmtIn(r.q) + " " + (S.basis === "hour" ? "hours" : "days") + " estimated", "Billed by the " + r.b.unit + " for actual time; we confirm before going over the estimate"];
-  const scopeHTML = `<div class="q-h">Scope of work</div><div class="q-scope"><div><div class="q-sh">Included</div><ul>${inclItems.map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div><div><div class="q-sh">Not included</div><ul>${lines(sc.excl).map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div></div>`
-    + (lines(sc.assume).length ? `<div class="q-sh2">The client provides</div><ul class="q-terms">${lines(sc.assume).map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "")
-    + (lines(sc.accept).length ? `<div class="q-sh2">Acceptance and changes</div><ul class="q-terms">${lines(sc.accept).map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "")
-    + (lines(sc.warr).length ? `<div class="q-sh2">Warranty and support</div><ul class="q-terms">${lines(sc.warr).map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "");
-  const tax = S.vat > 0, taxN = S.taxName || "Tax";
+  const sh = (cls, en, k) => '<div class="' + cls + (BI ? " bi" : "") + '"><span>' + en + "</span>" + (BI ? '<span class="ar">' + A(k) + "</span>" : "") + "</div>";
+  const scopeHTML = hh("Scope of work", "scope") + `<div class="q-scope"><div>${sh("q-sh", "Included", "included")}<ul>${inclItems.map(x => "<li>" + esc(x) + (BI && x === "Everything listed in the package you choose above" ? '<span class="arl">كل ما هو مذكور في الباقة المختارة أعلاه</span>' : "") + "</li>").join("")}</ul></div><div>${sh("q-sh", "Not included", "notIncl")}<ul>${li(lines(sc.excl), "excl")}</ul></div></div>`
+    + (lines(sc.assume).length ? sh("q-sh2", "The client provides", "clientProv") + `<ul class="q-terms">${li(lines(sc.assume), "assume")}</ul>` : "")
+    + (lines(sc.accept).length ? sh("q-sh2", "Acceptance and changes", "accept") + `<ul class="q-terms">${li(lines(sc.accept), "accept")}</ul>` : "")
+    + (lines(sc.warr).length ? sh("q-sh2", "Warranty and support", "warr") + `<ul class="q-terms">${li(lines(sc.warr), "warr")}</ul>` : "");
+  const tax = S.vat > 0, taxN = S.taxName || "Tax", taxAr = TAX_AR[taxN] || taxN;
   const idS = (ctry() && ctry().idShort) || (taxN + " no.");
   const sched = parseSched(S.schedule);
   const stageNames = n => n === 1 ? ["On signing"] : n === 2 ? ["On signing", "On delivery"] : n === 3 ? ["On signing", "At midpoint (design approval)", "On delivery"] : Array.from({ length: n }, (_, i) => i === 0 ? "On signing" : i === n - 1 ? "On delivery" : "Milestone " + (i + 1));
@@ -3925,62 +3989,68 @@ function buildQuoteHTML() {
   const one = cols.length === 1;
   const cell = v => "<td>" + fmt(v) + "</td>";
   const rowsH = [];
-  rowsH.push("<tr><td>" + (S.basis === "month" ? "Monthly fee" : S.basis === "project" ? "Price" : esc("Estimate: " + fmtIn(r.q) + " " + b.qtyUnit + " × " + fmt(r.unitPrice))) + "</td>" + cols.map(c => cell(c.sub)).join("") + "</tr>");
-  if (tax) rowsH.push("<tr><td>" + esc(taxN) + " (" + S.vat + "%)</td>" + cols.map(c => cell(c.tax)).join("") + "</tr>");
-  rowsH.push('<tr class="q-grand"><td>Total' + (S.basis === "month" ? " per month" : "") + "</td>" + cols.map(c => cell(c.tot)).join("") + "</tr>");
-  if (S.basis === "project") sched.forEach((p, i) => rowsH.push('<tr class="' + (i === 0 ? "q-dep" : "") + '"><td>' + esc(names[i]) + " (" + p + "%)</td>" + cols.map(c => cell(c.stages[i])).join("") + "</tr>"));
-  else if (S.basis === "month") rowsH.push('<tr class="q-dep"><td>Due before each month starts</td>' + cols.map(c => cell(c.tot)).join("") + "</tr>");
-  else if (S.deposit > 0) rowsH.push('<tr class="q-dep"><td>Deposit before work starts (' + S.deposit + "%)</td>" + cols.map(c => cell(c.tot * S.deposit / 100)).join("") + "</tr>");
-  const headH = one ? "" : "<tr><th></th>" + cols.map(c => "<th>" + esc(c.name) + (c.mid ? '<span class="q-recs">Recommended</span>' : "") + "</th>").join("") + "</tr>";
+  rowsH.push("<tr><td>" + (S.basis === "month" ? lb("Monthly fee", "monthlyFee") : S.basis === "project" ? lb("Price", "price") : lb(esc("Estimate: " + fmtIn(r.q) + " " + b.qtyUnit + " × " + fmt(r.unitPrice)), "estimate")) + "</td>" + cols.map(c => cell(c.sub)).join("") + "</tr>");
+  if (tax) rowsH.push("<tr><td>" + lb(esc(taxN) + " (" + S.vat + "%)", "", esc(taxAr)) + "</td>" + cols.map(c => cell(c.tax)).join("") + "</tr>");
+  rowsH.push('<tr class="q-grand"><td>' + lb("Total" + (S.basis === "month" ? " per month" : ""), "", A("total") + (S.basis === "month" ? " " + A("perMonth") : "")) + "</td>" + cols.map(c => cell(c.tot)).join("") + "</tr>");
+  if (S.basis === "project") sched.forEach((p, i) => rowsH.push('<tr class="' + (i === 0 ? "q-dep" : "") + '"><td>' + lb(esc(names[i]) + " (" + p + "%)", "", A(names[i]) ? A(names[i]) + " (" + p + "%)" : "") + "</td>" + cols.map(c => cell(c.stages[i])).join("") + "</tr>"));
+  else if (S.basis === "month") rowsH.push('<tr class="q-dep"><td>' + lb("Due before each month starts", "dueMonth") + "</td>" + cols.map(c => cell(c.tot)).join("") + "</tr>");
+  else if (S.deposit > 0) rowsH.push('<tr class="q-dep"><td>' + lb("Deposit before work starts (" + S.deposit + "%)", "", A("deposit") + " (" + S.deposit + "%)") + "</td>" + cols.map(c => cell(c.tot * S.deposit / 100)).join("") + "</tr>");
+  const headH = one ? "" : "<tr><th></th>" + cols.map(c => "<th>" + esc(c.name) + (BI && A(c.name) ? '<span class="arl">' + A(c.name) + "</span>" : "") + (c.mid ? '<span class="q-recs">Recommended' + (BI ? " · " + A("recommended") : "") + "</span>" : "") + "</th>").join("") + "</tr>";
   const summaryHTML = '<table class="q-tot' + (one ? "" : " q-multi") + '">' + headH + rowsH.join("") + "</table>";
   const cr = changeRateFor(r);
-  const terms = [
-    S.basis === "month" ? "Invoiced monthly in advance. No separate deposit." : S.basis === "project" ? (sched.length > 1 ? "Payment in " + sched.length + " stages: " + sched.join("/") + "% of the package you choose, as shown above." : "Full payment on signing.") : (S.deposit > 0 ? S.deposit + "% deposit before work starts, the rest invoiced as worked." : "Invoiced as worked."),
-    "All prices in " + S.cur + (tax ? ", excluding " + taxN + " (" + S.vat + "%), shown separately." : S.taxReg === false && ctry() && ctry().vat ? ". No VAT is charged because the supplier is not VAT-registered." : "."),
-    S.basis === "month" ? "Minimum term: " + fmtIn(Math.max(1, S.months)) + " months. Contract value: " + fmt(r.total) + (tax ? " before " + taxN : "") + "." : "",
-    (S.basis === "hour" || S.basis === "day") ? "Final amount is based on actual " + b.qtyUnit + " worked, reported with each invoice." : "Changes or extra work outside the agreed scope: " + fmt(cr) + " per hour, agreed in writing first.",
-    S.lateFee > 0 ? "Invoices are due within 14 days. Overdue invoices incur " + S.lateFee + "% per month." : "Invoices are due within 14 days.",
-    "This quote is valid until " + d(valid) + "."
+  const notReg = !tax && S.taxReg === false && ctry() && ctry().vat;
+  const termPairs = [
+    S.basis === "month" ? ["Invoiced monthly in advance. No separate deposit.", "تصدر الفاتورة شهرياً مقدماً، دون دفعة مقدمة منفصلة."]
+      : S.basis === "project" ? (sched.length > 1 ? ["Payment in " + sched.length + " stages: " + sched.join("/") + "% of the package you choose, as shown above.", "الدفع على " + sched.length + " مراحل: " + sched.join("/") + "% من قيمة الباقة المختارة كما هو موضح أعلاه."] : ["Full payment on signing.", "الدفع كاملاً عند التوقيع."])
+      : (S.deposit > 0 ? [S.deposit + "% deposit before work starts, the rest invoiced as worked.", "دفعة مقدمة " + S.deposit + "% قبل بدء العمل، ويُفوتر الباقي حسب العمل المنجز."] : ["Invoiced as worked.", "يُفوتر حسب العمل المنجز."]),
+    ["All prices in " + S.cur + (tax ? ", excluding " + taxN + " (" + S.vat + "%), shown separately." : notReg ? ". No VAT is charged because the supplier is not VAT-registered." : "."),
+      "جميع الأسعار بعملة " + S.cur + (tax ? " ولا تشمل " + taxAr + " (" + S.vat + "%) الموضحة بشكل منفصل." : notReg ? ". لا تُحتسب ضريبة القيمة المضافة لأن المورد غير مسجل فيها." : ".")],
+    S.basis === "month" ? ["Minimum term: " + fmtIn(Math.max(1, S.months)) + " months. Contract value: " + fmt(r.total) + (tax ? " before " + taxN : "") + ".", "الحد الأدنى لمدة العقد: " + fmtIn(Math.max(1, S.months)) + " أشهر. قيمة العقد: " + fmt(r.total) + (tax ? " قبل الضريبة" : "") + "."] : null,
+    (S.basis === "hour" || S.basis === "day") ? ["Final amount is based on actual " + b.qtyUnit + " worked, reported with each invoice.", "يُحتسب المبلغ النهائي حسب " + (S.basis === "hour" ? "الساعات" : "الأيام") + " الفعلية، مع تقرير مرفق بكل فاتورة."]
+      : ["Changes or extra work outside the agreed scope: " + fmt(cr) + " per hour, agreed in writing first.", "الأعمال الإضافية أو التعديلات خارج النطاق المتفق عليه: " + fmt(cr) + " للساعة، بعد الاتفاق كتابياً."],
+    S.lateFee > 0 ? ["Invoices are due within 14 days. Overdue invoices incur " + S.lateFee + "% per month.", "تستحق الفواتير خلال 14 يوماً، وتُفرض " + S.lateFee + "% شهرياً على الفواتير المتأخرة."] : ["Invoices are due within 14 days.", "تستحق الفواتير خلال 14 يوماً."],
+    ["This quote is valid until " + d(valid) + ".", "هذا العرض صالح حتى " + isoDate(valid) + "."]
   ].filter(Boolean);
+  const terms = termPairs.map(p => p[0]);
   const pk = cards.filter(c => !oneOnly || c.mid).map(c => `
     <td class="q-pkg${c.mid ? " q-mid" : ""}">
-      ${c.mid && !oneOnly ? '<div class="q-rec">Recommended</div>' : ""}
-      <div class="q-pn">${esc(c.name)}</div>
+      ${c.mid && !oneOnly ? '<div class="q-rec">Recommended' + (BI ? " · " + A("recommended") : "") + "</div>" : ""}
+      <div class="q-pn">${esc(c.name)}${BI && A(c.name) ? '<span class="arl">' + A(c.name) + "</span>" : ""}</div>
       <div class="q-pp">${esc(c.price)} <span>${esc(c.per)}</span></div>
       <ul>${c.items.map(i => "<li>" + esc(i) + "</li>").join("")}</ul>
     </td>`).join("");
   const project = S.qTitle || (allJobs().find(j => j.id === S.job) || {}).name || "Project";
   const tl = S.taxName || "Tax";
   const join = arr => arr.filter(x => x && String(x).trim()).map(esc).join("<br>");
-  const bizLines = join([S.bizAddr, [S.bizPhone, S.bizEmail, S.bizWeb].filter(Boolean).join(" · "), [S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? idS + " " + S.bizTax : ""].filter(Boolean).join(" · ")]);
+  const bizLines = join([S.bizAddr, [S.bizPhone, S.bizEmail, S.bizWeb].filter(Boolean).join(" · "), [S.bizCR ? "CR " + S.bizCR + (BI ? " / " + A("cr") : "") : "", S.bizTax ? idS + " " + S.bizTax + (BI ? " / " + A("vatNo") : "") : ""].filter(Boolean).join(" · ")]);
   const clientLines = join([S.clientContact, S.clientAddr, S.clientPhone, S.clientTax ? idS + " " + S.clientTax : ""]);
   return `
   <div class="q-doc">
     <style>${QCSS}</style>
     <div class="q-top">
       <div class="q-left">
-        <div class="q-biz">${logoHTML()}<div class="q-bn">${esc(S.bizName || "Your business")}</div></div>
+        <div class="q-biz">${logoHTML()}<div class="q-bn">${esc(S.bizName || "Your business")}${BI && S.bizNameAr ? '<span class="arl big">' + esc(S.bizNameAr) + "</span>" : ""}</div></div>
         ${bizLines ? `<div class="q-bizd">${bizLines}</div>` : ""}
       </div>
-      <div class="q-title"><h1>Quotation</h1><div class="q-meta">No. <b>${esc(qno)}</b>${rev ? " · Rev " + rev : ""}<br>Date: ${d(now)} · ${isoDate(now)}<br>Valid until: ${d(valid)} · ${isoDate(valid)}${rev ? "<br>Replaces Rev " + (rev - 1) : ""}</div></div>
+      <div class="q-title"><h1>Quotation${BI ? '<span class="arl h1ar">' + A("quotation") + "</span>" : ""}</h1><div class="q-meta">No.${BI ? " / " + A("no") : ""} <b>${esc(qno)}</b>${rev ? " · Rev " + rev : ""}<br>Date${BI ? " / " + A("date") : ""}: ${d(now)} · ${isoDate(now)}<br>Valid until${BI ? " / " + A("valid") : ""}: ${d(valid)} · ${isoDate(valid)}${rev ? "<br>Replaces Rev " + (rev - 1) + (BI ? " / " + A("replaces") + " " + (rev - 1) : "") : ""}</div></div>
     </div>
     <div class="q-info">
-      <div><div class="q-k">Prepared for</div><div class="q-v">${esc(S.client || "Client")}</div>${clientLines ? `<div class="q-party">${clientLines}</div>` : ""}</div>
-      <div><div class="q-k">Project</div><div class="q-v">${esc(project)}</div><div class="q-party">${esc(b.label)}${S.delivery ? "<br>Delivery: " + esc(S.delivery) : ""}</div></div>
+      <div><div class="q-k">Prepared for${BI ? " · " + A("preparedFor") : ""}</div><div class="q-v">${esc(S.client || "Client")}${BI && S.clientAr ? '<span class="arl">' + esc(S.clientAr) + "</span>" : ""}</div>${clientLines ? `<div class="q-party">${clientLines}</div>` : ""}</div>
+      <div><div class="q-k">Project${BI ? " · " + A("project") : ""}</div><div class="q-v">${esc(project)}</div><div class="q-party">${esc(b.label)}${S.delivery ? "<br>Delivery" + (BI ? " / " + A("delivery") : "") + ": " + esc(S.delivery) : ""}</div></div>
     </div>
-    <div class="q-h">${oneOnly ? "Scope and price" : (S.basis === "project" || S.basis === "month") ? "Choose your package" : "Rates"}</div>
+    ${oneOnly ? hh("Scope and price", "scopePrice") : (S.basis === "project" || S.basis === "month") ? hh("Choose your package", "choose") : hh("Rates", "rates")}
     <table class="q-pkgs${oneOnly ? " q-one" : ""}"><tr>${pk}</tr></table>
-    <div class="q-h">Summary</div>
+    ${hh("Summary", "summary")}
     ${summaryHTML}
-    ${S.careOffer > 0 && S.basis === "project" ? `<div class="q-care"><b>Optional care plan:</b> ${fmt(S.careOffer)} per month after launch for hosting, updates, backups and small changes.</div>` : ""}
+    ${S.careOffer > 0 && S.basis === "project" ? `<div class="q-care"><b>Optional care plan:</b> ${fmt(S.careOffer)} per month after launch for hosting, updates, backups and small changes.${BI ? '<span class="arl">' + A("care") + ": " + fmt(S.careOffer) + " شهرياً بعد الإطلاق للاستضافة والتحديثات والنسخ الاحتياطي والتعديلات البسيطة.</span>" : ""}</div>` : ""}
     ${scopeHTML}
-    <div class="q-h">Terms</div>
-    <ul class="q-terms">${terms.map(t => "<li>" + esc(t) + "</li>").join("")}</ul>
-    ${S.notes ? `<div class="q-h">Notes</div><div class="q-notes">${esc(S.notes)}</div>` : ""}
-    ${(S.bank || S.bizIban || S.bizBic) ? `<div class="q-h">Payment details</div><div class="q-pay">${[S.bizIban ? "IBAN: " + ibanPrint(S.bizIban) : "", S.bizBic ? "BIC / SWIFT: " + String(S.bizBic).toUpperCase().replace(/\s/g, "") : "", S.bank || ""].filter(Boolean).map(esc).join("\n")}</div>` : ""}
+    ${hh("Terms", "terms")}
+    <ul class="q-terms">${termPairs.map(t => "<li>" + esc(t[0]) + (BI ? '<span class="arl">' + esc(t[1]) + "</span>" : "") + "</li>").join("")}</ul>
+    ${S.notes ? hh("Notes", "notes") + `<div class="q-notes">${esc(S.notes)}</div>` : ""}
+    ${(S.bank || S.bizIban || S.bizBic) ? hh("Payment details", "pay") + `<div class="q-pay">${[S.bizIban ? "IBAN: " + ibanPrint(S.bizIban) : "", S.bizBic ? "BIC / SWIFT: " + String(S.bizBic).toUpperCase().replace(/\s/g, "") : "", S.bank || ""].filter(Boolean).map(esc).join("\n")}</div>` : ""}
     <div class="q-sign">
-      <div><div class="q-sn">${esc(S.preparedBy || S.bizName || "")}</div>For ${esc(S.bizName || "the supplier")} (signature and stamp)</div>
-      <div><div class="q-sn">${esc(S.clientContact || "")}</div>Accepted by ${esc(S.client || "the client")} (signature, stamp and date)</div>
+      <div><div class="q-sn">${esc(S.preparedBy || S.bizName || "")}</div>For ${esc(S.bizName || "the supplier")} (signature and stamp)${BI ? '<span class="arl">عن ' + esc(S.bizNameAr || S.bizName || "المورد") + " (التوقيع والختم)</span>" : ""}</div>
+      <div><div class="q-sn">${esc(S.clientContact || "")}</div>Accepted by ${esc(S.client || "the client")} (signature, stamp and date)${BI ? '<span class="arl">قبول ' + esc(S.clientAr || S.client || "العميل") + " (التوقيع والختم والتاريخ)</span>" : ""}</div>
     </div>
     <div class="q-foot">${[S.bizName, S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? idS + " " + S.bizTax : "", qno].filter(Boolean).map(esc).join(" · ")}</div>
   </div>`;
@@ -4217,6 +4287,8 @@ $("bkLoad").addEventListener("change", e => {
       const data = JSON.parse(rd.result);
       if (!data || typeof data !== "object" || !data.qty) throw new Error("bad");
       S = Object.assign(clone(DEFAULTS), data); S.onboarded = true;
+      if (!data.fc) { S.fc.team = []; S.fc.oneoff = []; S.fc.deals = []; }
+      S.fc = Object.assign(clone(DEFAULTS.fc), S.fc); if (data.expEdited === undefined) S.expEdited = true;
       drawJobs(); fillInputs(); render(); showTab("home");
       $("toast").textContent = "Backup loaded";
     } catch (err) { $("toast").textContent = "That file is not a pricing backup."; }
@@ -4234,11 +4306,11 @@ $("wipe").addEventListener("click", () => {
 $("wizAgain").addEventListener("click", () => openWiz());
 
 /* one-time setup */
-const WIZ_COSTS = [
-  { id: "lean", name: "Home-based", desc: "Tools, phone and licences. No office.", list: [["Software and AI tools", 40, "m"], ["Telephone and internet", 20, "m"], ["Bank service charges", 5, "m"], ["Professional fees (audit, accounting)", 200, "y"], ["CR licence and renewals", 150, "y"], ["Laptops and equipment (spread)", 400, "y"]] },
-  { id: "std", name: "Small office", desc: "Rent, utilities, tools, marketing and professional fees.", list: DEFAULTS.expenses.map(e => [e.name, e.amt, e.freq]) },
-  { id: "office", name: "Larger office", desc: "Bigger premises, more marketing and equipment.", list: DEFAULTS.expenses.map(e => [e.name, /Rent/.test(e.name) ? 750 : /Marketing/.test(e.name) ? 250 : /Utilities/.test(e.name) ? 120 : /Laptops/.test(e.name) ? 2400 : e.amt, e.freq]) }
-];
+const wizCosts = () => [
+  { id: "lean", name: "Small", desc: "Smaller premises and fewer running costs.", scale: 0.6 },
+  { id: "std", name: "Standard", desc: "Typical running costs for " + industry().name.toLowerCase() + ".", scale: 1 },
+  { id: "office", name: "Larger", desc: "Bigger premises, more vehicles, equipment or marketing.", scale: 1.6 }
+].map(o => Object.assign(o, { list: industryExpenses(S.industry, o.scale).map(e => [e.name, e.amt, e.freq]) }));
 let wizStep = 0, wizCost = "std";
 function wizButtons(box, items, isOn, onPick) {
   box.innerHTML = "";
@@ -4269,7 +4341,7 @@ function paintWiz() {
     $("wizHrs").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", num(b.dataset.v) === S.hoursPerDay));
   }
   if (wizStep === 2) {
-    wizButtons($("wizCosts"), WIZ_COSTS.map(o => ({ o, html: "<b>" + esc(o.name) + ' <span class="wsum">' + esc(fmt(yearlyExp({ expenses: o.list.map(l => ({ amt: l[1], freq: l[2] })) }) / 12)) + " / month</span></b><small>" + esc(o.desc) + "</small>" })), it => wizCost === it.o.id, it => { wizCost = it.o.id; S.expenses = it.o.list.map(l => ({ name: l[0], amt: l[1], freq: l[2] })); });
+    wizButtons($("wizCosts"), wizCosts().map(o => ({ o, html: "<b>" + esc(o.name) + ' <span class="wsum">' + esc(fmt(yearlyExp({ expenses: o.list.map(l => ({ amt: l[1], freq: l[2] })) }) / 12)) + " / month</span></b><small>" + esc(o.desc) + "</small>" })), it => wizCost === it.o.id, it => { wizCost = it.o.id; S.expenses = it.o.list.map(l => ({ name: l[0], amt: l[1], freq: l[2] })); S.expEdited = false; });
   }
   if (wizStep === 2) {
     const on = (S.fc.team || []).length > 0;
