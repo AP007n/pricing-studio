@@ -702,6 +702,17 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .implines .num { text-align: right; font-family: var(--font-num); color: var(--muted); }
 .catvar { margin-top: 12px; }
 @media (max-width: 640px) { .implines div { grid-template-columns: 1fr 80px; } .implines select { grid-column: 1 / -1; } }
+.jobhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.jobhead h2 { margin: 0; }
+.indsel { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.indsel select { width: auto; min-width: 230px; }
+.wiz-ind { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.wiz-ind button { display: flex; gap: 8px; align-items: center; text-align: left; font-size: 12.5px; padding: 8px 10px; }
+.fvbar { display: flex; gap: 10px; align-items: center; margin: 12px 0 0; }
+.fvbar .seg { flex: 1; max-width: 640px; }
+.scopebox textarea { width: 100%; min-height: 76px; }
+.scopebox label { display: block; margin: 10px 0 4px; font-size: 13px; }
+.scopebox label small { color: var(--muted); display: block; font-size: 12px; }
 /* v3 forecast */
 .thead, .trow { display: grid; grid-template-columns: minmax(0,1fr) 58px 92px 112px 78px 28px; gap: 6px; align-items: center; }
 .thead, .ghead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -756,7 +767,7 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 <body>
 <div class="app">
   <aside class="side">
-    <div class="brand"><div class="logo" data-mark></div><div><b>Pricing Studio</b><span>for tech SMEs</span></div></div>
+    <div class="brand"><div class="logo" data-mark></div><div><b>Pricing Studio</b><span>for service SMEs</span></div></div>
     <nav class="snav" aria-label="Main"><button type="button" class="navbtn" data-view="home"><span class="ni" data-i="grid"></span><span>Overview</span></button><button type="button" class="navbtn" data-view="price"><span class="ni" data-i="tag"></span><span>Price a job</span></button><button type="button" class="navbtn" data-view="quote"><span class="ni" data-i="file"></span><span>Quote</span></button><button type="button" class="navbtn" data-view="business"><span class="ni" data-i="chart"></span><span>Business</span></button><button type="button" class="navbtn" data-view="forecast"><span class="ni" data-i="layers"></span><span>Forecast</span></button><button type="button" class="navbtn" data-view="settings"><span class="ni" data-i="gear"></span><span>Settings</span></button></nav>
     <div class="side-card"><span class="ni" data-i="shield"></span><p>No account. Saved only in this browser and in backups you download.</p><button type="button" class="lime sm" data-goto="settings">Backup</button></div>
   </aside>
@@ -825,7 +836,7 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     
 <section class="view" id="view-price" data-title="Price a job" data-sub="Pick a job, set your numbers, get a price you can defend">
   <div class="card jobcard">
-    <h2><span class="ico" data-i="briefcase"></span>Job type <span class="h2hint">(loads a starting setup you can change)</span></h2>
+    <div class="jobhead"><h2><span class="ico" data-i="briefcase"></span>Job type <span class="h2hint">(loads a starting setup you can change)</span></h2><label class="indsel">Industry <select id="indSel" class="sel"></select></label></div>
     <div class="jobgrid" id="jobs"></div>
     <div class="savejob">
       <div class="inp"><input id="jobName" placeholder="Name your current setup, for example: Clinic website" aria-label="Name for your saved job"></div>
@@ -918,7 +929,7 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     
 <section class="view" id="view-quote" data-title="Client quote" data-sub="Fill in the details once. The preview updates as you type">
   <div class="split">
-    <div class="card tcard" data-card="quote"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="biz" aria-selected="true">Your business</button><button type="button" role="tab" data-pane="client" aria-selected="false">Client</button><button type="button" role="tab" data-pane="this" aria-selected="false">This quote</button><button type="button" role="tab" data-pane="terms" aria-selected="false">Tax & terms</button></div><div class="pane" data-pane="biz"><div class="field"><label for="logoFile">Logo<small>PNG, JPG or SVG. Printed on the PDF</small></label>
+    <div class="card tcard" data-card="quote"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="biz" aria-selected="true">Your business</button><button type="button" role="tab" data-pane="client" aria-selected="false">Client</button><button type="button" role="tab" data-pane="this" aria-selected="false">This quote</button><button type="button" role="tab" data-pane="scope" aria-selected="false">Scope</button><button type="button" role="tab" data-pane="terms" aria-selected="false">Tax & terms</button></div><div class="pane" data-pane="biz"><div class="field"><label for="logoFile">Logo<small>PNG, JPG or SVG. Printed on the PDF</small></label>
           <div class="logobox"><img id="logoPrev" alt="Your logo" hidden><label class="filebtn" for="logoFile" id="logoLbl">Upload logo</label><input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden><button type="button" class="ghost" id="logoDel" hidden style="padding:4px 10px;font-size:13px">Remove</button></div></div>
 
           <div class="field"><label for="bizName">Business name</label><div class="inp"><input id="bizName" class="txt" placeholder="Your company name"></div></div>
@@ -941,12 +952,21 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
           <div class="field"><label for="clientTax">Client <span class="taxidlbl">VAT number</span><small class="vhint" id="clientTaxHint"></small></label><div class="inp"><input id="clientTax" class="txt" inputmode="numeric" placeholder="If they are tax-registered"></div></div>
         </div><div class="pane" data-pane="this" hidden>
           <div class="field"><label for="qNo">Quote number<small>Leave empty to number automatically</small></label><div class="inp"><input id="qNo" class="txt" placeholder="Automatic"></div></div>
+          <div class="field"><label for="qRev">Revision<small>0 for the first issue. Raise it each time you send a changed quote</small></label><div class="inp"><input id="qRev" inputmode="numeric"></div></div>
           <div class="field"><label for="qTitle">Project title</label><div class="inp"><input id="qTitle" class="txt" placeholder="New company website"></div></div>
           <div class="field"><label for="delivery">Delivery time</label><div class="inp"><input id="delivery" class="txt" placeholder="4 to 6 weeks from deposit"></div></div>
           <div class="field"><label for="validDays">Valid for</label><div class="inp"><input id="validDays" inputmode="decimal"><span class="u">days</span></div></div>
           <div class="field"><label>Packages on the quote</label><div class="seg" id="pkgSeg"><button type="button" data-v="all">All three</button><button type="button" data-v="one">Standard only</button></div></div>
           <label for="notes" class="sub" style="display:block;margin-top:8px;font-size:13px">Notes for the client (optional)</label>
           <textarea id="notes" rows="3" placeholder="What you need from the client, exclusions, next steps"></textarea>
+        </div><div class="pane scopebox" data-pane="scope" hidden>
+          <h2><span class="ico" data-i="list"></span>Scope of work <span class="h2hint">(one item per line)</span></h2>
+          <p class="note" style="margin-top:0">What is included comes from the package items in Price a job. These lines set clear limits, so the client knows what the price covers.</p>
+          <label for="sc-excl">Not included<small>Fees, materials or work the price does not cover</small></label><textarea id="sc-excl" rows="3"></textarea>
+          <label for="sc-assume">The client provides<small>Access, information, approvals and other assumptions</small></label><textarea id="sc-assume" rows="3"></textarea>
+          <label for="sc-accept">Acceptance and changes<small>How the work is signed off and how changes are handled</small></label><textarea id="sc-accept" rows="3"></textarea>
+          <label for="sc-warr">Warranty and support</label><textarea id="sc-warr" rows="2"></textarea>
+          <button type="button" class="ghost linkbtn" id="sc-reset">Reset to the wording for my industry</button>
         </div><div class="pane" data-pane="terms" hidden>
         <h2><span class="ico" data-i="receipt"></span>Tax and payment terms</h2>
         <div class="ctrybox" id="ctryBox"></div>
@@ -1048,8 +1068,9 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     <div class="tile hero"><div class="k">Net income, 12 months</div><div class="v" id="f-net"></div></div>
   </div>
   <div class="scenbar"><span class="sk">Scenario</span><div class="seg" id="fc-scen"><button type="button" data-v="worst">Worst case</button><button type="button" data-v="base">Base</button><button type="button" data-v="best">Best case</button></div><span class="muted small" id="fc-scenNote"></span></div>
+  <div class="fvbar"><div class="seg" id="fc-view"><button type="button" data-v="summary">Plan</button><button type="button" data-v="table">Monthly table</button><button type="button" data-v="actuals">Actual vs forecast</button><button type="button" data-v="plan3">3 years</button></div></div>
   <div id="f-status" class="bstat"></div>
-  <div class="split">
+  <div class="split" data-fv="summary">
     <div class="card tcard" data-card="fc"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="team" aria-selected="true">Team</button><button type="button" role="tab" data-pane="rev" aria-selected="false">Income</button><button type="button" role="tab" data-pane="cost" aria-selected="false">Costs</button><button type="button" role="tab" data-pane="other" aria-selected="false">One-offs</button><button type="button" role="tab" data-pane="rules" aria-selected="false">Rules</button></div><div class="pane" data-pane="team">
         <h2><span class="ico" data-i="briefcase"></span>Team <span class="h2hint" id="fc-teamhint"></span></h2>
         <div class="thead"><span>Role</span><span class="r">People</span><span class="r">Salary / month</span><span>Status</span><span>Starts</span><span></span></div>
@@ -1137,12 +1158,12 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
       </section>
     </div>
   </div>
-  <section class="panel fcgrid-p">
+  <section class="panel fcgrid-p" data-fv="table">
     <div class="fcgrid-h"><h2><span class="ico" data-i="list"></span>Profit and loss by month</h2><button type="button" id="fc-xlsx"><span class="ni" data-i="sheet"></span>Download forecast (Excel)</button></div>
     <div class="fcwrap"><table class="fcgrid" id="fcGrid"></table></div>
     <p class="note">Amounts in <span class="cur-code"></span>. Profit is on an accrual basis (yearly expenses spread evenly, end of service set aside monthly); the cash rows show when money actually moves, including VAT and yearly bills in the month they are paid. Planning aid, not payroll, tax or legal advice.</p>
   </section>
-  <section class="panel fcgrid-p">
+  <section class="panel fcgrid-p" data-fv="actuals">
     <div class="fcgrid-h"><h2><span class="ico" data-i="clock"></span>Actual vs forecast</h2><div class="btnrow"><button type="button" id="actImport"><span class="ni" data-i="sheet"></span>Import from accounting</button><button type="button" class="ghost" id="actTpl">Template</button></div></div>
     <p class="muted small" style="margin:0 0 10px">Import an Excel or CSV export (QuickBooks, Xero, Zoho Books, Odoo, Tally, your bank or your own sheet), or type each month's figures. Closed months update the year-end outlook.</p>
     <div class="acttiles" id="actTiles"></div>
@@ -1151,7 +1172,7 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     <div class="catvar" id="actCatBox" hidden><h2><span class="ico" data-i="list"></span>By category <span class="h2hint" id="actCatHint"></span></h2><div class="fcwrap"><table class="fcgrid plan" id="actCat"></table></div></div>
     <p class="note">Costs are everything before tax: cost of sales, expenses, staff and owner pay. Operating profit = income − costs (before grants and tax). A month counts as closed when both income and costs are filled in.</p>
   </section>
-  <section class="panel fcgrid-p">
+  <section class="panel fcgrid-p" data-fv="plan3">
     <div class="fcgrid-h"><h2><span class="ico" data-i="target"></span>3-year plan and goal</h2></div>
     <div class="plangrid">
       <div class="planin">
@@ -1227,8 +1248,10 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     <div class="wiz-top"><div class="logo sm" data-mark></div><div class="wiz-dots" id="wizDots"></div><button type="button" class="ghost linkbtn" id="wizSkip">Skip</button></div>
     <div class="wiz-step" data-step="0">
       <h2 id="wizTitle">Price your work in 1 minute</h2>
-      <p class="muted">For tech service companies and freelancers. No sign-up: your numbers stay in this browser.</p>
-      <h4>What does your company mainly sell?</h4>
+      <p class="muted">For service companies and freelancers in the GCC. No sign-up: your numbers stay in this browser.</p>
+      <h4>Your industry</h4>
+      <div class="wiz-ind" id="wizInd"></div>
+      <h4>What do you mainly sell?</h4>
       <div class="wiz-jobs" id="wizJobs"></div>
       <h4>Your currency</h4>
       <div class="wiz-cur" id="wizCur"></div>
@@ -1292,7 +1315,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "3.4", updated: "27 November 2026", contact: "" };
+const APP = { version: "3.5", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1337,6 +1360,83 @@ const JOBS = [
     lines: [["Transport (visits)", 5, 5]],
     mkt: [150, 400], cValue: 15000, pkgs: GENERIC_PKGS }
 ];
+/* v3.5: service industries for GCC SMEs. Prices are BHD illustrations (converted to other currencies), not market data.
+   Each job carries a scope preset: what is not included, what the client provides, how the work is accepted, and the warranty. */
+const P3 = (a, b, c) => [a, b, c];
+const INDUSTRIES = {
+  tech: { rate: 62, name: "Tech and digital", icon: "globe", mix: { website: 1, marketing: 2, support: 30 } },
+  consult: { rate: 60, name: "Consulting and professional", icon: "bulb", mix: { "c-adv": 1, "c-day": 4, "c-ret": 1 }, jobs: [
+    { id: "c-adv", ic: "target", name: "Advisory project", desc: "Strategy, feasibility study or business plan", basis: "project", qty: 12, lines: [["Research data and reports", 1, 150], ["Printing and binding", 1, 30]], mkt: [2500, 8000], cValue: 40000,
+      pkgs: P3(["Findings report", "1 presentation", "1 review round"], ["Full report with recommendations", "Board presentation", "2 review rounds"], ["Everything in Standard", "Implementation roadmap", "3 months follow-up calls"]) },
+    { id: "c-day", ic: "briefcase", name: "Day-rate consulting", desc: "Expert days on site or remote", basis: "day", qty: 5, lines: [["Transport (visits)", 5, 5]], mkt: [250, 600], cValue: 20000, pkgs: GENERIC_PKGS },
+    { id: "c-ret", ic: "repeat", name: "Advisory retainer", desc: "Monthly CFO, legal-ops or HR advice", basis: "month", qty: 3, lines: [["Software and subscriptions", 1, 30]], mkt: [600, 2000], cValue: 8000,
+      pkgs: P3(["2 calls a month", "Email support", "Monthly summary"], ["Weekly call", "Document reviews", "Monthly report"], ["Everything in Standard", "On-site day each month", "Board pack"]) },
+    { id: "c-aud", ic: "list", name: "Audit or assessment", desc: "Process, compliance or IT assessment", basis: "project", qty: 6, lines: [["Tools and licences", 1, 60]], mkt: [1200, 4000], cValue: 15000,
+      pkgs: P3(["Checklist review", "Short report"], ["Full assessment", "Gap report with priorities", "Debrief session"], ["Everything in Standard", "Action plan", "Re-check after 3 months"]) }
+  ] },
+  facility: { rate: 12, name: "Maintenance and facility services", icon: "wrench", mix: { "f-amc": 6, "f-clean": 4, "f-call": 40 }, jobs: [
+    { id: "f-amc", ic: "repeat", name: "Annual maintenance contract", desc: "AC, electrical or plumbing, monthly fee", basis: "month", qty: 2, lines: [["Consumables (filters, gas top-up)", 1, 25], ["Transport", 4, 5]], mkt: [120, 450], cValue: 1500,
+      pkgs: P3(["Quarterly preventive visit", "Call-outs charged"], ["Monthly preventive visit", "2 call-outs a month included", "Response within 24 hours"], ["Everything in Standard", "Unlimited call-outs", "Response within 4 hours"]) },
+    { id: "f-clean", ic: "shield", name: "Deep cleaning", desc: "Office, villa or post-construction clean", basis: "project", qty: 2, lines: [["Chemicals and materials", 1, 40], ["Equipment hire", 1, 20], ["Transport", 2, 8]], mkt: [150, 600], cValue: 2000,
+      pkgs: P3(["General deep clean", "Team of 2"], ["Deep clean incl. kitchens and bathrooms", "Team of 4", "Same-day touch-up"], ["Everything in Standard", "Sofa and carpet shampoo", "Window cleaning"]) },
+    { id: "f-call", ic: "wrench", name: "Repair call-out", desc: "Technician per hour, parts extra", basis: "hour", qty: 3, lines: [["Transport", 1, 5]], mkt: [8, 20], cValue: 300, pkgs: GENERIC_PKGS },
+    { id: "f-fit", ic: "layers", name: "Small works or fit-out", desc: "Partitions, painting, minor civil works", basis: "project", qty: 10, lines: [["Materials (estimate)", 1, 800], ["Skip and waste disposal", 1, 60], ["Municipality permit", 1, 50]], mkt: [2000, 8000], cValue: 15000,
+      pkgs: P3(["Labour and materials as listed", "1 site visit for snags"], ["Design layout", "Labour and materials", "Snag list closed in 7 days"], ["Everything in Standard", "Project manager on site", "6 months defects warranty"]) }
+  ] },
+  creative: { rate: 35, name: "Marketing and creative", icon: "megaphone", mix: { "m-social": 3, "m-brand": 1, "m-shoot": 2 }, jobs: [
+    { id: "m-social", ic: "megaphone", name: "Social media management", desc: "Content, posting and reports, monthly", basis: "month", qty: 4, lines: [["Design and scheduling tools", 1, 40], ["Stock music and images", 1, 20]], mkt: [400, 1500], cValue: 8000,
+      pkgs: P3(["2 platforms, 12 posts", "Monthly report"], ["3 platforms, 20 posts", "Arabic and English captions", "Bi-weekly check-in"], ["Everything in Standard", "4 reels a month", "Ads management (budget separate)"]) },
+    { id: "m-brand", ic: "pen", name: "Brand identity", desc: "Logo, colours, brand guide in Arabic and English", basis: "project", qty: 8, lines: [["Font licences (Arabic and Latin)", 1, 80]], mkt: [800, 3500], cValue: 15000,
+      pkgs: P3(["Logo in Arabic and English", "Colour palette", "2 concepts"], ["Full brand guide", "Stationery and social templates", "3 concepts"], ["Everything in Standard", "Brand story and tone of voice", "Signage files"]) },
+    { id: "m-shoot", ic: "calendar", name: "Photo or video shoot", desc: "Shoot day with editing", basis: "day", qty: 1, lines: [["Equipment and lighting hire", 1, 80], ["Location or studio", 1, 60]], mkt: [300, 900], cValue: 3000, pkgs: GENERIC_PKGS },
+    { id: "m-ads", ic: "chart", name: "Ad campaign management", desc: "Google and social ads, monthly fee", basis: "month", qty: 2, lines: [["Analytics tools", 1, 25]], mkt: [300, 1200], cValue: 6000,
+      pkgs: P3(["1 platform", "Monthly report"], ["2 platforms", "A/B tests", "Bi-weekly report"], ["Everything in Standard", "Landing page updates", "Weekly optimisation"]) }
+  ] },
+  events: { rate: 20, name: "Events and hospitality services", icon: "calendar", mix: { "e-corp": 2, "e-staff": 6, "e-rent": 4 }, jobs: [
+    { id: "e-corp", ic: "calendar", name: "Corporate event", desc: "Conference, launch or gala, managed end to end", basis: "project", qty: 8, lines: [["Venue deposit (pass-through)", 1, 500], ["AV and stage", 1, 600], ["Printing and branding", 1, 250], ["Permits", 1, 80]], mkt: [3000, 12000], cValue: 25000,
+      pkgs: P3(["Planning and supplier booking", "On-day coordinator"], ["Full management", "Registration desk", "2 coordinators"], ["Everything in Standard", "Speaker and VIP handling", "Photo and video coverage"]) },
+    { id: "e-staff", ic: "briefcase", name: "Event staffing", desc: "Hosts, ushers and coordinators per day", basis: "day", qty: 2, lines: [["Uniforms and transport", 1, 30]], mkt: [120, 350], cValue: 2000, pkgs: GENERIC_PKGS },
+    { id: "e-rent", ic: "cart", name: "Equipment rental", desc: "Tents, furniture, AV, per day", basis: "day", qty: 2, lines: [["Delivery and set-up crew", 1, 60]], mkt: [150, 600], cValue: 1500, pkgs: GENERIC_PKGS },
+    { id: "e-occ", ic: "layers", name: "Occasion package", desc: "Wedding, majlis or private occasion", basis: "project", qty: 5, lines: [["Decor and flowers", 1, 400], ["Lighting", 1, 150]], mkt: [1500, 6000], cValue: 8000,
+      pkgs: P3(["Decor and set-up", "1 coordinator"], ["Decor, lighting and sound", "Hospitality team", "2 coordinators"], ["Everything in Standard", "Catering coordination", "Photo and video"]) }
+  ] },
+  training: { rate: 30, name: "Training and education", icon: "file", mix: { "t-day": 4, "t-course": 1, "t-tutor": 40 }, jobs: [
+    { id: "t-day", ic: "bulb", name: "Corporate training day", desc: "Workshop for a company team", basis: "day", qty: 2, lines: [["Training materials and printing", 1, 60], ["Certificates", 1, 20]], mkt: [400, 1200], cValue: 6000, pkgs: GENERIC_PKGS },
+    { id: "t-course", ic: "file", name: "Training programme", desc: "Multi-week course with assessment", basis: "project", qty: 10, lines: [["Learning platform (per cohort)", 1, 100], ["Materials", 1, 120]], mkt: [2000, 7000], cValue: 15000,
+      pkgs: P3(["Live sessions", "Slides and handouts"], ["Live sessions and assessments", "Certificates", "Recordings"], ["Everything in Standard", "1-to-1 coaching", "Impact report"]) },
+    { id: "t-tutor", ic: "clock", name: "Private tutoring or coaching", desc: "One-to-one sessions per hour", basis: "hour", qty: 8, lines: [], mkt: [10, 30], cValue: 400, pkgs: GENERIC_PKGS },
+    { id: "t-coach", ic: "repeat", name: "Monthly coaching plan", desc: "Leaders or teams, monthly", basis: "month", qty: 2, lines: [["Assessment tools", 1, 30]], mkt: [300, 1000], cValue: 4000,
+      pkgs: P3(["2 sessions a month"], ["4 sessions a month", "Assessment and plan"], ["Everything in Standard", "On-call support", "Quarterly review with management"]) }
+  ] },
+  wellness: { rate: 15, name: "Health, beauty and wellness", icon: "shield", mix: { "w-sess": 160, "w-mem": 40, "w-corp": 1 }, jobs: [
+    { id: "w-sess", ic: "clock", name: "Treatment session", desc: "Therapy, beauty or fitness, per hour", basis: "hour", qty: 1, lines: [["Products and consumables", 1, 3]], mkt: [10, 35], cValue: 60, pkgs: GENERIC_PKGS },
+    { id: "w-mem", ic: "repeat", name: "Monthly membership", desc: "Gym, spa or clinic plan", basis: "month", qty: 0.25, lines: [["Products and consumables", 1, 4]], mkt: [25, 90], cValue: 120,
+      pkgs: P3(["4 visits a month"], ["8 visits a month", "1 assessment"], ["Unlimited visits", "Personal plan", "Guest passes"]) },
+    { id: "w-corp", ic: "briefcase", name: "Corporate wellness day", desc: "Health checks or workshops at a company", basis: "day", qty: 1, lines: [["Equipment and consumables", 1, 80], ["Transport", 1, 10]], mkt: [400, 1200], cValue: 3000, pkgs: GENERIC_PKGS },
+    { id: "w-pack", ic: "pkg", name: "Package of sessions", desc: "Course of 6 to 10 sessions, paid upfront", basis: "project", qty: 1, lines: [["Products and consumables", 1, 25]], mkt: [120, 400], cValue: 600,
+      pkgs: P3(["6 sessions"], ["8 sessions", "Progress review"], ["10 sessions", "Home-care kit", "Priority booking"]) }
+  ] }
+};
+INDUSTRIES.tech.jobs = JOBS;
+/* scope presets by billing type, refined by industry */
+const SCOPE_BASE = {
+  excl: ["Third-party fees, licences, permits and pass-through costs unless listed", "Work not described in the package you choose", "Government and authority fees"],
+  assume: ["The client names one contact person who approves work", "The client provides information, access and approvals on time", "Delays caused by missing inputs move the timeline by the same period"],
+  accept: ["Work is accepted in writing (email is fine) within 5 working days of delivery; silence counts as acceptance", "Changes outside this scope are quoted separately before any work starts"],
+  warr: ["Defects in our work are fixed free of charge for 30 days after acceptance"]
+};
+const SCOPE_IND = {
+  tech: { excl: ["Content writing and translation unless listed", "Hosting, domains and app store fees after the first year"], warr: ["Bug fixes for 30 days after go-live; support after that under a care plan"] },
+  consult: { excl: ["Implementation work unless listed", "Legal, audit or tax opinions requiring a licence"], assume: ["Data and documents are shared within 5 working days of the start"], accept: ["The final report is accepted after one consolidated round of comments"] },
+  facility: { excl: ["Spare parts and materials not listed, charged at cost plus handling", "Damage caused by misuse, power surges or third parties", "Work at height above 4 m or in confined spaces unless listed"], assume: ["Access to the site, water and electricity during working hours", "Building and security permits arranged by the client"], accept: ["A job sheet is signed on site at the end of each visit"], warr: ["Workmanship warranty of 90 days; manufacturer warranty applies to parts"] },
+  creative: { excl: ["Paid media budgets, influencer fees and printing", "Talent, models and location fees unless listed"], assume: ["Brand assets, logos and approvals are provided by the client"], accept: ["Each deliverable includes the revision rounds listed; extra rounds are charged"], warr: ["Final files are kept for 12 months after delivery"] },
+  events: { excl: ["Venue hire, catering and accommodation unless listed", "Ministry or municipality fees and police permits"], assume: ["Guest numbers are confirmed 7 days before the event", "Venue access for set-up is given the day before"], accept: ["The event run sheet is approved 3 days before the event"], warr: ["Damaged or lost rental items are charged at replacement cost"] },
+  training: { excl: ["Venue, catering and participant travel unless listed", "Accreditation body fees unless listed"], assume: ["Participant lists are shared 5 working days before the start"], accept: ["Attendance sheets and evaluation forms close each session"] },
+  wellness: { excl: ["Products bought for home use", "Medical tests and doctor referrals"], assume: ["Sessions cancelled with less than 24 hours' notice are charged"], accept: ["Sessions are recorded on the client's card or app"], warr: ["Packages are valid for 6 months from purchase and are non-transferable"] }
+};
+function scopePreset(ind) { const a = SCOPE_IND[ind] || {}, o = {}; ["excl", "assume", "accept", "warr"].forEach(k => o[k] = (a[k] || []).concat(k === "warr" && a.warr ? [] : SCOPE_BASE[k]).join("\n")); return o; }
+const industry = (st = S) => INDUSTRIES[st.industry] || INDUSTRIES.tech;
+function industryJobs(st = S) { return industry(st).jobs; }
 const BASE_DEFAULTS = {
   cur: "BHD", basis: "project", income: 24000, billDays: 140, overhead: 2900, hoursPerDay: 8, months: 6,
   cont: 15, margin: 20, share: 15, vat: 10, deposit: 50,
@@ -1386,10 +1486,11 @@ DEFAULTS.fc = { start: "", revLink: true, revBase: 0, revGrowth: 1.5, season: "g
   taxRate: null, taxFree: null, plan: { growth: 20, salaryUp: 3, costUp: 3, hires: 1, goalType: "net", goal: 0 }, cogsLink: true, cogsPct: 0, freightPct: 0, ot: 0, housing: 0, ownerPay: true,
   team: JSON.parse(JSON.stringify(SAMPLE_TEAM)), other: [{ name: "", amt: 0, from: 1, to: 12 }], rates: {}, inBiz: true };
 Object.assign(DEFAULTS, { bizIban: "", bizBic: "", taxReg: true, feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
+Object.assign(DEFAULTS, { industry: "tech", scope: scopePreset("tech"), scopeEdited: false, qRev: 0, fcView: "summary" });
 Object.assign(DEFAULTS, { logo: "", taxName: "VAT", validDays: 14, bizName: "", client: "", qTitle: "", notes: "" });
 const KEY = "pricing-model-v6";
 const TXT = ["bizIban", "bizBic", "taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
-const SIMPLE = ["feePct", "pkgWorkB", "pkgWorkP", "vat", "validDays", "hourRate", "income", "billDays", "changeRate", "lateFee", "careOffer", "taxReserve", "propHours", "winRate", "startCash", "payDelay", "hoursPerDay", "months", "cont", "margin", "share"];
+const SIMPLE = ["qRev", "feePct", "pkgWorkB", "pkgWorkP", "vat", "validDays", "hourRate", "income", "billDays", "changeRate", "lateFee", "careOffer", "taxReserve", "propHours", "winRate", "startCash", "payDelay", "hoursPerDay", "months", "cont", "margin", "share"];
 const $ = id => document.getElementById(id);
 const clone = o => JSON.parse(JSON.stringify(o));
 let S;
@@ -1800,7 +1901,7 @@ function render() {
   $("hourRateRow").hidden = S.rateMode !== "hour";
   $("incomeRow").hidden = S.rateMode === "hour";
   $("rateSeg").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === S.rateMode));
-  scaleChips($("rateChips"), [44, 62, 80]);
+  { const r0 = industry().rate || 62; scaleChips($("rateChips"), [r0 * 0.7, r0, r0 * 1.3]); }
   $("rateChips").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", num(bt.dataset.v) === S.hourRate));
   $("o-yearly").textContent = S.rateMode === "hour"
     ? "At " + fmtIn(Math.max(1, S.billDays)) + " billable days, this pays you about " + fmt(r.dayPay * Math.max(1, S.billDays)) + " a year."
@@ -1977,14 +2078,24 @@ function paintMbar() {
 }
 
 /* jobs */
-function allJobs() { return JOBS.concat(S.myJobs || []); }
+function allJobs() { return industryJobs().concat(S.myJobs || []); }
+/* switch the service industry: its jobs, a starting job mix and scope wording */
+function setIndustry(k) {
+  if (!INDUSTRIES[k] || S.industry === k) return;
+  S.industry = k; const I = INDUSTRIES[k];
+  S.mix = Object.assign({}, S.mix || {}, I.mix);
+  S.rateMode = "hour"; S.hourRate = niceMoney(I.rate * (fxRate("BHD", S.cur) || 1));   /* typical cost of a billable hour in this industry; change it any time */
+  jobInto(S, I.jobs[0]);
+  if (!S.scopeEdited) S.scope = scopePreset(k);
+}
 function drawJobs() {
+  const isel = $("indSel"); if (isel) { if (!isel.options.length) { isel.innerHTML = Object.entries(INDUSTRIES).map(([k, I]) => '<option value="' + k + '">' + esc(I.name) + "</option>").join(""); isel.addEventListener("change", () => { setIndustry(isel.value); drawJobs(); fillInputs(); render(); }); } isel.value = S.industry || "tech"; }
   const box = $("jobs"); box.innerHTML = "";
   allJobs().forEach(j => {
     const bt = document.createElement("button");
     bt.type = "button"; bt.className = "job" + (j.mine ? " mine" : "");
     bt.setAttribute("aria-pressed", S.job === j.id);
-    bt.innerHTML = '<i class="ji">' + svg(j.mine ? "bookmark" : (JOB_ICON[j.id] || "tag")) + '</i><span class="b"></span><strong></strong><span class="d"></span>';
+    bt.innerHTML = '<i class="ji">' + svg(j.mine ? "bookmark" : (j.ic || JOB_ICON[j.id] || "tag")) + '</i><span class="b"></span><strong></strong><span class="d"></span>';
     bt.querySelector(".b").textContent = (j.mine ? "My job · " : "") + BASES[j.basis].label;
     bt.querySelector("strong").textContent = j.name;
     bt.querySelector(".d").textContent = j.desc || "";
@@ -2011,8 +2122,8 @@ $("saveJob").addEventListener("click", () => {
 });
 
 $("reset").addEventListener("click", () => {
-  const j = allJobs().find(x => x.id === S.job) || JOBS[0];
-  const keep = {}; ["bizIban", "bizBic", "taxReg", "feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays", "fc", "onboarded"].forEach(k => keep[k] = S[k]);
+  const j = allJobs().find(x => x.id === S.job) || industryJobs()[0];
+  const keep = {}; ["bizIban", "bizBic", "taxReg", "feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays", "fc", "onboarded", "industry", "scope", "scopeEdited", "qRev"].forEach(k => keep[k] = S[k]);
   const cur = S.cur; S = clone(DEFAULTS);
   const kx = fxRate("BHD", cur); if (kx) { Object.keys(S.mkt).forEach(b => S.mkt[b] = S.mkt[b].map(v => niceMoney(v * kx))); Object.keys(S.cValue).forEach(b => S.cValue[b] = niceMoney(S.cValue[b] * kx)); }
   Object.assign(S, keep); jobInto(S, j);
@@ -2133,7 +2244,7 @@ function drawMix(B) {
     box.innerHTML = "";
     B.rows.forEach(x => {
       const row = document.createElement("div"); row.className = "mixrow"; row.dataset.id = x.j.id;
-      row.innerHTML = '<span class="mj"><i class="ji">' + svg(x.j.mine ? "bookmark" : (JOB_ICON[x.j.id] || "tag")) + '</i><span><strong></strong><small></small></span></span><span class="r num mp"></span><span class="r"><span class="inp mc"><input inputmode="decimal" aria-label="Count per month"><span class="u"></span></span></span><span class="r num mr"></span>';
+      row.innerHTML = '<span class="mj"><i class="ji">' + svg(x.j.mine ? "bookmark" : (x.j.ic || JOB_ICON[x.j.id] || "tag")) + '</i><span><strong></strong><small></small></span></span><span class="r num mp"></span><span class="r"><span class="inp mc"><input inputmode="decimal" aria-label="Count per month"><span class="u"></span></span></span><span class="r num mr"></span>';
       row.querySelector("strong").textContent = x.j.name;
       const inp = row.querySelector("input");
       inp.id = "mix-" + x.j.id;
@@ -2558,6 +2669,8 @@ function renderForecast(B) {
   $("f-staff").textContent = fmt0(t.staff);
   $("f-net").textContent = (t.netAT >= 0 ? "" : "−") + fmt0(Math.abs(t.netAT));
   $("fc-scen").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === (S.fc.scen || "base")));
+  const fv = S.fcView || "summary"; $("fc-view").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === fv));
+  document.querySelectorAll("#view-forecast [data-fv]").forEach(el => el.hidden = el.dataset.fv !== fv);
   $("fc-scenNote").textContent = { base: "Your numbers as entered.", best: "Sales 15% higher.", worst: "Sales 20% lower and clients pay 30 days later." }[S.fc.scen || "base"];
   /* status */
   const iss = [], negM = F.rows.filter(r => r.net < 0), LC = localisationCheck();
@@ -2862,6 +2975,7 @@ function drawOther(F) {
   $("fc-addOther").addEventListener("click", () => { S.fc.other.push({ name: "", amt: 0, from: 1, to: 12 }); otherDrawn = ""; render(); const el = $("ot-n-" + (S.fc.other.length - 1)); if (el) el.focus(); });
   $("fc-xlsx").addEventListener("click", () => exportForecast());
   $("fc-scen").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.fc.scen = b.dataset.v; render(); }));
+  $("fc-view").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.fcView = b.dataset.v; render(); }));
   segBind("fc-trading", v => { S.fc.trading = v; });
   $("fc-season").addEventListener("change", () => { S.fc.season = $("fc-season").value; $("fc-seasCustom").innerHTML = ""; render(); });
   nb("fc-ramadanDip", v => S.fc.ramadanDip = v, 0, 90);
@@ -3092,7 +3206,7 @@ function applyImport() {
     if (x.cat) A[ym].cat = { cos: rnd(x.cat.cos), staff: rnd(x.cat.staff), prem: rnd(x.cat.prem), other: rnd(x.cat.other), grant: rnd(x.cat.grant) };
     if (x.cash !== undefined) A[ym].cash = rnd(x.cash); n++;
   });
-  actDrawn = ""; closeImport(); render();
+  actDrawn = ""; S.fcView = "actuals"; closeImport(); render();
   toast("Imported " + n + " month" + (n === 1 ? "" : "s") + (kept ? ", kept " + kept + " you had filled in" : "") + ". See Actual vs forecast.");
   const p = $("actTable"); if (p) p.closest(".panel").scrollIntoView({ block: "start" });
 }
@@ -3118,6 +3232,14 @@ function importTemplate() {
   dz.addEventListener("drop", e => readImportFile(e.dataTransfer.files[0]));
 })();
 
+/* quote scope of work */
+(function bindScope() {
+  const K = ["excl", "assume", "accept", "warr"];
+  const paint = () => { S.scope = Object.assign(scopePreset(S.industry), S.scope || {}); K.forEach(k => { const el = $("sc-" + k); if (el && document.activeElement !== el) el.value = S.scope[k] || ""; }); };
+  K.forEach(k => $("sc-" + k).addEventListener("input", e => { S.scope[k] = e.target.value; S.scopeEdited = true; save(); if (S.tab === "quote") paintPreview(); }));
+  $("sc-reset").addEventListener("click", () => { S.scope = scopePreset(S.industry); S.scopeEdited = false; paint(); save(); paintPreview(); toast("Scope wording reset for " + industry().name + "."); });
+  window.paintScope = paint; paint();
+})();
 /* tabs */
 function showTab(t) {
   S.tab = VIEWS.includes(t) ? t : "home";
@@ -3724,6 +3846,10 @@ const QCSS = `
       .q-tot tr.q-grand td { font-weight: 700; font-size: 14px; border-top: 2px solid #16202b; border-bottom: 0; }
       .q-tot tr.q-dep td { color: #1e4d3c; font-weight: 600; border-bottom: 0; }
       .q-terms { margin: 0; padding-left: 18px; color: #3c4855; }
+      .q-scope { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .q-scope ul { margin: 4px 0 0; padding-left: 18px; color: #3c4855; }
+      .q-sh { font-weight: 700; font-size: 12px; color: #1e4d3c; border-bottom: 1px solid #dfe6e2; padding-bottom: 3px; }
+      .q-sh2 { font-weight: 700; font-size: 12px; color: #1e4d3c; margin: 10px 0 2px; }
       .q-notes { white-space: pre-wrap; background: #f3f6f4; border-radius: 8px; padding: 10px 12px; color: #3c4855; }
       .q-sign { display: flex; gap: 40px; margin-top: 46px; }
       .q-sign > div { flex: 1; border-top: 1px solid #16202b; padding-top: 6px; font-size: 11px; color: #5d6b7a; }
@@ -3774,7 +3900,15 @@ function buildQuoteHTML() {
   const now = new Date();
   const d = dt => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) + (S.cur === "SAR" ? " (" + hijriLabel(dt) + ")" : "");
   const valid = new Date(now.getTime() + Math.max(1, S.validDays || 14) * 864e5);
-  const qno = (S.qNo || "").trim() || autoQNo();
+  const qno = (S.qNo || "").trim() || autoQNo(), rev = Math.max(0, Math.round(num(S.qRev)));
+  const sc = Object.assign(scopePreset(S.industry), S.scope || {}), lines = t => String(t || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
+  const pkgMode = S.basis === "project" || S.basis === "month", mid = cards.find(c => c.mid) || cards[0], jobNow = allJobs().find(j => j.id === S.job);
+  const inclItems = pkgMode && mid ? (S.showPkgs === "one" ? mid.items : ["As listed for the package you choose above"].concat(mid.items.map(x => "Standard: " + x)))
+    : [(jobNow ? jobNow.desc || jobNow.name : r.b.label) + ", " + fmtIn(r.q) + " " + (S.basis === "hour" ? "hours" : "days") + " estimated", "Billed by the " + r.b.unit + " for actual time; we confirm before going over the estimate"];
+  const scopeHTML = `<div class="q-h">Scope of work</div><div class="q-scope"><div><div class="q-sh">Included</div><ul>${inclItems.map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div><div><div class="q-sh">Not included</div><ul>${lines(sc.excl).map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div></div>`
+    + (lines(sc.assume).length ? `<div class="q-sh2">The client provides</div><ul class="q-terms">${lines(sc.assume).map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "")
+    + (lines(sc.accept).length ? `<div class="q-sh2">Acceptance and changes</div><ul class="q-terms">${lines(sc.accept).map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "")
+    + (lines(sc.warr).length ? `<div class="q-sh2">Warranty and support</div><ul class="q-terms">${lines(sc.warr).map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "");
   const tax = S.vat > 0, taxN = S.taxName || "Tax";
   const idS = (ctry() && ctry().idShort) || (taxN + " no.");
   const sched = parseSched(S.schedule);
@@ -3825,7 +3959,7 @@ function buildQuoteHTML() {
         <div class="q-biz">${logoHTML()}<div class="q-bn">${esc(S.bizName || "Your business")}</div></div>
         ${bizLines ? `<div class="q-bizd">${bizLines}</div>` : ""}
       </div>
-      <div class="q-title"><h1>Quotation</h1><div class="q-meta">No. <b>${esc(qno)}</b><br>Date: ${d(now)}<br>Valid until: ${d(valid)}</div></div>
+      <div class="q-title"><h1>Quotation</h1><div class="q-meta">No. <b>${esc(qno)}</b>${rev ? " · Rev " + rev : ""}<br>Date: ${d(now)} · ${isoDate(now)}<br>Valid until: ${d(valid)} · ${isoDate(valid)}${rev ? "<br>Replaces Rev " + (rev - 1) : ""}</div></div>
     </div>
     <div class="q-info">
       <div><div class="q-k">Prepared for</div><div class="q-v">${esc(S.client || "Client")}</div>${clientLines ? `<div class="q-party">${clientLines}</div>` : ""}</div>
@@ -3836,6 +3970,7 @@ function buildQuoteHTML() {
     <div class="q-h">Summary</div>
     ${summaryHTML}
     ${S.careOffer > 0 && S.basis === "project" ? `<div class="q-care"><b>Optional care plan:</b> ${fmt(S.careOffer)} per month after launch for hosting, updates, backups and small changes.</div>` : ""}
+    ${scopeHTML}
     <div class="q-h">Terms</div>
     <ul class="q-terms">${terms.map(t => "<li>" + esc(t) + "</li>").join("")}</ul>
     ${S.notes ? `<div class="q-h">Notes</div><div class="q-notes">${esc(S.notes)}</div>` : ""}
@@ -4119,13 +4254,14 @@ function paintWiz() {
   $("wizNext").textContent = wizStep === 3 ? "Open my dashboard" : "Next";
   document.querySelectorAll(".u-cur").forEach(e => e.textContent = S.cur);
   if (wizStep === 0) {
-    wizButtons($("wizJobs"), JOBS.map(j => ({ j, html: '<i class="ji">' + svg(JOB_ICON[j.id] || "tag") + "</i><b>" + esc(j.name) + "</b><small>" + esc(BASES[j.basis].label) + "</small>" })), it => S.job === it.j.id, it => jobInto(S, it.j));
+    wizButtons($("wizInd"), Object.entries(INDUSTRIES).map(([k, I]) => ({ k, html: '<i class="ji">' + svg(I.icon) + "</i><b>" + esc(I.name) + "</b>" })), it => (S.industry || "tech") === it.k, it => setIndustry(it.k));
+    wizButtons($("wizJobs"), industryJobs().map(j => ({ j, html: '<i class="ji">' + svg(j.ic || JOB_ICON[j.id] || "tag") + "</i><b>" + esc(j.name) + "</b><small>" + esc(BASES[j.basis].label) + "</small>" })), it => S.job === it.j.id, it => jobInto(S, it.j));
     const curs = CURRENCIES.flatMap(g => g[1]);
     wizButtons($("wizCur"), curs.map(([c, n]) => ({ c, html: '<span class="flag">' + flagSVG(c) + "</span><b>" + c + "</b>" })), it => S.cur === it.c, it => { if (S.cur !== it.c) { changeCurrency(it.c); } });
   }
   if (wizStep === 1) {
     if (document.activeElement !== $("wizRate")) $("wizRate").value = fmtIn(S.hourRate);
-    scaleChips($("wizRateChips"), [25, 44, 62, 80]);
+    { const r0 = industry().rate || 62; scaleChips($("wizRateChips"), [r0 * 0.5, r0 * 0.75, r0, r0 * 1.3]); }
     $("wizRateChips").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", num(b.dataset.v) === S.hourRate));
     $("wizHrs").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", num(b.dataset.v) === S.hoursPerDay));
   }
