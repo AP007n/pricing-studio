@@ -696,6 +696,12 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .imp-map select { border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 7px; padding: 6px; font-size: 13px; }
 .fcgrid.imp { min-width: 520px; max-height: 260px; }
 .imp-rep { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.implines { grid-column: 1 / -1; max-height: 220px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 4px 10px; }
+.implines div { display: grid; grid-template-columns: minmax(0,1fr) 90px 190px; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--line); font-size: 13px; color: var(--ink); }
+.implines span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.implines .num { text-align: right; font-family: var(--font-num); color: var(--muted); }
+.catvar { margin-top: 12px; }
+@media (max-width: 640px) { .implines div { grid-template-columns: 1fr 80px; } .implines select { grid-column: 1 / -1; } }
 /* v3 forecast */
 .thead, .trow { display: grid; grid-template-columns: minmax(0,1fr) 58px 92px 112px 78px 28px; gap: 6px; align-items: center; }
 .thead, .ghead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -707,6 +713,9 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .trow .tsub label { display: inline-flex; gap: 5px; align-items: center; }
 .ghead, .grow { display: grid; grid-template-columns: minmax(0,1fr) 100px 78px 78px 28px; gap: 6px; align-items: center; }
 .oplist { display: grid; gap: 0; }
+.callist { display: grid; gap: 0; max-height: 230px; overflow: auto; }
+.callist div { display: grid; grid-template-columns: 96px 1fr; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
+.callist div span:first-child { font-family: var(--font-num); color: var(--muted); }
 .oplist div { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
 .oplist div span:last-child { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 .fcgrid-p { margin-top: 14px; }
@@ -727,6 +736,8 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .fcgrid tr.sub td { font-weight: 700; border-top: 1px solid var(--ink); }
 .fcgrid tr.big td { font-weight: 800; font-size: 13.5px; border-top: 2px solid var(--ink); border-bottom: 3px double var(--ink); }
 .fcgrid td.neg { color: var(--bad); }
+.fcgrid tr.wd td { color: var(--muted); font-size: 11.5px; background: var(--field); }
+.fcgrid tr.wd td:first-child { background: var(--field); }
 @media (max-width: 640px) {
   .thead { display: none; }
   .trow { grid-template-columns: 1fr 1fr 28px; }
@@ -1046,6 +1057,7 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
         <button class="ghost addline" id="fc-addTeam" type="button">+ Add role</button>
         <div class="linetotal"><span>Full team, a month</span><span class="num" id="fc-teamTot"></span></div>
         <p class="note" id="fc-teamNote"></p>
+        <div id="fc-local" class="bstat"></div>
       </div><div class="pane" data-pane="rev" hidden>
         <h2><span class="ico" data-i="chart"></span>Income</h2>
         <div class="field"><label>Sales revenue<small>Link it to the job mix in Business, or type your own monthly figure</small></label><div class="seg mini" id="fc-revLink"><button type="button" data-v="1">Job mix</button><button type="button" data-v="0">My figure</button></div></div>
@@ -1103,6 +1115,9 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
         <div class="field"><label for="fc-taxFree">Tax-free profit a year<small>0 = taxed from the first unit</small></label><div class="inp"><input id="fc-taxFree" inputmode="decimal"><span class="u u-cur"></span></div></div>
         <div class="field"><label>Team cost in prices and Business<small>Non-billable staff add to job overhead; billable staff add capacity</small></label><div class="seg mini" id="fc-inBiz"><button type="button" data-v="1">Include</button><button type="button" data-v="0">Leave out</button></div></div>
         <p class="note" id="fc-rulesNote"></p>
+        <h2 style="margin-top:16px"><span class="ico" data-i="calendar"></span>Working calendar <span class="h2hint" id="fc-calHint"></span></h2>
+        <div class="callist" id="fc-cal"></div>
+        <p class="note" id="fc-labour"></p>
         <button type="button" class="ghost linkbtn" id="fc-resetRules">Reset to country rules</button>
       </div></div>
     <div class="rescol bgrid">
@@ -1133,6 +1148,7 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     <div class="acttiles" id="actTiles"></div>
     <div class="fcwrap"><table class="fcgrid act" id="actTable"></table></div>
     <svg id="actChart" viewBox="0 0 640 180" role="img" aria-label="Forecast and actual operating profit by month"></svg>
+    <div class="catvar" id="actCatBox" hidden><h2><span class="ico" data-i="list"></span>By category <span class="h2hint" id="actCatHint"></span></h2><div class="fcwrap"><table class="fcgrid plan" id="actCat"></table></div></div>
     <p class="note">Costs are everything before tax: cost of sales, expenses, staff and owner pay. Operating profit = income − costs (before grants and tax). A month counts as closed when both income and costs are filled in.</p>
   </section>
   <section class="panel fcgrid-p">
@@ -1276,7 +1292,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "3.3", updated: "27 November 2026", contact: "" };
+const APP = { version: "3.4", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -2283,12 +2299,120 @@ function daysIn(iso, list, len) { /* days of the month iso (YYYY-MM) that fall i
   return n / dm;
 }
 /* 12 season multipliers for the forecast months, averaging exactly 1, so seasonality moves sales between months but keeps the year's total */
+/* ---------- v3.4: GCC working calendar ----------
+   Weekends by country, public holidays (fixed dates + Islamic dates from the Umm al-Qura calendar in the browser).
+   Islamic holidays are estimates: governments confirm them after moon sighting and may add bridge days. */
+const WEEKEND = { BHD: [5, 6], SAR: [5, 6], OMR: [5, 6], KWD: [5, 6], QAR: [5, 6], AED: [6, 0] };   /* JS day numbers: Fri=5, Sat=6, Sun=0 */
+const HOLIDAYS = {
+  BHD: { fixed: [[1, 1, 1, "New Year"], [5, 1, 1, "Labour Day"], [12, 16, 2, "National Day"]], hijri: [[10, 1, 3, "Eid al-Fitr"], [12, 9, 4, "Arafah and Eid al-Adha"], [1, 1, 1, "Islamic New Year"], [1, 9, 2, "Ashura"], [3, 12, 1, "Prophet's Birthday"]] },
+  SAR: { fixed: [[2, 22, 1, "Founding Day"], [9, 23, 1, "National Day"]], hijri: [[10, 1, 4, "Eid al-Fitr"], [12, 9, 4, "Arafah and Eid al-Adha"]] },
+  AED: { fixed: [[1, 1, 1, "New Year"], [12, 2, 2, "Eid Al Etihad (National Day)"]], hijri: [[10, 1, 3, "Eid al-Fitr"], [12, 9, 4, "Arafah and Eid al-Adha"], [1, 1, 1, "Islamic New Year"], [3, 12, 1, "Prophet's Birthday"]] },
+  OMR: { fixed: [[11, 20, 2, "National Day"]], hijri: [[7, 27, 1, "Isra and Mi'raj"], [10, 1, 3, "Eid al-Fitr"], [12, 9, 4, "Arafah and Eid al-Adha"], [1, 1, 1, "Islamic New Year"], [3, 12, 1, "Prophet's Birthday"]] },
+  KWD: { fixed: [[1, 1, 1, "New Year"], [2, 25, 2, "National and Liberation Day"]], hijri: [[7, 27, 1, "Isra and Mi'raj"], [10, 1, 3, "Eid al-Fitr"], [12, 9, 4, "Arafah and Eid al-Adha"], [1, 1, 1, "Islamic New Year"], [3, 12, 1, "Prophet's Birthday"]] },
+  QAR: { fixed: [[12, 18, 1, "National Day"]], hijri: [[10, 1, 3, "Eid al-Fitr"], [12, 10, 3, "Eid al-Adha"]], extra: y => { const d = new Date(Date.UTC(y, 1, 1)); let n = 0; while (true) { if (d.getUTCDay() === 2 && ++n === 2) return [[isoD(d), "National Sports Day"]]; d.setUTCDate(d.getUTCDate() + 1); } } }
+};
+const isoD = d => d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0") + "-" + String(d.getUTCDate()).padStart(2, "0");
+let HIJ = null;   /* Gregorian ISO day -> [hijri year, month, day], built once from the Umm al-Qura calendar */
+function hijriIndex() {
+  if (HIJ) return HIJ;
+  HIJ = { g2h: {}, h2g: {}, ok: false };
+  try {
+    const f = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", { year: "numeric", month: "numeric", day: "numeric", timeZone: "UTC" });
+    const d = new Date(Date.UTC(2015, 0, 1)), end = Date.UTC(2041, 0, 1);
+    for (; d.getTime() < end; d.setUTCDate(d.getUTCDate() + 1)) {
+      const p = {}; f.formatToParts(d).forEach(x => p[x.type] = x.value);
+      const hy = parseInt(p.year), hm = parseInt(p.month), hd = parseInt(p.day); if (!hy || !hm || !hd) continue;
+      const g = isoD(d); HIJ.g2h[g] = [hy, hm, hd]; HIJ.h2g[hy + "-" + hm + "-" + hd] = g;
+    }
+    HIJ.ok = Object.keys(HIJ.g2h).length > 9000 && HIJ.g2h["2027-02-08"] && HIJ.g2h["2027-02-08"][1] === 9;
+  } catch (e) { HIJ.ok = false; }
+  return HIJ;
+}
+/* Hijri date in words, shown next to the Gregorian date on Saudi quotes */
+function hijriLabel(dt) { try { return new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", { day: "numeric", month: "long", year: "numeric" }).format(dt); } catch (e) { return ""; } }
+const hijriToISO = (hy, hm, hd) => { const H = hijriIndex(); return H.ok ? H.h2g[hy + "-" + hm + "-" + hd] || null : null; };
+/* every holiday day (ISO date -> name) for a Gregorian year */
+const HOL_CACHE = {};
+function holidays(cur, y) {
+  const key = cur + y; if (HOL_CACHE[key]) return HOL_CACHE[key];
+  const R = HOLIDAYS[cur], out = {}; if (!R) return (HOL_CACHE[key] = out);
+  const addRun = (startISO, n, name) => { const d = new Date(startISO + "T00:00:00Z"); for (let i = 0; i < n; i++) { const s = isoD(d); if (s.startsWith(String(y))) out[s] = out[s] || name; d.setUTCDate(d.getUTCDate() + 1); } };
+  R.fixed.forEach(([m, d, n, name]) => addRun(y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0"), n, name));
+  const H = hijriIndex();
+  if (H.ok) [y - 1, y].forEach(gy => { const hy0 = Math.round((gy - 622) * 1.0307); for (let hy = hy0 - 1; hy <= hy0 + 2; hy++) R.hijri.forEach(([hm, hd, n, name]) => { const s = hijriToISO(hy, hm, hd); if (s) addRun(s, n, name); }); });
+  if (R.extra) R.extra(y).forEach(([s, name]) => out[s] = name);
+  return (HOL_CACHE[key] = out);
+}
+/* working days in a month (YYYY-MM): days that are not weekend and not public holiday */
+function workDays(iso, cur = S.cur) {
+  const [y, m] = iso.split("-").map(Number), wk = WEEKEND[cur] || [6, 0], hol = holidays(cur, y), dm = new Date(Date.UTC(y, m, 0)).getUTCDate(); let n = 0;
+  for (let d = 1; d <= dm; d++) { const dt = new Date(Date.UTC(y, m - 1, d)), s = isoD(dt); if (!wk.includes(dt.getUTCDay()) && !hol[s]) n++; }
+  return n;
+}
+function holidaysIn(iso, cur = S.cur) { const y = Number(iso.slice(0, 4)), wk = WEEKEND[cur] || [6, 0], h = holidays(cur, y); const names = {}; Object.keys(h).filter(d => d.startsWith(iso)).forEach(d => { if (!wk.includes(new Date(d + "T00:00:00Z").getUTCDay())) names[h[d]] = (names[h[d]] || 0) + 1; }); return names; }
+/* Ramadan days in a month, from the Umm al-Qura calendar (falls back to the table) */
+function ramadanShare(iso) {
+  const H = hijriIndex(); if (!H.ok) return daysIn(iso, RAMADAN);
+  const [y, m] = iso.split("-").map(Number), dm = new Date(Date.UTC(y, m, 0)).getUTCDate(); let n = 0;
+  for (let d = 1; d <= dm; d++) { const h = H.g2h[y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0")]; if (h && h[1] === 9) n++; }
+  return n / dm;
+}
+/* annual leave by labour law (days a year, typical first years) and Ramadan working hours */
+const LABOUR = {
+  BHD: { leave: 30, leaveNote: "30 days paid leave a year (Labour Law 2012)", ramadan: "Working hours drop to 6 a day in Ramadan for Muslim employees" },
+  SAR: { leave: 21, leaveNote: "21 days a year, 30 after 5 years of service", ramadan: "Muslim employees work up to 6 hours a day in Ramadan" },
+  AED: { leave: 30, leaveNote: "30 calendar days a year after one year of service", ramadan: "Private-sector hours are cut by 2 hours a day in Ramadan" },
+  OMR: { leave: 30, leaveNote: "30 days a year (Labour Law 2023)", ramadan: "Muslim employees work up to 6 hours a day in Ramadan" },
+  KWD: { leave: 30, leaveNote: "30 days a year after the first year", ramadan: "Working hours are reduced in Ramadan (set by ministerial decision)" },
+  QAR: { leave: 21, leaveNote: "3 weeks a year, 4 weeks after 5 years", ramadan: "Working hours are capped at 36 a week in Ramadan" }
+};
+/* nationalisation rules (checked Nov 2026) */
+function localisationCheck(st = S) {
+  const tr = staffMonth(st, 12), heads = tr.heads, team = (st.fc.team || []).filter(t => num(t.n) > 0), cit = team.filter(t => t.local).reduce((a, t) => a + num(t.n), 0);
+  const share = heads ? cit / heads : 0, out = { heads, cit, share, msgs: [] }, push = (lvl, t) => out.msgs.push([lvl, t]);
+  if (st.cur === "AED") {
+    const low = team.filter(t => t.local && num(t.salary) < 6000);
+    if (low.length) push("warn", "Emirati salaries below AED 6,000 a month do not count toward Emiratisation from 1 July 2026: " + low.map(t => t.role).join(", ") + ".");
+    if (heads >= 50) push(share >= 0.1 ? "good" : "warn", "50+ staff: skilled roles must grow Emiratisation by 2% a year (10% by the end of 2026). Each missing Emirati costs AED 10,000 a month (AED 120,000 a year).");
+    else if (heads >= 20) push(cit >= 2 ? "good" : "bad", "20 to 49 staff in the 14 targeted sectors (including ICT): at least 2 Emiratis are required. You plan " + cit + ". A missing hire costs about AED 108,000 to 120,000 a year.");
+  } else if (st.cur === "SAR") {
+    const low = team.filter(t => t.local && num(t.salary) < 4000);
+    if (low.length) push("warn", "Saudi salaries below SAR 4,000 count less toward Nitaqat: " + low.map(t => t.role).join(", ") + ".");
+    if (heads >= 6) push("info", "Nitaqat: the Saudi share you need depends on your activity and size. Check your band in Qiwa. Your plan: " + Math.round(share * 100) + "% Saudi.");
+  } else if (st.cur === "BHD") { if (heads) push("info", "Bahrainisation targets vary by sector (LMRA). Each expatriate adds work permit fees; Tamkeen can co-fund Bahraini wages. Your plan: " + Math.round(share * 100) + "% Bahraini."); }
+  else if (st.cur === "OMR") { if (heads) push("info", "Omanisation rates are set by sector and profession (Ministry of Labour); some jobs are for Omanis only. Your plan: " + Math.round(share * 100) + "% Omani."); }
+  else if (st.cur === "KWD") { if (heads) push("info", "Kuwaitisation quotas apply by sector; shortfalls carry fees. Your plan: " + Math.round(share * 100) + "% Kuwaiti."); }
+  else if (st.cur === "QAR") { if (heads) push("info", "Qatarisation targets apply mainly to larger and listed companies and some sectors. Your plan: " + Math.round(share * 100) + "% Qatari."); }
+  return out;
+}
+
+/* management-account categories, shared by the forecast and imported accounts (English and Arabic account names) */
+const CATS = [["inc", "Revenue"], ["cos", "Cost of sales"], ["staff", "Staff costs"], ["prem", "Rent, utilities and telecom"], ["other", "Other expenses"], ["grant", "Grants and other income"], ["tax", "Tax and zakat (left out)"], ["skip", "Skip (total or subtotal)"]];
+const CAT_RE = {
+  skip: /^(total|sub ?total|gross (profit|margin|loss)|net |operating (profit|loss)|ebitda|ebit\b|profit before|profit after|إجمالي|اجمالي|الإجمالي|مجمل|صافي|مجموع)/,
+  tax: /income tax|corporate tax|zakat|deferred tax|ضريبة الدخل|ضريبة الشركات|زكاة|الزكاة/,
+  grant: /tamkeen|hrdf|hadaf|nafis|monsha|grant|subsid|government support|other income|interest income|finance income|gain on|تمكين|هدف|نافس|منحة|منح|دعم|إيرادات أخرى|ايرادات اخرى|فوائد دائنة/,
+  staff: /salar|wage|payroll|staff|employee|personnel|gosi|\bsio\b|gpssa|pifss|grsia|\bspf\b|social (insurance|security)|indemnity|gratuity|end of service|eosb|lmra|\bvisa|iqama|work permit|residency|overtime|allowance|bonus|commission|medical insurance|health insurance|accommodation|housing|labour|manpower|رواتب|أجور|اجور|موظف|العاملين|التأمينات|تأمينات اجتماعية|نهاية الخدمة|مكافأة|تأشير|إقامة|اقامة|رخص عمل|بدل|سكن|عمالة/,
+  cos: /cost of (sales|goods|revenue|services)|\bcogs\b|direct cost|subcontract|outsourc|hosting|server|freight|shipping|purchases|materials|inventory|تكلفة|تكاليف مباشرة|مشتريات|شحن|مواد|استضافة/,
+  prem: /\brent\b|lease|utilit|electric|water|\bewa\b|dewa|sewa|internet|telephone|telecom|mobile|office service|service charge|إيجار|ايجار|كهرباء|الماء|مياه|اتصالات|انترنت|هاتف/,
+  inc: /revenue|sales|income|fees|turnover|service|consult|subscription|contract|إيراد|ايراد|مبيعات|الإيرادات|اتعاب|أتعاب/
+};
+function catOf(label, section) {
+  const l = String(label || "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (CAT_RE.skip.test(l)) return "skip";
+  for (const k of ["tax", "grant", "staff", "cos", "prem"]) if (CAT_RE[k].test(l)) return k;
+  if (CAT_RE.inc.test(l) && section !== "cos" && section !== "other") return "inc";
+  return section || "other";
+}
+function sectionOf(label) { const l = String(label || "").trim().toLowerCase(); if (CAT_RE.grant.test(l)) return "grant"; if (/cost of|تكلفة/.test(l)) return "cos"; if (/expense|overhead|مصروف|مصاريف/.test(l)) return "other"; if (/income|revenue|sales|إيراد|ايراد|مبيعات/.test(l)) return "inc"; return null; }
 function seasonFactors(st = S) {
   const f = st.fc, ms = fcMonths(st), mode = f.season || "flat";
-  let raw = ms.map(mo => {
+  /* working days relative to the year's average: Eid, national days and weekends cut billable days */
+  const wdays = mode === "gcc" ? ms.map(mo => workDays(mo.iso, st.cur)) : [], wavg = wdays.length ? wdays.reduce((a, b) => a + b, 0) / 12 : 1, wd = wdays.map(v => v / wavg);
+  let raw = ms.map((mo, i) => {
     const cm = Number(mo.iso.slice(5)) - 1;
     if (mode === "custom") return Math.max(0, num((f.seasonCustom || [])[cm] ?? 100)) / 100;
-    if (mode === "gcc") return Math.max(0.05, GCC_MONTH[cm] - (num(f.ramadanDip ?? 25) / 100) * daysIn(mo.iso, RAMADAN) - 0.2 * daysIn(mo.iso, EID_ADHA.map(d => [d, 4])));
+    if (mode === "gcc") return Math.max(0.05, GCC_MONTH[cm] * wd[i] * (1 - (num(f.ramadanDip ?? 25) / 100) * ramadanShare(mo.iso)));
     return 1;
   });
   const avg = raw.reduce((a, b) => a + b, 0) / 12;
@@ -2342,12 +2466,14 @@ function fcCalc(B = bizCalc(), st = S) {
   const T = key => rows.reduce((a, r) => a + (typeof key === "function" ? key(r) : r[key]), 0);
   const tot = { rev: T("rev"), cos: T("cos"), fr: T("fr"), cogs: T("cogs"), gp: T("gp"), op: T("op"), own: T("own"), oneExp: T("oneExp"), exp: T("exp"), noi: T("noi"), othT: T("othT"), net: preTax, tax: taxY, netAT: preTax - taxY, staff: T(r => r.sm.total), recv: T("recv"), cashNet: T("cashNet") };
   STAFF_LINES.forEach(([k]) => tot["s_" + k] = T(r => r.sm[k]));
+  const opCat = opex.map(e => { const c = catOf(e.name, "other"); return ["staff", "prem", "cos"].includes(c) ? c : "other"; });
+  rows.forEach(r => { const c = { inc: r.rev, cos: r.cogs, staff: r.sm.total + r.own, prem: 0, other: r.oneExp, grant: r.othT }; r.opv.forEach((v, i) => c[opCat[i]] += v); r.cat = c; });
   const low = rows.reduce((a, r) => r.close < a.close ? r : a, rows[0]);
   tot.pipe = T("pipe"); tot.base = T("base");
   /* actuals: months with both actual income and actual costs are closed; outlook = actuals + forecast for open months */
   const A = f.actuals || {}, has = v => v !== undefined && v !== null && v !== "";
   rows.forEach(r => { const a = A[r.mo.iso] || {}; r.fcCost = r.cogs + r.exp; r.aInc = has(a.inc) ? num(a.inc) : null; r.aCost = has(a.cost) ? num(a.cost) : null; r.aCash = has(a.cash) ? num(a.cash) : null;
-    r.closed = r.aInc !== null && r.aCost !== null; r.aNoi = r.closed ? r.aInc - r.aCost : null; });
+    r.closed = r.aInc !== null && r.aCost !== null; r.aNoi = r.closed ? r.aInc - r.aCost : null; r.aCat = r.closed && a.cat ? Object.assign({ inc: r.aInc }, a.cat) : null; });
   const cl = rows.filter(r => r.closed);
   const act = { n: cl.length, incF: cl.reduce((a, r) => a + r.rev, 0), incA: cl.reduce((a, r) => a + r.aInc, 0), noiF: cl.reduce((a, r) => a + r.noi, 0), noiA: cl.reduce((a, r) => a + r.aNoi, 0),
     outInc: rows.reduce((a, r) => a + (r.closed ? r.aInc : r.rev), 0), outNoi: rows.reduce((a, r) => a + (r.closed ? r.aNoi : r.noi), 0), lastCash: [...rows].reverse().find(r => r.aCash !== null) || null };
@@ -2356,6 +2482,7 @@ function fcCalc(B = bizCalc(), st = S) {
 function fcGridRows(F) {
   const R = F.rows, P = F.P, L = [];
   const line = (label, cls, vals, noTotal) => L.push({ label, cls, vals, total: vals && !noTotal ? vals.reduce((a, b) => a + b, 0) : null });
+  line("Working days (weekends and public holidays removed)", "wd", R.map(r => workDays(r.mo.iso)));
   line("Ordinary income and expense", "sec");
   line("Income", "sec2");
   line("Sales revenue", "l1", R.map(r => r.base));
@@ -2433,7 +2560,8 @@ function renderForecast(B) {
   $("fc-scen").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === (S.fc.scen || "base")));
   $("fc-scenNote").textContent = { base: "Your numbers as entered.", best: "Sales 15% higher.", worst: "Sales 20% lower and clients pay 30 days later." }[S.fc.scen || "base"];
   /* status */
-  const iss = [], negM = F.rows.filter(r => r.net < 0);
+  const iss = [], negM = F.rows.filter(r => r.net < 0), LC = localisationCheck();
+  LC.msgs.filter(m => m[0] === "bad" || m[0] === "warn").forEach(m => iss.push([m[0], m[1]]));
   if (t.rev === 0) iss.push(["warn", "No income yet. Add jobs to the mix in Business, or type a monthly sales figure under Income."]);
   if (t.net < 0) iss.push(["bad", "The company loses " + fmt(-t.net) + " over the 12 months. Raise prices, add sales or delay a hire."]);
   else if (negM.length) iss.push(["warn", negM.length + " month" + (negM.length > 1 ? "s" : "") + " show a loss (first: " + negM[0].mo.label + "). Keep cash for them."]);
@@ -2460,6 +2588,15 @@ function renderForecast(B) {
   $("fc-teamhint").textContent = "(" + fmtIn(tr.heads) + " people at full strength, " + fmtIn(tr.bill) + " billable)";
   $("fc-teamTot").textContent = fmt(tr.total) + " / month";
   $("fc-teamNote").textContent = "Citizens pay " + P.si + " at " + fmtIn(P.local) + "%" + (P.tier ? " (" + P.tier[1] + "% from " + fmt0(P.tier[0]) + ")" : "") + ", expatriates " + fmtIn(P.expat) + "%. End of service, fees and insurance are added per person. Billable people add hours to Business and share the overhead in job prices.";
+  /* calendar and labour */
+  const cal = []; F.months.forEach(mo => { const y = Number(mo.iso.slice(0, 4)), h = holidays(S.cur, y); Object.keys(h).filter(d => d.startsWith(mo.iso)).sort().forEach(d => cal.push([d, h[d]])); });
+  const grp = []; cal.forEach(([d, n]) => { const g = grp[grp.length - 1]; if (g && g.n === n && (new Date(d) - new Date(g.to)) <= 864e5 * 1.5) g.to = d; else grp.push({ from: d, to: d, n }); });
+  $("fc-cal").innerHTML = grp.length ? grp.map(g => "<div><span>" + g.from.slice(5) + (g.to !== g.from ? " to " + g.to.slice(5) : "") + "</span><span>" + esc(g.n) + "</span></div>").join("") : '<div><span></span><span class="muted">No public holiday list for this currency. Weekends are Saturday and Sunday.</span></div>';
+  const wdY = F.months.reduce((a, mo) => a + workDays(mo.iso), 0), LB = LABOUR[S.cur];
+  $("fc-calHint").textContent = "(" + (WEEKEND[S.cur] ? (S.cur === "AED" ? "Sat and Sun weekend" : "Fri and Sat weekend") : "Sat and Sun weekend") + ", " + wdY + " working days)";
+  $("fc-labour").textContent = (LB ? "Annual leave: " + LB.leaveNote + ". " + LB.ramadan + ". So one person has about " + (wdY - LB.leave) + " working days in these 12 months; billing 60 to 70% of them is " + Math.round((wdY - LB.leave) * 0.6) + " to " + Math.round((wdY - LB.leave) * 0.7) + " days (you use " + fmtIn(S.billDays) + " in Price a job). " : "") + "Islamic holidays follow the Umm al-Qura calendar and are confirmed by moon sighting; governments may add bridge days.";
+  $("fc-local").innerHTML = "";
+  LC.msgs.forEach(([lvl, tx]) => { const d = document.createElement("div"); d.className = "status" + (lvl === "good" || lvl === "info" ? "" : " " + lvl); d.innerHTML = '<span class="pill"></span><span></span>'; d.querySelector(".pill").textContent = lvl === "good" ? "OK" : lvl === "info" ? "Note" : lvl === "warn" ? "Watch" : "Fix"; d.lastChild.textContent = tx; $("fc-local").appendChild(d); });
   $("fc-otherNote").textContent = base.grantNote + " Grants sit below net ordinary income, so you can see the result without them.";
   $("fc-rev1").textContent = fmt(F.rev0);
   [["fc-revLink", S.fc.revLink], ["fc-cogsLink", S.fc.cogsLink], ["fc-ownerPay", S.fc.ownerPay !== false], ["fc-inBiz", S.fc.inBiz !== false], ["fc-trading", S.fc.trading !== false]].forEach(([id, on]) => $(id).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", (b.dataset.v === "1") === !!on)));
@@ -2489,7 +2626,8 @@ function renderForecast(B) {
   const L = fcGridRows(F), cell = v => '<td class="' + (v < -1e-9 ? "neg" : "") + '">' + (Math.abs(v) < 1e-9 ? "–" : (v < 0 ? "−" : "") + esc(fmt(Math.abs(v)).replace(S.cur + " ", ""))) + "</td>";
   let h = "<thead><tr><th>" + esc(S.cur) + "</th>" + F.months.map(m => '<th title="' + m.iso + '">' + m.label + "</th>").join("") + "<th>Total</th></tr></thead><tbody>";
   L.forEach(x => {
-    const cls = { sec: "sec", sec2: "sec", l1: "l1", l1h: "l1", l2: "l2", l1s: "l1 sub", sub: "sub", big: "big" }[x.cls];
+    const cls = { sec: "sec", sec2: "sec", l1: "l1", l1h: "l1", l2: "l2", l1s: "l1 sub", sub: "sub", big: "big", wd: "wd" }[x.cls];
+    if (x.cls === "wd") { h += '<tr class="wd"><td>' + esc(x.label) + "</td>" + x.vals.map((v, i) => { const hn = holidaysIn(F.months[i].iso); return '<td title="' + esc(Object.entries(hn).map(([n, c]) => n + " (" + c + ")").join(", ") || "No public holidays on working days") + '">' + v + (Object.keys(hn).length ? "*" : "") + "</td>"; }).join("") + "<td>" + x.total + "</td></tr>"; return; }
     if (!x.vals) { h += '<tr class="' + cls + '"><td>' + esc(x.label) + '</td><td colspan="13"></td></tr>'; return; }
     h += '<tr class="' + cls + '"><td>' + esc(x.label) + "</td>" + x.vals.map(cell).join("") + cell(x.total) + "</tr>";
   });
@@ -2588,7 +2726,7 @@ function renderActuals(F) {
     R.forEach((r, i) => { h += '<tr data-i="' + i + '"><td>' + r.mo.label + " <small class='muted'>" + r.mo.iso + "</small></td><td class='fi'></td><td><input data-k='inc' inputmode='decimal' aria-label='Actual income " + r.mo.label + "'></td><td class='fc'></td><td><input data-k='cost' inputmode='decimal' aria-label='Actual costs " + r.mo.label + "'></td><td class='fp'></td><td class='ap'></td><td class='vr'></td><td class='fca'></td><td><input data-k='cash' inputmode='decimal' aria-label='Actual cash " + r.mo.label + "'></td></tr>"; });
     $("actTable").innerHTML = h + '</tbody><tfoot><tr class="sub"><td>Closed months</td><td class="t-fi"></td><td class="t-ai"></td><td></td><td></td><td class="t-fp"></td><td class="t-ap"></td><td class="t-vr"></td><td></td><td></td></tr></tfoot>';
     $("actTable").querySelectorAll("input").forEach(inp => { const r = R[+inp.closest("tr").dataset.i], iso = r.mo.iso, k = inp.dataset.k; inp.id = "act-" + k + "-" + iso;
-      inp.addEventListener("input", () => { A[iso] = A[iso] || {}; if (inp.value.trim() === "") delete A[iso][k]; else A[iso][k] = num(inp.value); if (!Object.keys(A[iso]).length) delete A[iso]; render(); });
+      inp.addEventListener("input", () => { A[iso] = A[iso] || {}; if (inp.value.trim() === "") delete A[iso][k]; else A[iso][k] = num(inp.value); if (k !== "cash") delete A[iso].cat; if (!Object.keys(A[iso]).length) delete A[iso]; render(); });
       inp.addEventListener("blur", () => { const v = (A[iso] || {})[k]; inp.value = v === undefined ? "" : fmtIn(v); }); });
     actDrawn = key;
   }
@@ -2618,6 +2756,16 @@ function renderActuals(F) {
     g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + r.mo.label.slice(0, 3) + "</text>"; });
   g += '<text x="' + pad + '" y="11" font-size="11" fill="var(--muted)">Bars: forecast profit · dots: actual (green above, red below)</text>';
   $("actChart").innerHTML = g;
+  /* category variance for months imported with account detail */
+  const cm = R.filter(r => r.aCat);
+  $("actCatBox").hidden = !cm.length;
+  if (cm.length) {
+    $("actCatHint").textContent = "(" + cm.length + " month" + (cm.length > 1 ? "s" : "") + " with account detail: " + cm.map(r => r.mo.label).join(", ") + ")";
+    let h2 = "<thead><tr><th>Category</th><th>Forecast</th><th>Actual</th><th>Variance</th><th>%</th></tr></thead><tbody>";
+    CATS.slice(0, 6).forEach(([k, l]) => { const fv = cm.reduce((a, r) => a + r.cat[k], 0), av = cm.reduce((a, r) => a + (r.aCat[k] || 0), 0), dv = av - fv, goodUp = k === "inc" || k === "grant", good = goodUp ? dv >= 0 : dv <= 0;
+      h2 += '<tr class="l1"><td>' + l + "</td><td>" + f(fv) + "</td><td>" + f(av) + '</td><td class="' + (Math.abs(dv) < 0.5 ? "" : good ? "good-t" : "bad-t") + '">' + (dv >= 0 ? "+" : "") + f(dv) + "</td><td>" + (fv ? (Math.round(dv / Math.abs(fv) * 1000) / 10) + "%" : "–") + "</td></tr>"; });
+    $("actCat").innerHTML = h2 + "</tbody>";
+  }
 }
 function renderPlan(F) {
   const PL = planCalc(F), p = PL.p, act = document.activeElement, setV = (id, v) => { if (act !== $(id)) $(id).value = v; };
@@ -2745,6 +2893,10 @@ function parseYM(v) {
   if (typeof v === "number") { if (v > 20000 && v < 80000) { const d = new Date(Math.round((v - 25569) * 864e5)); return isoYM(d.getUTCFullYear(), d.getUTCMonth() + 1); } return null; }
   const s = String(v).trim().toLowerCase().replace(/\s+/g, " "); if (!s || s.length > 40 || /total|ytd|year to date|إجمالي/.test(s)) return null;
   let m;
+  /* Hijri dates (Umm al-Qura), common in Saudi exports: 1448/08/15, 15/08/1448 or 1448-08 */
+  const hj = (y, mo, d) => { const g = hijriToISO(y, mo, d || 15); return g ? g.slice(0, 7) : null; };
+  if ((m = s.match(/^(1[34]\d{2})[-/.](\d{1,2})(?:[-/.](\d{1,2}))?(?:\s*(هـ|h|ah))?(?:[ t].*)?$/))) return hj(+m[1], +m[2], m[3] ? +m[3] : 0);
+  if ((m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](1[34]\d{2})(?:\s*(هـ|h|ah))?$/))) return hj(+m[3], +m[2], +m[1]);
   if ((m = s.match(/^(\d{4})[-/.](\d{1,2})(?:[-/.](\d{1,2}))?(?:[ t].*)?$/))) return isoYM(+m[1], +m[2]);
   if ((m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?: .*)?$/))) { let a = +m[1], b = +m[2], y = +m[3]; if (y < 100) y += 2000; return b > 12 && a <= 12 ? isoYM(y, a) : isoYM(y, b); } /* day first, as used in the GCC */
   if ((m = s.match(/^(\d{1,2})[-/.](\d{4})$/))) return isoYM(+m[2], +m[1]);
@@ -2792,10 +2944,19 @@ function detectImport(g) {
     const gap = mc.length === 2 ? (() => { const [a, b] = mc.map(x => x.ym.split("-").map(Number)); return Math.abs((b[0] - a[0]) * 12 + b[1] - a[1]); })() : 0;
     if ((mc.length >= 3 || (mc.length === 2 && gap === 1)) && new Set(mc.map(x => x.ym)).size === mc.length) {
       const firstC = mc[0].c, lines = [];
+      let sec = null;
       for (let i = r + 1; i < rows.length; i++) { const R = rows[i] || []; let label = ""; for (let c = 0; c < firstC; c++) { const t = String(cellVal(R[c]) || "").trim(); if (t && parseAmt(t) === null) label = t; }
-        const vals = mc.map(m => parseAmt(R[m.c])); if (label && vals.some(v => v !== null)) lines.push({ i, label, vals: vals.map(v => v || 0) }); }
+        const vals = mc.map(m => parseAmt(R[m.c]));
+        if (label && vals.some(v => v !== null)) lines.push({ i, label, vals: vals.map(v => v || 0), cat: catOf(label, sec) });
+        else if (label) { const ns = sectionOf(label); if (ns) sec = ns; } }
       const pick = role => { let best = -1, s0 = 0; lines.forEach((ln, k) => { const sc = scoreLabel(lab(ln.label), role); if (sc > s0) { s0 = sc; best = k; } }); return best; };
-      return { kind: "pl", hdr: r, months: mc, lines, map: { inc: pick("inc"), cogs: pick("cogs"), exp: pick("exp"), exp2: -1, net: pick("net") } };
+      const D = { kind: "pl", hdr: r, months: mc, lines, map: { inc: pick("inc"), cogs: pick("cogs"), exp: pick("exp"), exp2: -1, net: pick("net") }, mode: "totals" };
+      /* account lines give category detail; use them when they reconcile with the file's net income, or when total rows are missing */
+      const hasDetail = lines.some(l => l.cat === "inc") && lines.some(l => ["cos", "staff", "prem", "other"].includes(l.cat));
+      if (hasDetail) { D.mode = "lines"; const net = D.map.net >= 0 ? lines[D.map.net] : null, L = buildImport([], D);
+        const ok = net ? mc.every((mo, j) => { const x = L.months[mo.ym]; if (!x) return Math.abs(net.vals[j]) < 1; return Math.abs(x.inc - x.cost + (x.cat.grant || 0) - (x.cat.tax || 0) - net.vals[j]) <= 1; }) : (D.map.inc < 0 || (D.map.exp < 0 && D.map.cogs < 0));
+        if (!ok) D.mode = "totals"; }
+      return D;
     }
   }
   /* find a header row for column-based layouts */
@@ -2815,7 +2976,15 @@ const INC_RE = /income|revenue|sales|invoice|receipt|deposit|fee|إيراد|اي
 function buildImport(g, D) {
   const out = {}, add = (ym, k, v) => { if (!ym || v === null || v === undefined) return; out[ym] = out[ym] || { inc: 0, cost: 0 }; out[ym][k] = (out[ym][k] || 0) + v; };
   const notes = [];
-  if (D.kind === "pl") {
+  if (D.kind === "pl" && D.mode === "lines") {
+    D.months.forEach((mo, j) => {
+      const c = { inc: 0, cos: 0, staff: 0, prem: 0, other: 0, grant: 0, tax: 0 };
+      D.lines.forEach(l => { if (l.cat === "skip") return; const v = l.vals[j]; c[l.cat] += ["inc", "grant"].includes(l.cat) ? v : Math.abs(v); });
+      const cost = c.cos + c.staff + c.prem + c.other; if (!c.inc && !cost && !c.grant) return;
+      out[mo.ym] = { inc: c.inc, cost, cat: c };
+    });
+    notes.push("Account lines are grouped into categories; change any category in the list above." + (D.lines.some(l => l.cat === "tax") ? " Tax and zakat lines are left out of costs." : ""));
+  } else if (D.kind === "pl") {
     const L = D.lines, m = D.map, get = k => m[k] >= 0 ? L[m[k]] : null, inc = get("inc"), cogs = get("cogs"), exp = get("exp"), exp2 = get("exp2"), net = get("net");
     D.months.forEach((mo, j) => {
       if (!inc) return;
@@ -2880,6 +3049,14 @@ function renderImport() {
   const sel = (id, label, opts, v, none) => '<label>' + label + '<select id="' + id + '">' + (none ? '<option value="-1">' + none + "</option>" : "") + opts.map(([val, t]) => '<option value="' + val + '"' + (String(val) === String(v) ? " selected" : "") + ">" + esc(t) + "</option>").join("") + "</select></label>";
   if (D.kind === "pl") {
     const opts = D.lines.map((l, k) => [k, l.label + " (" + fmt0(l.vals.reduce((a, b) => a + b, 0)) + ")"]);
+    h += sel("imp-mode", "Read the file by", [["lines", "Account lines, grouped by category"], ["totals", "Total rows only"]], D.mode);
+  }
+  if (D.kind === "pl" && D.mode === "lines") {
+    h += '<div class="implines">' + D.lines.map((l, k) => '<div><span title="' + esc(l.label) + '">' + esc(l.label) + '</span><span class="num">' + esc(fmt0(l.vals.reduce((a, b) => a + b, 0))) + '</span><select data-k="' + k + '" aria-label="Category for ' + esc(l.label) + '">' + CATS.map(([v, t]) => '<option value="' + v + '"' + (v === l.cat ? " selected" : "") + ">" + t + "</option>").join("") + "</select></div>").join("") + "</div>";
+    const net = D.map.net;
+    h += sel("imp-net", "Net income row (check)", D.lines.map((l, k) => [k, l.label]), net, "None");
+  } else if (D.kind === "pl") {
+    const opts = D.lines.map((l, k) => [k, l.label + " (" + fmt0(l.vals.reduce((a, b) => a + b, 0)) + ")"]);
     h += sel("imp-inc", "Income row", opts, D.map.inc, "Choose…") + sel("imp-cogs", "Cost of sales row", opts, D.map.cogs, "None") + sel("imp-exp", "Expenses row", opts, D.map.exp, "None") + sel("imp-exp2", "Another cost row", opts, D.map.exp2, "None") + sel("imp-net", "Net income row (check)", opts, D.map.net, "None");
   } else if (D.kind === "sum" || D.kind === "txn") {
     const opts = D.head.map((t, k) => [k, t || "Column " + (k + 1)]);
@@ -2891,12 +3068,14 @@ function renderImport() {
   on("imp-sheet", v => { IMP.si = v; IMP.D = detectImport(IMP.grids[v].g); });
   [["imp-inc", "inc"], ["imp-cogs", "cogs"], ["imp-exp", "exp"], ["imp-exp2", "exp2"], ["imp-net", "net"], ["imp-month", "month"], ["imp-incc", "inc"], ["imp-cost", "cost"], ["imp-cash", "cash"], ["imp-date", "date"], ["imp-amt", "amt"], ["imp-type", "type"], ["imp-cr", "cr"], ["imp-dr", "dr"]].forEach(([id, k]) => on(id, v => IMP.D.map[k] = v));
   on("imp-rule", (v, raw) => IMP.D.map.rule = raw);
+  on("imp-mode", (v, raw) => IMP.D.mode = raw);
+  $("impMap").querySelectorAll(".implines select").forEach(el => el.addEventListener("change", () => { IMP.D.lines[+el.dataset.k].cat = el.value; renderImport(); }));
   /* preview */
   const res = D.kind === "none" ? { months: {}, notes: [] } : buildImport(g, D), ms = Object.keys(res.months).sort(), win = new Set(fcMonths().map(m => m.iso));
   IMP.res = res;
   const netRow = D.kind === "pl" && D.map.net >= 0 ? D.lines[D.map.net] : null;
   let t = "<thead><tr><th>Month</th><th>Income</th><th>Costs</th><th>Profit</th>" + (netRow ? "<th>Net in file</th>" : "") + (D.kind === "sum" && D.map.cash >= 0 ? "<th>Cash</th>" : "") + "<th>In forecast</th></tr></thead><tbody>";
-  ms.forEach(ym => { const x = res.months[ym], p = x.inc - x.cost, j = netRow ? D.months.findIndex(m => m.ym === ym) : -1;
+  ms.forEach(ym => { const x = res.months[ym], p = x.inc - x.cost + (x.cat ? (x.cat.grant || 0) - (x.cat.tax || 0) : 0), j = netRow ? D.months.findIndex(m => m.ym === ym) : -1;
     t += "<tr><td>" + ym + "</td><td>" + esc(fmt(x.inc)) + "</td><td>" + esc(fmt(x.cost)) + '</td><td class="' + (p < 0 ? "neg" : "") + '">' + esc(fmt(p)) + "</td>" + (netRow ? '<td class="' + (j >= 0 && Math.abs(netRow.vals[j] - p) > 1 ? "neg" : "") + '">' + (j >= 0 ? esc(fmt(netRow.vals[j])) : "") + "</td>" : "") + (D.kind === "sum" && D.map.cash >= 0 ? "<td>" + (x.cash !== undefined ? esc(fmt(x.cash)) : "") + "</td>" : "") + "<td>" + (win.has(ym) ? "✓" : "outside") + "</td></tr>"; });
   $("impPrev").innerHTML = t + "</tbody>";
   const inWin = ms.filter(m => win.has(m)).length;
@@ -2909,7 +3088,9 @@ function applyImport() {
   Object.entries(IMP.res.months).forEach(([ym, x]) => {
     const has = A[ym] && (A[ym].inc !== undefined || A[ym].cost !== undefined);
     if (has && !rep) { kept++; return; }
-    A[ym] = Object.assign({}, A[ym] || {}, { inc: rnd(x.inc), cost: rnd(x.cost) }); if (x.cash !== undefined) A[ym].cash = rnd(x.cash); n++;
+    A[ym] = Object.assign({}, A[ym] || {}, { inc: rnd(x.inc), cost: rnd(x.cost) }); delete A[ym].cat;
+    if (x.cat) A[ym].cat = { cos: rnd(x.cat.cos), staff: rnd(x.cat.staff), prem: rnd(x.cat.prem), other: rnd(x.cat.other), grant: rnd(x.cat.grant) };
+    if (x.cash !== undefined) A[ym].cash = rnd(x.cash); n++;
   });
   actDrawn = ""; closeImport(); render();
   toast("Imported " + n + " month" + (n === 1 ? "" : "s") + (kept ? ", kept " + kept + " you had filled in" : "") + ". See Actual vs forecast.");
@@ -3402,6 +3583,8 @@ async function exportForecast(opts = {}) {
     if (key) at[key] = row; row++; return R;
   };
   const sumOf = (a, b) => (i, L) => ({ f: "SUM(" + L + a + ":" + L + b + ")" });
+  const wdR = put("Working days (weekends and public holidays removed)", "l2", (i) => ({ r: workDays(Fc.months[i].iso), input: true }), "wd");
+  for (let k = 2; k <= TC; k++) wdR.getCell(k).numFmt = "0";
   put("Ordinary income and expense", "sec");
   put("Income", "sec2");
   const rev0 = row; put("Sales revenue", "l1", i => ({ r: Fc.rows[i].base, input: true }), "rev");
@@ -3589,7 +3772,7 @@ function buildQuoteHTML() {
     items: [...p.querySelectorAll("li")].map(li => li.textContent)
   }));
   const now = new Date();
-  const d = dt => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const d = dt => dt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) + (S.cur === "SAR" ? " (" + hijriLabel(dt) + ")" : "");
   const valid = new Date(now.getTime() + Math.max(1, S.validDays || 14) * 864e5);
   const qno = (S.qNo || "").trim() || autoQNo();
   const tax = S.vat > 0, taxN = S.taxName || "Tax";
