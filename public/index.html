@@ -632,6 +632,32 @@ input:disabled { opacity: .55; }
   .ctabs button { font-size: 12.5px; padding: 8px 3px; }
 }
 
+
+.scenbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0 2px; }
+.scenbar .sk { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.scenbar .seg { min-width: 300px; }
+select.sel { border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 7px; padding: 7px 8px; font-size: 14px; width: 100%; }
+.seasgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 8px 0; }
+.seasgrid label { font-size: 11px; color: var(--muted); display: grid; gap: 3px; text-align: center; }
+.seasgrid input { width: 100%; border: 1px solid var(--line); background: var(--field); border-radius: 6px; padding: 5px 4px; text-align: center; font-family: var(--font-num); }
+.seasbars { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; align-items: end; height: 70px; padding: 8px 0 0; }
+.seasbars div { display: grid; gap: 3px; align-items: end; height: 100%; grid-template-rows: 1fr auto; }
+.seasbars i { display: block; background: var(--accent); border-radius: 3px 3px 0 0; opacity: .8; }
+.seasbars span { font-size: 9.5px; color: var(--muted); text-align: center; }
+.ohead, .orow { display: grid; grid-template-columns: minmax(0,1fr) 92px 78px 104px 28px; gap: 6px; align-items: center; }
+.ohead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.orow { padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.orow .name { border: 1px solid var(--line); background: var(--field); border-radius: 7px; padding: 7px 8px; min-width: 0; font-size: 14px; width: 100%; }
+.orow select { border: 1px solid var(--line); background: var(--field); color: var(--ink); border-radius: 7px; padding: 6px 4px; font-size: 13px; min-width: 0; width: 100%; }
+.orow .x { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 4px 0; font-weight: 400; }
+.plangrid { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
+.plangrid .fcgrid.plan { min-width: 560px; }
+.goalbox { border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: var(--accent-soft); font-size: 14px; }
+.goalbox b { font-family: var(--font-num); }
+.goalbox[data-lvl="bad"] { background: #fbe3e1; color: #7a1f19; }
+.goalbox[data-lvl="good"] { background: #e3f3e8; color: #1d5a35; }
+@media (max-width: 900px) { .plangrid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .ohead { display: none; } .orow { grid-template-columns: 1fr 1fr 28px; } .orow .name { grid-column: 1 / 3; } .orow .x { grid-column: 3; grid-row: 1; } .scenbar .seg { min-width: 0; flex: 1; } .seasgrid { grid-template-columns: repeat(4, 1fr); } }
 /* v3 forecast */
 .thead, .trow { display: grid; grid-template-columns: minmax(0,1fr) 58px 92px 112px 78px 28px; gap: 6px; align-items: center; }
 .thead, .ghead { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
@@ -732,7 +758,7 @@ input:disabled { opacity: .55; }
   </div>
   <div class="hgrid2">
     <div class="card">
-      <div class="card-h"><h3>Cash flow scenario, 12 months</h3><span class="legend2"><i style="background:var(--accent)"></i>Money in <i style="background:var(--lime)"></i>Money out</span></div>
+      <div class="card-h"><h3>Cash flow, next 12 months</h3><span class="legend2"><i style="background:var(--accent)"></i>Money in <i style="background:var(--lime)"></i>Money out</span></div>
       <div class="hc-big"><span class="muted">Cash at month 12</span><b id="h-cash"></b></div>
       <svg id="h-chart" viewBox="0 0 640 220" role="img" aria-label="Money in and out by month"></svg>
     </div>
@@ -957,7 +983,7 @@ input:disabled { opacity: .55; }
           <p class="note" id="capText"></p>
         </section>
       <section class="panel">
-          <h2><span class="ico" data-i="chart"></span>Cash over the next 12 months <span class="h2hint">(scenario)</span></h2>
+          <h2><span class="ico" data-i="chart"></span>Cash over the next 12 months <span class="h2hint">(from Forecast)</span></h2>
           <svg id="cashChart" viewBox="0 0 640 200" role="img" aria-label="Cash balance by month"></svg>
           <p class="note" id="cashText"></p>
         </section>
@@ -972,9 +998,10 @@ input:disabled { opacity: .55; }
     <div class="tile"><div class="k">Team cost, 12 months</div><div class="v" id="f-staff"></div></div>
     <div class="tile hero"><div class="k">Net income, 12 months</div><div class="v" id="f-net"></div></div>
   </div>
+  <div class="scenbar"><span class="sk">Scenario</span><div class="seg" id="fc-scen"><button type="button" data-v="worst">Worst case</button><button type="button" data-v="base">Base</button><button type="button" data-v="best">Best case</button></div><span class="muted small" id="fc-scenNote"></span></div>
   <div id="f-status" class="bstat"></div>
   <div class="split">
-    <div class="card tcard" data-card="fc"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="team" aria-selected="true">Team</button><button type="button" role="tab" data-pane="rev" aria-selected="false">Income</button><button type="button" role="tab" data-pane="cost" aria-selected="false">Costs</button><button type="button" role="tab" data-pane="other" aria-selected="false">Grants</button><button type="button" role="tab" data-pane="rules" aria-selected="false">Rules</button></div><div class="pane" data-pane="team">
+    <div class="card tcard" data-card="fc"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="team" aria-selected="true">Team</button><button type="button" role="tab" data-pane="rev" aria-selected="false">Income</button><button type="button" role="tab" data-pane="cost" aria-selected="false">Costs</button><button type="button" role="tab" data-pane="other" aria-selected="false">One-offs</button><button type="button" role="tab" data-pane="rules" aria-selected="false">Rules</button></div><div class="pane" data-pane="team">
         <h2><span class="ico" data-i="briefcase"></span>Team <span class="h2hint" id="fc-teamhint"></span></h2>
         <div class="thead"><span>Role</span><span class="r">People</span><span class="r">Salary / month</span><span>Status</span><span>Starts</span><span></span></div>
         <div id="fc-team"></div>
@@ -986,7 +1013,15 @@ input:disabled { opacity: .55; }
         <div class="field"><label>Sales revenue<small>Link it to the job mix in Business, or type your own monthly figure</small></label><div class="seg mini" id="fc-revLink"><button type="button" data-v="1">Job mix</button><button type="button" data-v="0">My figure</button></div></div>
         <div class="field" id="fc-revBaseF"><label for="fc-revBase">Sales in the first month</label><div class="inp"><input id="fc-revBase" inputmode="decimal"><span class="u u-cur"></span></div></div>
         <div class="field"><label for="fc-revGrowth">Monthly growth<small>Applied from month 2. Use 0 for a flat year</small></label><div class="inp"><input id="fc-revGrowth" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label for="fc-season">Seasonality<small>Moves sales between months. The year's total stays the same</small></label><select id="fc-season" class="sel"><option value="gcc">GCC calendar</option><option value="flat">Flat</option><option value="custom">My own</option></select></div>
+        <div class="field" id="fc-dipF"><label for="fc-ramadanDip">Ramadan slowdown<small id="fc-ramHint"></small></label><div class="inp"><input id="fc-ramadanDip" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="seasgrid" id="fc-seasCustom" hidden></div>
+        <div class="seasbars" id="fc-seasBars" aria-label="Sales by month"></div>
         <div class="derived"><span>Sales revenue in month 1</span><strong class="num" id="fc-rev1"></strong></div>
+        <h2 style="margin-top:16px"><span class="ico" data-i="wallet"></span>Cash timing</h2>
+        <div class="field"><label for="fc-startCash">Cash in the bank at the start</label><div class="inp"><input id="fc-startCash" inputmode="decimal"><span class="u u-cur"></span></div></div>
+        <div class="field"><label for="fc-payDelay">Clients pay after<small>Days from invoice. Deposits and retainers come in at once</small></label><div class="inp"><input id="fc-payDelay" inputmode="decimal"><span class="u">days</span></div></div>
+        <div class="field"><label>Already trading?<small>Yes: invoices from before the first month are collected in it</small></label><div class="seg mini" id="fc-trading"><button type="button" data-v="1">Yes</button><button type="button" data-v="0">New company</button></div></div>
         <h2 style="margin-top:16px"><span class="ico" data-i="receipt"></span>Cost of goods sold</h2>
         <div class="field"><label>Cost of sales<small>Job costs such as hosting, licences and subcontractors</small></label><div class="seg mini" id="fc-cogsLink"><button type="button" data-v="1">From jobs</button><button type="button" data-v="0">% of income</button></div></div>
         <div class="field" id="fc-cogsPctF"><label for="fc-cogsPct">Cost of sales, % of income</label><div class="inp"><input id="fc-cogsPct" inputmode="decimal"><span class="u">%</span></div></div>
@@ -1005,6 +1040,11 @@ input:disabled { opacity: .55; }
         <div id="fc-other"></div>
         <button class="ghost addline" id="fc-addOther" type="button">+ Add line</button>
         <p class="note" id="fc-otherNote"></p>
+        <h2 style="margin-top:16px"><span class="ico" data-i="calendar"></span>One-off items</h2>
+        <div class="ohead"><span>Item</span><span class="r">Amount</span><span>Month</span><span>Type</span><span></span></div>
+        <div id="fc-one"></div>
+        <button class="ghost addline" id="fc-addOne" type="button">+ Add item</button>
+        <p class="note">Expense: hits profit and cash (a campaign, a fit-out you expense). Asset: cash only (laptops, equipment). Loan or capital in, and loan repayment: cash only.</p>
       </div><div class="pane" data-pane="rules" hidden>
         <h2><span class="ico" data-i="shield"></span>Employer rules <span class="h2hint" id="fc-ctry"></span></h2>
         <div class="field"><label for="fc-start">First month<small>ISO 8601 month (YYYY-MM)</small></label><div class="inp"><input id="fc-start" type="month" class="txt"></div></div>
@@ -1015,6 +1055,8 @@ input:disabled { opacity: .55; }
         <div class="field"><label for="fc-eosBase">Basic pay share of salary<small>End of service is often worked out on basic pay only</small></label><div class="inp"><input id="fc-eosBase" inputmode="decimal"><span class="u">%</span></div></div>
         <div class="field"><label for="fc-permit"><span id="fc-permitName"></span><small>Per expatriate, a month. Estimate: use your real fees</small></label><div class="inp"><input id="fc-permit" inputmode="decimal"><span class="u u-cur"></span></div></div>
         <div class="field"><label for="fc-health">Medical insurance<small>Per person, a month. Estimate: use your quote</small></label><div class="inp"><input id="fc-health" inputmode="decimal"><span class="u u-cur"></span></div></div>
+        <div class="field"><label for="fc-taxRate"><span id="fc-taxName">Tax on profit</span><small id="fc-taxHint"></small></label><div class="inp"><input id="fc-taxRate" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label for="fc-taxFree">Tax-free profit a year<small>0 = taxed from the first unit</small></label><div class="inp"><input id="fc-taxFree" inputmode="decimal"><span class="u u-cur"></span></div></div>
         <div class="field"><label>Team cost in prices and Business<small>Non-billable staff add to job overhead; billable staff add capacity</small></label><div class="seg mini" id="fc-inBiz"><button type="button" data-v="1">Include</button><button type="button" data-v="0">Leave out</button></div></div>
         <p class="note" id="fc-rulesNote"></p>
         <button type="button" class="ghost linkbtn" id="fc-resetRules">Reset to country rules</button>
@@ -1026,6 +1068,11 @@ input:disabled { opacity: .55; }
         <p class="note" id="fcChartText"></p>
       </section>
       <section class="panel">
+        <h2><span class="ico" data-i="bars"></span>Cash at the end of each month</h2>
+        <svg id="fcCash" viewBox="0 0 640 200" role="img" aria-label="Cash balance by month"></svg>
+        <p class="note" id="fcCashText"></p>
+      </section>
+      <section class="panel">
         <h2><span class="ico" data-i="wallet"></span>Team cost, 12 months</h2>
         <table><tbody id="fcStaff"></tbody></table>
       </section>
@@ -1034,7 +1081,26 @@ input:disabled { opacity: .55; }
   <section class="panel fcgrid-p">
     <div class="fcgrid-h"><h2><span class="ico" data-i="list"></span>Profit and loss by month</h2><button type="button" id="fc-xlsx"><span class="ni" data-i="sheet"></span>Download forecast (Excel)</button></div>
     <div class="fcwrap"><table class="fcgrid" id="fcGrid"></table></div>
-    <p class="note">Amounts in <span class="cur-code"></span>, accrual basis: yearly expenses are spread evenly and end of service is set aside every month. Planning aid, not payroll, tax or legal advice.</p>
+    <p class="note">Amounts in <span class="cur-code"></span>. Profit is on an accrual basis (yearly expenses spread evenly, end of service set aside monthly); the cash rows show when money actually moves, including VAT and yearly bills paid upfront. Planning aid, not payroll, tax or legal advice.</p>
+  </section>
+  <section class="panel fcgrid-p">
+    <div class="fcgrid-h"><h2><span class="ico" data-i="target"></span>3-year plan and goal</h2></div>
+    <div class="plangrid">
+      <div class="planin">
+        <div class="field"><label for="pl-growth">Sales growth a year<small>From year 2</small></label><div class="inp"><input id="pl-growth" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label for="pl-hires">New hires a year<small>At today's average cost per person</small></label><div class="inp"><input id="pl-hires" inputmode="decimal"><span class="u">people</span></div></div>
+        <div class="field"><label for="pl-salaryUp">Pay rises a year<small>Team and owner pay</small></label><div class="inp"><input id="pl-salaryUp" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label for="pl-costUp">Expense increase a year<small>Rent, tools, fees</small></label><div class="inp"><input id="pl-costUp" inputmode="decimal"><span class="u">%</span></div></div>
+        <div class="field"><label>Goal for year 3</label><div class="seg mini" id="pl-goalType"><button type="button" data-v="net">Net income</button><button type="button" data-v="rev">Revenue</button></div></div>
+        <div class="field"><label for="pl-goal">Goal amount<small>0 = no goal</small></label><div class="inp"><input id="pl-goal" inputmode="decimal"><span class="u u-cur"></span></div></div>
+      </div>
+      <div class="planout">
+        <div id="pl-goalBox" class="goalbox"></div>
+        <div class="fcwrap"><table class="fcgrid plan" id="plTable"></table></div>
+        <svg id="plChart" viewBox="0 0 640 170" role="img" aria-label="Revenue and net income by year"></svg>
+      </div>
+    </div>
+    <p class="note">Years 2 and 3 are a simple projection: no grants or one-off items, the same cost of sales share, and cash after paying the previous year's tax. Review the plan every quarter and roll the 12 months forward.</p>
   </section>
 </section>
 
@@ -1142,7 +1208,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "3.0", updated: "27 November 2026", contact: "" };
+const APP = { version: "3.1", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1196,11 +1262,14 @@ const BASE_DEFAULTS = {
   lines: [], pkgs: GENERIC_PKGS, job: "website", myJobs: []
 };
 function jobInto(state, j) {
+  /* presets are written in BHD; saved jobs remember their currency. Convert to the current one */
+  const k = (state.cur && (j.cur || "BHD") !== state.cur && fxRate(j.cur || "BHD", state.cur)) || 1;
+  const m = v => k === 1 ? v : niceMoney(v * k);
   state.job = j.id; state.basis = j.basis;
   state.qty[j.basis] = j.qty;
-  state.mkt[j.basis] = j.mkt.slice();
-  state.cValue[j.basis] = j.cValue;
-  state.lines = j.lines.map(l => Array.isArray(l) ? { name: l[0], qty: l[1], unit: l[2] } : Object.assign({}, l));
+  state.mkt[j.basis] = j.mkt.map(m);
+  state.cValue[j.basis] = m(j.cValue);
+  state.lines = j.lines.map(l => Array.isArray(l) ? { name: l[0], qty: l[1], unit: m(l[2]) } : Object.assign({}, l, { unit: m(l.unit) }));
   state.pkgs = JSON.parse(JSON.stringify(j.pkgs || GENERIC_PKGS));
   if (j.hoursPerDay) state.hoursPerDay = j.hoursPerDay;
   if (j.months) state.months = j.months;
@@ -1226,7 +1295,9 @@ const SAMPLE_TEAM = [
   { role: "Designer", n: 1, local: true, salary: 800, from: 1, bill: true },
   { role: "Office administrator", n: 1, local: true, salary: 500, from: 4, bill: false }
 ];
-DEFAULTS.fc = { start: "", revLink: true, revBase: 0, revGrowth: 0, cogsLink: true, cogsPct: 0, freightPct: 0, ot: 0, housing: 0, ownerPay: true,
+DEFAULTS.fc = { start: "", revLink: true, revBase: 0, revGrowth: 1.5, season: "gcc", ramadanDip: 25, seasonCustom: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100], scen: "base", trading: true,
+  oneoff: [{ name: "Brand and website refresh", amt: 500, m: 6, kind: "exp" }, { name: "Laptops for new hires", amt: 800, m: 4, kind: "asset" }],
+  taxRate: null, taxFree: null, plan: { growth: 20, salaryUp: 3, costUp: 3, hires: 1, goalType: "net", goal: 0 }, cogsLink: true, cogsPct: 0, freightPct: 0, ot: 0, housing: 0, ownerPay: true,
   team: JSON.parse(JSON.stringify(SAMPLE_TEAM)), other: [{ name: "", amt: 0, from: 1, to: 12 }], rates: {}, inBiz: true };
 Object.assign(DEFAULTS, { bizIban: "", bizBic: "", taxReg: true, feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
 Object.assign(DEFAULTS, { logo: "", taxName: "VAT", validDays: 14, bizName: "", client: "", qTitle: "", notes: "" });
@@ -1242,7 +1313,10 @@ try {
   S = Object.assign(clone(DEFAULTS), sv);
   /* v3: people upgrading from v2 start with an empty team, so their numbers do not change */
   if (saved && !sv.fc) S.fc.team = [];
+  const hadFc = !!sv.fc, hadOne = !!(sv.fc && sv.fc.oneoff);
   S.fc = Object.assign(clone(DEFAULTS.fc), S.fc);
+  if (saved && !hadOne) S.fc.oneoff = [];
+  if (saved && hadFc && sv.fc.revGrowth === undefined) S.fc.revGrowth = 0;
   if (!saved) { const old = JSON.parse(localStorage.getItem("pricing-model-v5") || "{}");
     ["myJobs", "logo", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "hourRate", "rateMode", "hoursPerDay", "billDays"].forEach(k => { if (old[k] !== undefined) S[k] = old[k]; }); }
 } catch (e) { S = clone(DEFAULTS); }
@@ -1270,6 +1344,41 @@ function applyCountry(c, announce) {
   S.taxName = "VAT";
   S.vat = k.vat && S.taxReg !== false ? k.vat : 0;
   if (announce) toast(k.name + ": " + (k.vat ? "VAT " + k.vat + "% applied" + (S.taxReg ? "" : " when you are VAT-registered") : "no VAT") + ", " + dec(c) + " decimals. You can change this in Quote › Tax & terms.");
+}
+/* Exchange rates, units per 1 USD. BHD, SAR, AED, QAR and OMR are fixed pegs to the US dollar;
+   KWD (currency basket), EUR and GBP float: mid-market rates of November 2026. Used to convert amounts when the currency changes. */
+const FX = { USD: 1, BHD: 0.376, SAR: 3.75, AED: 3.6725, QAR: 3.64, OMR: 0.3845, KWD: 0.3081, EUR: 0.8957, GBP: 0.7472 };
+const FX_PEG = { BHD: 1, SAR: 1, AED: 1, QAR: 1, OMR: 1, USD: 1 };
+const fxRate = (from, to) => (FX[from] && FX[to]) ? FX[to] / FX[from] : null;
+/* quick-pick rate chips are BHD reference rates shown at the same value in the current currency */
+function scaleChips(box, bhd) { const k = fxRate("BHD", S.cur) || 1; box.querySelectorAll("button").forEach((b, i) => { const v = niceMoney(bhd[i] * k); b.dataset.v = v; b.textContent = fmtIn(v); }); }
+function niceMoney(v) { const a = Math.abs(num(v)); if (!a) return 0; return Math.sign(v) * (a >= 20 ? Math.round(a) : Math.round(a * 100) / 100); }
+function convertMoney(st, from, to) {
+  const k = fxRate(from, to); if (!k || from === to) return k;
+  const m = v => niceMoney(num(v) * k);
+  ["hourRate", "income", "startCash", "changeRate", "careOffer", "overhead"].forEach(f => { if (st[f] !== undefined) st[f] = m(st[f]); });
+  Object.keys(st.mkt || {}).forEach(b => st.mkt[b] = st.mkt[b].map(m));
+  Object.keys(st.cValue || {}).forEach(b => st.cValue[b] = m(st.cValue[b]));
+  (st.lines || []).forEach(l => l.unit = m(l.unit));
+  (st.expenses || []).forEach(e => e.amt = m(e.amt));
+  (st.myJobs || []).forEach(j => { j.mkt = j.mkt.map(m); j.cValue = m(j.cValue); (j.lines || []).forEach(l => { if (Array.isArray(l)) l[2] = m(l[2]); else l.unit = m(l.unit); }); j.cur = to; });
+  const f = st.fc;
+  if (f) {
+    f.revBase = m(f.revBase); f.housing = m(f.housing);
+    (f.team || []).forEach(t => t.salary = m(t.salary)); (f.other || []).forEach(o => o.amt = m(o.amt)); (f.oneoff || []).forEach(o => o.amt = m(o.amt));
+    f.rates = {}; f.taxFree = null;
+    if (f.plan) f.plan.goal = m(f.plan.goal);
+  }
+  return k;
+}
+function changeCurrency(c) {
+  const from = S.cur; if (from === c) return;
+  const k = convertMoney(S, from, c);
+  S.cur = c; teamDrawn = otherDrawn = oneDrawn = "";
+  applyCountry(c, false);
+  const kc = COUNTRIES[c];
+  const head = k ? "Amounts converted: 1 " + from + " = " + (Math.round(k * 10000) / 10000) + " " + c + (FX_PEG[from] && FX_PEG[c] ? " (fixed peg)" : " (Nov 2026 rate)") + ". " : "No exchange rate for " + c + ": amounts kept as typed. ";
+  toast(head + (kc ? kc.name + ": " + (kc.vat ? "VAT " + kc.vat + "%" : "no VAT") + ", " + (PAYROLL[c] ? PAYROLL[c].si + " rules." : "") : ""));
 }
 /* Employer payroll costs by country, checked November 2026 against SIO, GOSI, GPSSA, SPF, PIFSS and GRSIA guidance.
    Planning defaults only: every rate is editable in Forecast > Rules. Fees and insurance are estimates. */
@@ -1434,14 +1543,14 @@ const flagSVG = c => '<svg viewBox="0 0 30 20" aria-hidden="true">' + (FLAGS[c] 
       const o = document.createElement("button"); o.type = "button"; o.className = "curopt"; o.setAttribute("role", "option"); o.dataset.c = c;
       o.innerHTML = '<span class="flag">' + flagSVG(c) + "</span><b></b><span></span>";
       o.querySelector("b").textContent = c; o.querySelector("span:last-child").textContent = n + " · " + dec(c) + " decimals" + (COUNTRIES[c] ? (COUNTRIES[c].vat ? " · VAT " + COUNTRIES[c].vat + "%" : " · no VAT") : "");
-      o.addEventListener("click", () => { const ch = S.cur !== c; S.cur = c; if (ch) { applyCountry(c, true); fillInputs(); } closeMenus(); render(); });
+      o.addEventListener("click", () => { if (S.cur !== c) { changeCurrency(c); fillInputs(); drawExps(); } closeMenus(); render(); });
       box.appendChild(o);
     });
   });
 })();
 function closeMenus() { ["curMenu", "pdfPop"].forEach(id => $(id).hidden = true); $("curBtn").setAttribute("aria-expanded", "false"); $("pdf").setAttribute("aria-expanded", "false"); }
 $("curBtn").addEventListener("click", e => { e.stopPropagation(); const open = $("curMenu").hidden; closeMenus(); $("curMenu").hidden = !open; $("curBtn").setAttribute("aria-expanded", open); });
-$("curOther").addEventListener("keydown", e => { if (e.key === "Enter") { const v = $("curOther").value.toUpperCase().replace(/[^A-Z]/g, ""); if (v && !isoCurrencyValid(v)) { toast(v + " is not an ISO 4217 currency code. Use 3 letters, for example EGP or JOD."); return; } if (v) { S.cur = v; $("curOther").value = ""; closeMenus(); render(); } } });
+$("curOther").addEventListener("keydown", e => { if (e.key === "Enter") { const v = $("curOther").value.toUpperCase().replace(/[^A-Z]/g, ""); if (v && !isoCurrencyValid(v)) { toast(v + " is not an ISO 4217 currency code. Use 3 letters, for example EGP or JOD."); return; } if (v) { changeCurrency(v); fillInputs(); drawExps(); $("curOther").value = ""; closeMenus(); render(); } } });
 $("curOther").addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", e => { if (!e.target.closest(".curpick") && !e.target.closest(".pdfwrap") && !e.target.closest(".mbar")) closeMenus(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenus(); });
@@ -1603,6 +1712,7 @@ function render() {
   $("hourRateRow").hidden = S.rateMode !== "hour";
   $("incomeRow").hidden = S.rateMode === "hour";
   $("rateSeg").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === S.rateMode));
+  scaleChips($("rateChips"), [44, 62, 80]);
   $("rateChips").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", num(bt.dataset.v) === S.hourRate));
   $("o-yearly").textContent = S.rateMode === "hour"
     ? "At " + fmtIn(Math.max(1, S.billDays)) + " billable days, this pays you about " + fmt(r.dayPay * Math.max(1, S.billDays)) + " a year."
@@ -1807,15 +1917,17 @@ $("saveJob").addEventListener("click", () => {
   if (!name) { $("jobName").focus(); $("jobName").placeholder = "Type a name first, for example: Clinic website"; return; }
   const j = { id: "my-" + Date.now(), mine: true, name, desc: "Saved " + new Date().toLocaleDateString("en-GB"), basis: S.basis,
     qty: S.qty[S.basis], lines: clone(S.lines), mkt: S.mkt[S.basis].slice(), cValue: S.cValue[S.basis], pkgs: clone(S.pkgs),
-    hoursPerDay: S.hoursPerDay, months: S.months };
+    hoursPerDay: S.hoursPerDay, months: S.months, cur: S.cur };
   S.myJobs = (S.myJobs || []).concat(j); S.job = j.id; $("jobName").value = "";
   drawJobs(); save();
 });
 
 $("reset").addEventListener("click", () => {
   const j = allJobs().find(x => x.id === S.job) || JOBS[0];
-  const keep = {}; ["bizIban", "bizBic", "taxReg", "feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
-  S = clone(DEFAULTS); Object.assign(S, keep); jobInto(S, j);
+  const keep = {}; ["bizIban", "bizBic", "taxReg", "feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays", "fc", "onboarded"].forEach(k => keep[k] = S[k]);
+  const cur = S.cur; S = clone(DEFAULTS);
+  const kx = fxRate("BHD", cur); if (kx) { Object.keys(S.mkt).forEach(b => S.mkt[b] = S.mkt[b].map(v => niceMoney(v * kx))); Object.keys(S.cValue).forEach(b => S.cValue[b] = niceMoney(S.cValue[b] * kx)); }
+  Object.assign(S, keep); jobInto(S, j);
   drawJobs(); fillInputs(); render();
 });
 $("copy").addEventListener("click", async () => {
@@ -1980,8 +2092,8 @@ function renderBusiness() {
   }
   if (B.capUsed > 1) issues.push(["bad", "This mix needs " + Math.round(B.H) + " hours but you have " + Math.round(B.capHours) + ". Raise prices, cut scope or bring in a freelancer."]);
   else if (B.capUsed > 0.85) issues.push(["warn", "You are at " + Math.round(B.capUsed * 100) + "% of your hours. No room for delays or new clients."]);
-  const low = B.months.reduce((a, m) => m.cash < a.cash ? m : a, B.months[0]);
-  if (low.cash < 0) issues.push(["bad", "Cash goes negative in month " + low.m + " (" + fmt(low.cash) + "). Ask for a bigger deposit, shorter payment terms, or keep more in reserve."]);
+  const FC = fcCalc(B); B.fc = FC;
+  if (FC.low.close < 0) issues.push(["bad", "Cash goes negative in " + FC.low.mo.label + " (" + fmt(FC.low.close) + "). Ask for a bigger deposit, shorter payment terms, or keep more in reserve."]);
   if (S.winRate < 25) issues.push(["warn", "A win rate under 25% makes every won project carry a lot of unpaid sales time."]);
   const kc = ctry(), yearly = B.R * 12;
   if (kc && kc.threshold && kc.vat) {
@@ -2050,22 +2162,9 @@ function renderBusiness() {
   $("capFill").style.background = pct > 100 ? "var(--bad)" : pct > 85 ? "var(--warn)" : "var(--good)";
   $("capText").textContent = Math.round(B.H) + " of " + Math.round(B.capHours) + " billable hours used (" + Math.round(pct) + "%" + (B.team.bill ? ", owner plus " + fmtIn(B.team.bill) + " billable team members" : "") + "), including " + Math.round(B.salesH) + " hours of unpaid sales time. The line marks 100%.";
 
-  /* cash chart */
-  const W = 640, Hh = 200, pad = 28, bw = (W - pad * 2) / 12;
-  const vals = B.months.map(m => m.cash).concat([0, S.startCash]);
-  const mx = Math.max(...vals), mn = Math.min(...vals), span = (mx - mn) || 1;
-  const y = v => 14 + (Hh - 40) * (1 - (v - mn) / span);
-  let g = '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--line)" stroke-width="1.5"/>';
-  B.months.forEach((m, i) => {
-    const x = pad + i * bw + bw * 0.18, w = bw * 0.64, y0 = y(0), y1 = y(m.cash);
-    g += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, Math.abs(y1 - y0)).toFixed(1) + '" rx="2" fill="' + (m.cash < 0 ? "var(--bad)" : "var(--accent)") + '" opacity="' + (i === 11 || m === low ? 1 : 0.75) + '"/>';
-    g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (Hh - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">M' + m.m + "</text>";
-  });
-  const last = B.months[11];
-  const lx = pad + 11 * bw + bw / 2;
-  g += '<text x="' + lx.toFixed(1) + '" y="' + (Math.min(y(0), y(last.cash)) - 5).toFixed(1) + '" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">' + esc(fmt(last.cash)) + "</text>";
-  $("cashChart").innerHTML = g;
-  $("cashText").textContent = "Starts at " + fmt(S.startCash) + ", ends month 12 at " + fmt(last.cash) + ". Lowest point: " + fmt(low.cash) + " in month " + low.m + ". Assumes a " + Math.round(B.dp * 100) + "% deposit and the balance after " + fmtIn(S.payDelay) + " days for projects (retainers paid in advance, hourly and daily work billed after), with this mix every month. A scenario, not a forecast.";
+  /* cash chart: from the 12-month forecast, the single source for cash */
+  $("cashChart").innerHTML = lineChart([num(S.startCash)].concat(FC.rows.map(r => r.close)), ["Start"].concat(FC.rows.map(r => r.mo.label)));
+  $("cashText").textContent = "From the Forecast: starts at " + fmt(S.startCash) + ", ends " + FC.months[11].label + " at " + fmt(FC.rows[11].close) + ". Lowest point: " + fmt(FC.low.close) + " in " + FC.low.mo.label + ". Includes seasonality, hires, one-off items, VAT and payment timing.";
   return B;
 }
 
@@ -2078,28 +2177,92 @@ function staffLabel(k, P, cur = S.cur) {
   if (k === "permit") return P.permitName;
   return STAFF_LINES.find(x => x[0] === k)[1];
 }
+/* expected Ramadan start (Umm al-Qura / astronomical estimates, confirmed by moon sighting) and length */
+const RAMADAN = [["2026-02-18", 30], ["2027-02-08", 29], ["2028-01-28", 30], ["2029-01-16", 30], ["2030-01-05", 30]];
+const EID_ADHA = ["2026-05-27", "2027-05-16", "2028-05-05", "2029-04-24", "2030-04-13"];
+/* typical GCC services demand by calendar month (Jan..Dec): summer travel lull, Q4 budget spend, December holidays */
+const GCC_MONTH = [1, 1, 1, 1, 1, 0.95, 0.85, 0.85, 1, 1.05, 1.08, 0.95];
+const SCEN = { base: { sales: 1, delay: 0, label: "Base" }, best: { sales: 1.15, delay: 0, label: "Best case" }, worst: { sales: 0.8, delay: 30, label: "Worst case" } };
+/* tax on profit, planning defaults (checked Nov 2026): rate %, tax-free profit a year */
+const TAXP = {
+  BHD: { rate: 0, free: 0, name: "Tax on profit", note: "No corporate income tax for most local companies. Large multinational groups pay a 15% minimum tax." },
+  SAR: { rate: 2.5, free: 0, name: "Zakat (estimate)", note: "Saudi and GCC-owned companies pay 2.5% zakat on the zakat base. Estimated here on profit; foreign-owned shares pay 20% income tax." },
+  AED: { rate: 9, free: 375000, name: "Corporate tax", note: "9% on taxable income above AED 375,000 a year. Small business relief may apply below AED 3 million revenue." },
+  OMR: { rate: 15, free: 0, name: "Corporate tax", note: "15% income tax. Qualifying small businesses can pay 3%: change the rate if that applies." },
+  KWD: { rate: 0, free: 0, name: "Tax on profit", note: "Kuwaiti-owned companies pay no corporate income tax (15% applies to foreign-owned shares; Zakat and NLST may apply to listed companies)." },
+  QAR: { rate: 0, free: 0, name: "Tax on profit", note: "Qatari-owned shares pay no corporate income tax. 10% applies to foreign-owned shares." }
+};
+const TAXP_GENERIC = { rate: 0, free: 0, name: "Tax on profit", note: "Enter your corporate tax rate." };
+function taxRule(st = S) { const b = TAXP[st.cur] || TAXP_GENERIC, f = st.fc || {}; return { name: b.name, note: b.note, rate: f.taxRate !== null && f.taxRate !== undefined && f.taxRate !== "" ? num(f.taxRate) : b.rate, free: f.taxFree !== null && f.taxFree !== undefined && f.taxFree !== "" ? num(f.taxFree) : b.free }; }
+function dayISO(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
+function daysIn(iso, list, len) { /* days of the month iso (YYYY-MM) that fall inside any [start, start+len) */
+  let n = 0; const [y, m] = iso.split("-").map(Number), dm = new Date(y, m, 0).getDate();
+  list.forEach(([st, L]) => { const s0 = new Date(st + "T00:00:00"); for (let i = 0; i < (L || len); i++) { const d = new Date(s0); d.setDate(d.getDate() + i); if (d.getFullYear() === y && d.getMonth() === m - 1) n++; } });
+  return n / dm;
+}
+/* 12 season multipliers for the forecast months, averaging exactly 1, so seasonality moves sales between months but keeps the year's total */
+function seasonFactors(st = S) {
+  const f = st.fc, ms = fcMonths(st), mode = f.season || "flat";
+  let raw = ms.map(mo => {
+    const cm = Number(mo.iso.slice(5)) - 1;
+    if (mode === "custom") return Math.max(0, num((f.seasonCustom || [])[cm] ?? 100)) / 100;
+    if (mode === "gcc") return Math.max(0.05, GCC_MONTH[cm] - (num(f.ramadanDip ?? 25) / 100) * daysIn(mo.iso, RAMADAN) - 0.2 * daysIn(mo.iso, EID_ADHA.map(d => [d, 4])));
+    return 1;
+  });
+  const avg = raw.reduce((a, b) => a + b, 0) / 12;
+  return avg > 0 ? raw.map(v => v / avg) : raw.map(() => 1);
+}
 function fcCalc(B = bizCalc(), st = S) {
-  const f = st.fc, P = payRules(st), base = PAYROLL[st.cur] || PAYROLL_GENERIC, months = fcMonths(st);
-  const rev0 = f.revLink ? B.R : Math.max(0, num(f.revBase)), g = num(f.revGrowth) / 100;
+  const f = st.fc, P = payRules(st), base = PAYROLL[st.cur] || PAYROLL_GENERIC, months = fcMonths(st), sc = SCEN[f.scen] || SCEN.base;
+  const rev0 = (f.revLink ? B.R : Math.max(0, num(f.revBase))) * sc.sales, g = num(f.revGrowth) / 100, sea = seasonFactors(st);
   const cogsPct = f.cogsLink ? (B.R > 0 ? B.D / B.R : 0) : Math.max(0, num(f.cogsPct)) / 100;
   const frPct = Math.max(0, num(f.freightPct)) / 100;
   const own = f.ownerPay !== false ? B.targetPay : 0;
-  const opex = (st.expenses || []).map(e => ({ name: e.name, m: e.freq === "y" ? e.amt / 12 : e.amt }));
+  const opex = (st.expenses || []).map(e => ({ name: e.name, m: e.freq === "y" ? e.amt / 12 : e.amt, y: e.freq === "y", amt: e.amt }));
   const other = (f.other || []).filter(o => num(o.amt) || o.name).map(o => ({ name: o.name || base.grant, amt: num(o.amt), from: Math.max(1, num(o.from) || 1), to: Math.min(12, num(o.to) || 12) }));
-  const rows = months.map(mo => {
-    const k = mo.i, rev = rev0 * Math.pow(1 + g, k - 1), cos = rev * cogsPct, fr = rev * frPct, cogs = cos + fr, gp = rev - cogs;
-    const sm = staffMonth(st, k), op = opex.reduce((a, e) => a + e.m, 0), exp = op + own + sm.total, noi = gp - exp;
+  const one = (f.oneoff || []).filter(o => num(o.amt)).map(o => ({ name: o.name || "One-off item", amt: Math.abs(num(o.amt)), m: Math.min(12, Math.max(1, num(o.m) || 1)), kind: o.kind || "exp" }));
+  const oneIn = (k, kind) => one.filter(o => o.m === k && o.kind === kind).reduce((a, o) => a + o.amt, 0);
+  const tr = taxRule(st), vat = (S.taxReg !== false ? num(st.vat) : 0) / 100;
+  const delay = Math.max(0, num(st.payDelay)) + sc.delay, lag = Math.max(0, Math.ceil(delay / 30));
+  const adv = f.revLink && B.R > 0 ? (B.Rp * B.dp + B.Rm) / B.R : 0;   /* share paid on invoice: project deposits and retainers */
+  const rows = months.map((mo, i) => {
+    const k = mo.i, rev = rev0 * Math.pow(1 + g, k - 1) * sea[i], cos = rev * cogsPct, fr = rev * frPct, cogs = cos + fr, gp = rev - cogs;
+    const sm = staffMonth(st, k), op = opex.reduce((a, e) => a + e.m, 0), oneExp = oneIn(k, "exp"), exp = op + own + sm.total + oneExp, noi = gp - exp;
     const oth = other.map(o => (k >= o.from && k <= o.to) ? o.amt : 0), othT = oth.reduce((a, b) => a + b, 0);
-    return { k, mo, rev, cos, fr, cogs, gp, sm, op, own, opv: opex.map(e => e.m), exp, noi, oth, othT, net: noi + othT };
+    return { k, mo, sea: sea[i], rev, cos, fr, cogs, gp, sm, op, own, oneExp, opv: opex.map(e => e.m), exp, noi, oth, othT, net: noi + othT,
+      asset: oneIn(k, "asset"), loanIn: oneIn(k, "in"), loanOut: oneIn(k, "out") };
+  });
+  const preTax = rows.reduce((a, r) => a + r.net, 0), taxY = Math.max(0, preTax - tr.free) * tr.rate / 100;
+  /* cash, direct method */
+  const hist = f.trading !== false ? rows[0].rev : 0, eosCash = st.cur === "BHD";
+  let cash = num(st.startCash), eosOwed = 0;
+  rows.forEach((r, i) => {
+    r.tax = taxY / 12; r.netAT = r.net - r.tax;
+    const later = i - lag >= 0 ? rows[i - lag].rev : hist;
+    r.recv = (adv * r.rev + (1 - adv) * later) * (1 + vat);
+    r.opCash = opex.reduce((a, e) => a + (e.y ? (r.k === 1 ? e.amt : 0) : e.m), 0);
+    r.buyNet = r.cogs + r.opCash + r.oneExp + r.asset;
+    r.vatOut = r.rev * vat; r.vatIn = r.buyNet * vat;
+    r.paySup = r.cogs + r.opCash + r.oneExp;
+    r.staffCash = r.sm.total - (eosCash ? 0 : r.sm.eos);
+    eosOwed += eosCash ? 0 : r.sm.eos; r.eosOwed = eosOwed;
+  });
+  rows.forEach((r, i) => {   /* VAT returns: calendar quarters, paid in the month after the quarter */
+    const cm = Number(r.mo.iso.slice(5));
+    r.vatPaid = [1, 4, 7, 10].includes(cm) ? rows.slice(Math.max(0, i - 3), i).reduce((a, x) => a + x.vatOut - x.vatIn, 0) : 0;
+    r.open = cash;
+    r.cashNet = r.recv - r.paySup * (1 + vat) - r.asset * (1 + vat) - r.staffCash - r.own + r.othT + r.loanIn - r.loanOut - r.vatPaid;
+    cash += r.cashNet; r.close = cash;
   });
   const T = key => rows.reduce((a, r) => a + (typeof key === "function" ? key(r) : r[key]), 0);
-  const tot = { rev: T("rev"), cos: T("cos"), fr: T("fr"), cogs: T("cogs"), gp: T("gp"), op: T("op"), own: T("own"), exp: T("exp"), noi: T("noi"), othT: T("othT"), net: T("net"), staff: T(r => r.sm.total) };
+  const tot = { rev: T("rev"), cos: T("cos"), fr: T("fr"), cogs: T("cogs"), gp: T("gp"), op: T("op"), own: T("own"), oneExp: T("oneExp"), exp: T("exp"), noi: T("noi"), othT: T("othT"), net: preTax, tax: taxY, netAT: preTax - taxY, staff: T(r => r.sm.total), recv: T("recv"), cashNet: T("cashNet") };
   STAFF_LINES.forEach(([k]) => tot["s_" + k] = T(r => r.sm[k]));
-  return { P, base, months, rows, tot, opex, other, cogsPct, frPct, rev0, g, own };
+  const low = rows.reduce((a, r) => r.close < a.close ? r : a, rows[0]);
+  return { P, base, months, rows, tot, opex, other, one, cogsPct, frPct, rev0, g, own, tr, vat, lag, adv, hist, eosCash, sc, low, sea };
 }
 function fcGridRows(F) {
   const R = F.rows, P = F.P, L = [];
-  const line = (label, cls, vals) => L.push({ label, cls, vals, total: vals ? vals.reduce((a, b) => a + b, 0) : null });
+  const line = (label, cls, vals, noTotal) => L.push({ label, cls, vals, total: vals && !noTotal ? vals.reduce((a, b) => a + b, 0) : null });
   line("Ordinary income and expense", "sec");
   line("Income", "sec2");
   line("Sales revenue", "l1", R.map(r => r.rev));
@@ -2112,6 +2275,7 @@ function fcGridRows(F) {
   line("Expense", "sec2");
   F.opex.forEach((e, i) => line(e.name, "l1", R.map(r => r.opv[i])));
   if (F.own) line("Owner pay", "l1", R.map(r => r.own));
+  if (F.one.some(o => o.kind === "exp")) line("One-off expenses", "l1", R.map(r => r.oneExp));
   line("Staff cost", "l1h");
   STAFF_LINES.forEach(([k]) => line(staffLabel(k, P), "l2", R.map(r => r.sm[k])));
   line("Total staff cost", "l1s", R.map(r => r.sm.total));
@@ -2120,8 +2284,50 @@ function fcGridRows(F) {
   line("Other income", "sec");
   F.other.forEach((o, i) => line(o.name, "l1", R.map(r => r.oth[i])));
   line("Total other income", "sub", R.map(r => r.othT));
-  line("Net income", "big", R.map(r => r.net));
+  line("Net income before tax", "sub", R.map(r => r.net));
+  line(F.tr.name + (F.tr.rate ? " (" + F.tr.rate + "%)" : ""), "l1", R.map(r => r.tax));
+  line("Net income", "big", R.map(r => r.netAT));
+  line("Cash flow", "sec");
+  line("Cash at start of month", "l1", R.map(r => r.open), true);
+  line("Received from clients" + (F.vat ? " (with VAT)" : ""), "l1", R.map(r => r.recv));
+  line("Paid to suppliers" + (F.vat ? " (with VAT)" : ""), "l1", R.map(r => -r.paySup * (1 + F.vat)));
+  line("Staff paid" + (F.eosCash ? "" : " (end of service kept as provision)"), "l1", R.map(r => -r.staffCash));
+  if (F.own) line("Owner pay", "l1", R.map(r => -r.own));
+  if (F.vat) line("VAT paid to the tax authority", "l1", R.map(r => -r.vatPaid));
+  if (R.some(r => r.othT)) line("Grants received", "l1", R.map(r => r.othT));
+  if (R.some(r => r.asset)) line("Assets bought", "l1", R.map(r => -r.asset * (1 + F.vat)));
+  if (R.some(r => r.loanIn)) line("Loans and capital in", "l1", R.map(r => r.loanIn));
+  if (R.some(r => r.loanOut)) line("Loan repayments", "l1", R.map(r => -r.loanOut));
+  line("Net cash flow", "sub", R.map(r => r.cashNet));
+  line("Cash at end of month", "big", R.map(r => r.close), true);
+  if (!F.eosCash && R.some(r => r.eosOwed)) line("End of service owed to staff (provision)", "l2", R.map(r => r.eosOwed), true);
   return L;
+}
+/* 3-year plan from the 12-month forecast */
+function planCalc(F, st = S, gOverride) {
+  const p = Object.assign({ growth: 20, salaryUp: 3, costUp: 3, hires: 1, goalType: "net", goal: 0 }, st.fc.plan || {});
+  const g = gOverride !== undefined ? gOverride : num(p.growth) / 100, su = num(p.salaryUp) / 100, cu = num(p.costUp) / 100, t = F.tot;
+  const sm12 = F.rows[11].sm, heads = sm12.heads, perHead = heads ? sm12.total / heads : 0, cogsR = t.rev ? t.cogs / t.rev : 0;
+  const y0 = Number(F.months[0].iso.slice(0, 4)), tr = F.tr;
+  const Y = [{ year: 1, label: F.months[0].iso.slice(0, 7) + " to " + F.months[11].iso.slice(0, 7), rev: t.rev, gp: t.gp, staff: t.staff, opex: t.op + t.oneExp, own: t.own, other: t.othT, pre: t.net, tax: t.tax, net: t.netAT, heads, cash: F.rows[11].close }];
+  for (let y = 2; y <= 3; y++) {
+    const P0 = Y[y - 2], rev = P0.rev * (1 + g), gp = rev * (1 - cogsR), h = heads + num(p.hires) * (y - 1);
+    const staff = (sm12.total * 12 + num(p.hires) * (y - 1) * perHead * 12) * Math.pow(1 + su, y - 1);
+    const opex = t.op * Math.pow(1 + cu, y - 1), own = t.own * Math.pow(1 + su, y - 1), pre = gp - staff - opex - own;
+    const tax = Math.max(0, pre - tr.free) * tr.rate / 100, net = pre - tax;
+    const eosNon = F.eosCash ? 0 : (t.s_eos / t.staff || 0) * staff;
+    const dAR = (rev - P0.rev) / 12 * (1 - F.adv) * F.lag * (1 + F.vat);
+    Y.push({ year: y, label: "Year " + y + " (" + (y0 + y - 1) + ")", rev, gp, staff, opex, own, other: 0, pre, tax, net, heads: h, cash: P0.cash + net + eosNon - dAR - P0.tax });
+  }
+  Y[0].label = "Year 1 (" + F.months[0].iso + " to " + F.months[11].iso + ")";
+  return { p, Y, g, perHead };
+}
+function goalGrowth(F) {
+  const p = Object.assign({ goalType: "net", goal: 0 }, S.fc.plan || {}), goal = num(p.goal); if (!goal) return null;
+  const val = gg => { const Y = planCalc(F, S, gg).Y[2]; return p.goalType === "rev" ? Y.rev : Y.net; };
+  let lo = -0.5, hi = 5; if (val(hi) < goal) return { need: null, goal, type: p.goalType };
+  for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (val(mid) >= goal) hi = mid; else lo = mid; }
+  return { need: hi, goal, type: p.goalType };
 }
 function renderForecast(B) {
   if (!$("view-forecast")) return;
@@ -2129,7 +2335,9 @@ function renderForecast(B) {
   $("f-rev").textContent = fmt0(t.rev);
   $("f-gm").textContent = t.rev > 0 ? Math.round(t.gp / t.rev * 100) + "%" : "–";
   $("f-staff").textContent = fmt0(t.staff);
-  $("f-net").textContent = (t.net >= 0 ? "" : "−") + fmt0(Math.abs(t.net));
+  $("f-net").textContent = (t.netAT >= 0 ? "" : "−") + fmt0(Math.abs(t.netAT));
+  $("fc-scen").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === (S.fc.scen || "base")));
+  $("fc-scenNote").textContent = { base: "Your numbers as entered.", best: "Sales 15% higher.", worst: "Sales 20% lower and clients pay 30 days later." }[S.fc.scen || "base"];
   /* status */
   const iss = [], negM = F.rows.filter(r => r.net < 0);
   if (t.rev === 0) iss.push(["warn", "No income yet. Add jobs to the mix in Business, or type a monthly sales figure under Income."]);
@@ -2142,7 +2350,9 @@ function renderForecast(B) {
   if (t.othT > 0 && t.net >= 0 && t.net - t.othT < 0) iss.push(["warn", "The year is only profitable with grants (" + fmt(t.othT) + "). Without them the company loses " + fmt(t.othT - t.net) + "."]);
   const kc = ctry();
   if (kc && kc.threshold && kc.vat && S.taxReg === false && t.rev > kc.threshold) iss.push(["bad", "Forecast income of " + fmt0(t.rev) + " is above the " + fmt0(kc.threshold) + " VAT registration threshold. Register with the " + kc.authority + "."]);
-  if (!iss.length) iss.push(["good", "Profitable in every month: " + fmt(t.net) + " net income over 12 months, team cost " + (t.rev > 0 ? Math.round(t.staff / t.rev * 100) : 0) + "% of income."]);
+  if (F.low.close < 0) iss.push(["bad", "Cash runs out in " + F.low.mo.label + " (" + fmt(F.low.close) + "), even if the year is profitable. Ask for deposits, shorten payment terms, delay the asset purchase or arrange finance."]);
+  else if (F.low.close < F.rows[11].staffCash) iss.push(["warn", "Cash falls to " + fmt(F.low.close) + " in " + F.low.mo.label + ", less than one month of salaries. Keep at least two months of costs in the bank."]);
+  if (!iss.length) iss.push(["good", "Profitable in every month with cash never below " + fmt0(F.low.close) + ": " + fmt(t.netAT) + " net income over 12 months, team cost " + (t.rev > 0 ? Math.round(t.staff / t.rev * 100) : 0) + "% of income."]);
   $("f-status").innerHTML = "";
   iss.forEach(([lvl, tx]) => { const d = document.createElement("div"); d.className = "status" + (lvl === "good" ? "" : " " + lvl); d.innerHTML = '<span class="pill"></span><span></span>'; d.querySelector(".pill").textContent = lvl === "good" ? "Healthy" : lvl === "warn" ? "Watch" : "Fix"; d.lastChild.textContent = tx; $("f-status").appendChild(d); });
   /* inputs and labels */
@@ -2154,16 +2364,29 @@ function renderForecast(B) {
   $("fc-teamNote").textContent = "Citizens pay " + P.si + " at " + fmtIn(P.local) + "%" + (P.tier ? " (" + P.tier[1] + "% from " + fmt0(P.tier[0]) + ")" : "") + ", expatriates " + fmtIn(P.expat) + "%. End of service, fees and insurance are added per person. Billable people add hours to Business and share the overhead in job prices.";
   $("fc-otherNote").textContent = base.grantNote + " Grants sit below net ordinary income, so you can see the result without them.";
   $("fc-rev1").textContent = fmt(F.rev0);
-  [["fc-revLink", S.fc.revLink], ["fc-cogsLink", S.fc.cogsLink], ["fc-ownerPay", S.fc.ownerPay !== false], ["fc-inBiz", S.fc.inBiz !== false]].forEach(([id, on]) => $(id).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", (b.dataset.v === "1") === !!on)));
+  [["fc-revLink", S.fc.revLink], ["fc-cogsLink", S.fc.cogsLink], ["fc-ownerPay", S.fc.ownerPay !== false], ["fc-inBiz", S.fc.inBiz !== false], ["fc-trading", S.fc.trading !== false]].forEach(([id, on]) => $(id).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", (b.dataset.v === "1") === !!on)));
   $("fc-revBaseF").hidden = !!S.fc.revLink; $("fc-cogsPctF").hidden = !!S.fc.cogsLink;
   const act = document.activeElement;
   const setV = (id, v) => { if (act !== $(id)) $(id).value = v; };
   setV("fc-revBase", fmtIn(num(S.fc.revBase))); setV("fc-revGrowth", fmtIn(num(S.fc.revGrowth))); setV("fc-cogsPct", fmtIn(num(S.fc.cogsPct))); setV("fc-freightPct", fmtIn(num(S.fc.freightPct)));
   setV("fc-ot", fmtIn(num(S.fc.ot))); setV("fc-housing", fmtIn(num(S.fc.housing))); setV("fc-start", fcStart());
   RULE_KEYS.forEach(k => setV("fc-" + k, fmtIn(P[k])));
+  setV("fc-taxRate", fmtIn(F.tr.rate)); setV("fc-taxFree", fmtIn(F.tr.free)); $("fc-taxName").textContent = F.tr.name; $("fc-taxHint").textContent = F.tr.note;
+  setV("fc-startCash", fmtIn(num(S.startCash))); setV("fc-payDelay", fmtIn(num(S.payDelay))); setV("fc-ramadanDip", fmtIn(num(S.fc.ramadanDip ?? 25)));
+  if (act !== $("fc-season")) $("fc-season").value = S.fc.season || "flat";
+  $("fc-dipF").hidden = S.fc.season !== "gcc"; $("fc-seasCustom").hidden = S.fc.season !== "custom";
+  const ram = RAMADAN.find(([d]) => d.slice(0, 7) >= F.months[0].iso.slice(0, 7) || (d >= F.months[0].iso && d <= F.months[11].iso + "-31"));
+  $("fc-ramHint").textContent = ram ? "Ramadan expected from " + ram[0] + " (" + ram[1] + " days, set by moon sighting). Summer and December are slower too" : "Sales dip in Ramadan";
+  if (S.fc.season === "custom" && !$("fc-seasCustom").children.length) {
+    const MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    MN.forEach((mn, i) => { const l = document.createElement("label"); l.innerHTML = "<span></span><input inputmode='decimal'>"; l.firstChild.textContent = mn; const inp = l.lastChild; inp.id = "sea-" + i; inp.value = fmtIn(num(S.fc.seasonCustom[i] ?? 100)); inp.setAttribute("aria-label", mn + " sales level, %");
+      inp.addEventListener("input", () => { S.fc.seasonCustom[i] = Math.max(0, num(inp.value)); render(); }); $("fc-seasCustom").appendChild(l); });
+  }
+  const smax = Math.max(...F.rows.map(r => r.rev), 1);
+  $("fc-seasBars").innerHTML = F.rows.map(r => '<div title="' + r.mo.label + " " + esc(fmt(r.rev)) + '"><i style="height:' + Math.max(2, r.rev / smax * 100).toFixed(0) + '%"></i><span>' + r.mo.label.slice(0, 3) + "</span></div>").join("");
   $("fc-opex").innerHTML = "";
   F.opex.forEach(e => { const d = document.createElement("div"); d.innerHTML = "<span></span><span></span>"; d.firstChild.textContent = e.name; d.lastChild.textContent = fmt(e.m) + " / month"; $("fc-opex").appendChild(d); });
-  drawTeam(F); drawOther(F);
+  drawTeam(F); drawOther(F); drawOne(F);
   /* grid */
   const L = fcGridRows(F), cell = v => '<td class="' + (v < -1e-9 ? "neg" : "") + '">' + (Math.abs(v) < 1e-9 ? "–" : (v < 0 ? "−" : "") + esc(fmt(Math.abs(v)).replace(S.cur + " ", ""))) + "</td>";
   let h = "<thead><tr><th>" + esc(S.cur) + "</th>" + F.months.map(m => '<th title="' + m.iso + '">' + m.label + "</th>").join("") + "<th>Total</th></tr></thead><tbody>";
@@ -2177,20 +2400,84 @@ function renderForecast(B) {
   $("fcStaff").innerHTML = "";
   STAFF_LINES.forEach(([k]) => { const v = t["s_" + k]; if (Math.abs(v) < 1e-9 && k !== "pay") return; const r = document.createElement("tr"); r.innerHTML = "<td></td><td class='r'></td>"; r.children[0].textContent = staffLabel(k, P); r.children[1].textContent = fmt(v); $("fcStaff").appendChild(r); });
   const tt = document.createElement("tr"); tt.className = "pl-total"; tt.innerHTML = "<td><span>Total team cost</span></td><td class='r'></td>"; tt.children[1].textContent = fmt(t.staff); $("fcStaff").appendChild(tt);
-  /* chart */
-  const W = 640, Hh = 200, pad = 28, bw = (W - pad * 2) / 12, vals = F.rows.map(r => r.net).concat([0]);
-  const mx = Math.max(...vals), mn = Math.min(...vals), span = (mx - mn) || 1, y = v => 14 + (Hh - 40) * (1 - (v - mn) / span);
-  let gch = '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--line)" stroke-width="1.5"/>';
-  F.rows.forEach((r, i) => { const x = pad + i * bw + bw * 0.18, w = bw * 0.64, y0 = y(0), y1 = y(r.net);
-    gch += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, Math.abs(y1 - y0)).toFixed(1) + '" rx="2" fill="' + (r.net < 0 ? "var(--bad)" : "var(--accent)") + '"><title>' + r.mo.label + " " + esc(fmt(r.net)) + "</title></rect>";
-    gch += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (Hh - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + r.mo.label.slice(0, 3) + "</text>"; });
-  $("fcChart").innerHTML = gch;
-  const best = F.rows.reduce((a, r) => r.net > a.net ? r : a, F.rows[0]), worst = F.rows.reduce((a, r) => r.net < a.net ? r : a, F.rows[0]);
-  $("fcChartText").textContent = F.months[0].iso + " to " + F.months[11].iso + ". Best month " + best.mo.label + " (" + fmt(best.net) + "), weakest " + worst.mo.label + " (" + fmt(worst.net) + "). Income grows " + fmtIn(num(S.fc.revGrowth)) + "% a month; hires start in the month you set.";
+  /* charts: profit bars by month, cash line */
+  $("fcChart").innerHTML = barChart(F.rows.map(r => ({ v: r.netAT, l: r.mo.label, t: r.mo.label + " net income " + fmt(r.netAT) })));
+  const best = F.rows.reduce((a, r) => r.netAT > a.netAT ? r : a, F.rows[0]), worst = F.rows.reduce((a, r) => r.netAT < a.netAT ? r : a, F.rows[0]);
+  $("fcChartText").textContent = F.months[0].iso + " to " + F.months[11].iso + ". Best month " + best.mo.label + " (" + fmt(best.netAT) + "), weakest " + worst.mo.label + " (" + fmt(worst.netAT) + "). Sales grow " + fmtIn(num(S.fc.revGrowth)) + "% a month" + (S.fc.season === "flat" ? "" : ", with " + (S.fc.season === "gcc" ? "Ramadan, summer and December" : "your") + " seasonality") + ".";
+  $("fcCash").innerHTML = lineChart([num(S.startCash)].concat(F.rows.map(r => r.close)), ["Start"].concat(F.rows.map(r => r.mo.label)));
+  $("fcCashText").textContent = "Starts at " + fmt(num(S.startCash)) + ", ends at " + fmt(F.rows[11].close) + ". Lowest: " + fmt(F.low.close) + " in " + F.low.mo.label + ". " + (F.vat ? "VAT is paid each quarter. " : "") + "Yearly bills are paid in the first month" + (F.lag ? "; clients pay about " + F.lag + " month" + (F.lag > 1 ? "s" : "") + " after the invoice" : "") + ".";
+  renderPlan(F);
   document.querySelectorAll(".cur-code").forEach(el => el.textContent = S.cur);
   return F;
 }
-let teamDrawn = "", otherDrawn = "";
+let teamDrawn = "", otherDrawn = "", oneDrawn = "";
+function barChart(pts) {
+  const W = 640, H = 200, pad = 28, bw = (W - pad * 2) / pts.length, vals = pts.map(p => p.v).concat([0]);
+  const mx = Math.max(...vals), mn = Math.min(...vals), span = (mx - mn) || 1, y = v => 14 + (H - 40) * (1 - (v - mn) / span);
+  let g = '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--line)" stroke-width="1.5"/>';
+  pts.forEach((p, i) => { const x = pad + i * bw + bw * 0.18, w = bw * 0.64, y0 = y(0), y1 = y(p.v);
+    g += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, Math.abs(y1 - y0)).toFixed(1) + '" rx="2" fill="' + (p.v < 0 ? "var(--bad)" : "var(--accent)") + '"><title>' + esc(p.t) + "</title></rect>";
+    g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + esc(p.l.slice(0, 3)) + "</text>"; });
+  const iMax = pts.reduce((a, p, i) => p.v > pts[a].v ? i : a, 0), iMin = pts.reduce((a, p, i) => p.v < pts[a].v ? i : a, 0);
+  [iMax, iMin].forEach((i, n) => { if (n && i === iMax) return; const x = pad + i * bw + bw / 2, v = pts[i].v; g += '<text x="' + x.toFixed(1) + '" y="' + (v >= 0 ? y(v) - 4 : y(v) + 13).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--ink)">' + esc(fmt0(v).replace(S.cur + " ", "")) + "</text>"; });
+  return g;
+}
+function lineChart(vals, labels) {
+  const W = 640, H = 200, pad = 30, n = vals.length, dx = (W - pad * 2) / (n - 1), all = vals.concat([0]);
+  const mx = Math.max(...all), mn = Math.min(...all), span = (mx - mn) || 1, y = v => 14 + (H - 42) * (1 - (v - mn) / span), X = i => pad + i * dx;
+  const pts = vals.map((v, i) => X(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+  let g = '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--line)" stroke-width="1.5"/>';
+  g += '<polygon points="' + X(0).toFixed(1) + "," + y(0).toFixed(1) + " " + pts + " " + X(n - 1).toFixed(1) + "," + y(0).toFixed(1) + '" fill="var(--accent)" opacity=".12"/>';
+  g += '<polyline points="' + pts + '" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>';
+  vals.forEach((v, i) => { g += '<circle cx="' + X(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="3.5" fill="' + (v < 0 ? "var(--bad)" : "var(--accent)") + '"><title>' + esc(labels[i] + " " + fmt(v)) + "</title></circle>"; if (i) g += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + esc(labels[i].slice(0, 3)) + "</text>"; });
+  const iMin = vals.reduce((a, v, i) => v < vals[a] ? i : a, 0);
+  g += '<text x="' + X(n - 1).toFixed(1) + '" y="' + (y(vals[n - 1]) - 8).toFixed(1) + '" text-anchor="end" font-size="11" font-weight="700" fill="var(--ink)">' + esc(fmt0(vals[n - 1])) + "</text>";
+  if (iMin && iMin !== n - 1) g += '<text x="' + X(iMin).toFixed(1) + '" y="' + (y(vals[iMin]) + 15).toFixed(1) + '" text-anchor="middle" font-size="10.5" font-weight="700" fill="' + (vals[iMin] < 0 ? "var(--bad)" : "var(--muted)") + '">low ' + esc(fmt0(vals[iMin]).replace(S.cur + " ", "")) + "</text>";
+  return g;
+}
+const ONE_KINDS = [["exp", "Expense"], ["asset", "Asset"], ["in", "Loan or capital in"], ["out", "Loan repayment"]];
+function drawOne(F) {
+  const key = JSON.stringify([(S.fc.oneoff || []).length, fcStart(), S.cur]); if (key === oneDrawn) return;
+  const box = $("fc-one"); box.innerHTML = ""; S.fc.oneoff = S.fc.oneoff || [];
+  S.fc.oneoff.forEach((o, i) => {
+    const row = document.createElement("div"); row.className = "orow";
+    row.innerHTML = '<input class="name" aria-label="Item"><div class="inp"><input inputmode="decimal" aria-label="Amount"></div><select aria-label="Month"></select><select aria-label="Type">' + ONE_KINDS.map(([v, l]) => '<option value="' + v + '">' + l + "</option>").join("") + '</select><button class="x" type="button" aria-label="Remove item">×</button>';
+    const nm = row.querySelector(".name"), am = row.querySelector(".inp input"), [mo, kd] = row.querySelectorAll("select");
+    nm.value = o.name; am.value = fmtIn(o.amt); nm.id = "one-n-" + i; am.id = "one-a-" + i; mo.innerHTML = monthOpts(num(o.m) || 1); kd.value = o.kind || "exp";
+    nm.addEventListener("input", () => { o.name = nm.value; render(); });
+    am.addEventListener("input", () => { o.amt = Math.abs(num(am.value)); render(); }); am.addEventListener("blur", () => am.value = fmtIn(o.amt));
+    mo.addEventListener("change", () => { o.m = num(mo.value); render(); }); kd.addEventListener("change", () => { o.kind = kd.value; render(); });
+    row.querySelector(".x").addEventListener("click", () => { S.fc.oneoff.splice(i, 1); oneDrawn = ""; render(); });
+    box.appendChild(row);
+  });
+  oneDrawn = key;
+}
+function renderPlan(F) {
+  const PL = planCalc(F), p = PL.p, act = document.activeElement, setV = (id, v) => { if (act !== $(id)) $(id).value = v; };
+  ["growth", "hires", "salaryUp", "costUp"].forEach(k => setV("pl-" + k, fmtIn(num(p[k])))); setV("pl-goal", fmtIn(num(p.goal)));
+  $("pl-goalType").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === p.goalType));
+  const rows = [["Revenue", "rev"], ["Gross profit", "gp"], ["Team cost", "staff"], ["Expenses", "opex"], ["Owner pay", "own"], ["Grants", "other"], ["Net income before tax", "pre"], [taxRule().name, "tax"], ["Net income", "net"], ["Net margin", "nm"], ["People at year end", "heads"], ["Cash at year end (approx.)", "cash"]];
+  const Y = PL.Y.map(y => Object.assign({ nm: y.rev ? y.net / y.rev : 0 }, y));
+  let h = "<thead><tr><th></th>" + Y.map(y => "<th>" + esc(y.label.replace(/ \(.*$/, "")) + "<br><small>" + esc((y.label.match(/\((.*)\)/) || ["", ""])[1]) + "</small></th>").join("") + "</tr></thead><tbody>";
+  rows.forEach(([l, k]) => { if (k === "own" && !F.own) return; const big = k === "net", sub = k === "pre" || k === "gp";
+    h += '<tr class="' + (big ? "big" : sub ? "sub" : "l1") + '"><td>' + esc(l) + "</td>" + Y.map(y => { const v = y[k]; const txt = k === "nm" ? Math.round(v * 1000) / 10 + "%" : k === "heads" ? fmtIn(v) : (v < 0 ? "−" : "") + fmt0(Math.abs(v)).replace(S.cur + " ", ""); return '<td class="' + (v < 0 ? "neg" : "") + '">' + txt + "</td>"; }).join("") + "</tr>"; });
+  $("plTable").innerHTML = h + "</tbody>";
+  /* chart: revenue and net income per year */
+  const W = 640, H = 170, mx = Math.max(1, ...Y.map(y => Math.max(y.rev, Math.abs(y.net)))), base = 128, sc = v => v / mx * 108;
+  let g = '<line x1="20" x2="620" y1="' + base + '" y2="' + base + '" stroke="var(--line)"/>';
+  Y.forEach((y, i) => { const cx = 120 + i * 200;
+    g += '<rect x="' + (cx - 46) + '" y="' + (base - sc(y.rev)).toFixed(1) + '" width="44" height="' + Math.max(1, sc(y.rev)).toFixed(1) + '" rx="3" fill="var(--accent)" opacity=".85"><title>Revenue ' + esc(fmt(y.rev)) + "</title></rect>";
+    const hn = sc(Math.abs(y.net)); g += '<rect x="' + (cx + 2) + '" y="' + (y.net >= 0 ? base - hn : base).toFixed(1) + '" width="44" height="' + Math.max(1, hn).toFixed(1) + '" rx="3" fill="' + (y.net < 0 ? "var(--bad)" : "var(--lime)") + '"><title>Net income ' + esc(fmt(y.net)) + "</title></rect>";
+    g += '<text x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle" font-size="12" fill="var(--muted)">Year ' + y.year + "</text>"; });
+  g += '<text x="20" y="14" font-size="11" fill="var(--muted)"><tspan fill="var(--accent)">■</tspan> Revenue  <tspan fill="var(--lime)">■</tspan> Net income</text>';
+  $("plChart").innerHTML = g;
+  /* goal */
+  const G = goalGrowth(F), box = $("pl-goalBox");
+  if (!G) { box.dataset.lvl = ""; box.textContent = "Year 3: revenue " + fmt0(Y[2].rev) + ", net income " + fmt0(Y[2].net) + ". Set a goal to see the growth it needs."; }
+  else if (G.need === null) { box.dataset.lvl = "bad"; box.textContent = "A " + (G.type === "rev" ? "revenue" : "net income") + " goal of " + fmt0(G.goal) + " is out of reach with this cost base, even at 500% growth a year. Lower the goal or the costs."; }
+  else { const okk = PL.g >= G.need - 1e-9; box.dataset.lvl = okk ? "good" : "bad";
+    box.innerHTML = (okk ? "On track. " : "Gap. ") + "A year-3 " + (G.type === "rev" ? "revenue" : "net income") + " of <b>" + esc(fmt0(G.goal)) + "</b> needs sales to grow <b>" + Math.round(G.need * 1000) / 10 + "%</b> a year. The plan uses <b>" + fmtIn(num(p.growth)) + "%</b>" + (okk ? "." : ": raise prices, add a service line or cut costs."); }
+}
 function monthOpts(sel) { return fcMonths().map(m => '<option value="' + m.i + '"' + (m.i === sel ? " selected" : "") + ">" + m.label + "</option>").join(""); }
 function drawTeam(F) {
   const P = F.P, key = JSON.stringify([S.fc.team.length, fcStart(), S.cur, P.citizen]);
@@ -2253,11 +2540,23 @@ function drawOther(F) {
   nb("fc-cogsPct", v => S.fc.cogsPct = v, 0, 100); nb("fc-freightPct", v => S.fc.freightPct = v, 0, 100);
   nb("fc-ot", v => S.fc.ot = v, 0, 100); nb("fc-housing", v => S.fc.housing = Math.max(0, v));
   RULE_KEYS.forEach(k => nb("fc-" + k, v => { S.fc.rates = S.fc.rates || {}; S.fc.rates[k] = Math.max(0, v); }, 0, k === "cap" || k === "permit" || k === "health" ? 1e9 : 100));
+  $("fc-resetRules").addEventListener("click", () => { S.fc.taxRate = null; S.fc.taxFree = null; });
   $("fc-start").addEventListener("change", () => { const v = $("fc-start").value; if (/^\d{4}-(0[1-9]|1[0-2])$/.test(v)) { S.fc.start = v; teamDrawn = otherDrawn = ""; render(); } });
   $("fc-resetRules").addEventListener("click", () => { S.fc.rates = {}; render(); toast("Back to " + (ctry() ? ctry().name : S.cur) + " rules."); });
   $("fc-addTeam").addEventListener("click", () => { S.fc.team.push({ role: "New role", n: 1, local: false, salary: 0, from: 1, bill: true }); teamDrawn = ""; render(); const el = $("tm-r-" + (S.fc.team.length - 1)); if (el) { el.focus(); el.select(); } });
   $("fc-addOther").addEventListener("click", () => { S.fc.other.push({ name: "", amt: 0, from: 1, to: 12 }); otherDrawn = ""; render(); const el = $("ot-n-" + (S.fc.other.length - 1)); if (el) el.focus(); });
   $("fc-xlsx").addEventListener("click", () => exportForecast());
+  $("fc-scen").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.fc.scen = b.dataset.v; render(); }));
+  segBind("fc-trading", v => { S.fc.trading = v; });
+  $("fc-season").addEventListener("change", () => { S.fc.season = $("fc-season").value; $("fc-seasCustom").innerHTML = ""; render(); });
+  nb("fc-ramadanDip", v => S.fc.ramadanDip = v, 0, 90);
+  nb("fc-startCash", v => S.startCash = v); nb("fc-payDelay", v => S.payDelay = Math.max(0, v), 0, 365);
+  nb("fc-taxRate", v => S.fc.taxRate = v, 0, 100); nb("fc-taxFree", v => S.fc.taxFree = Math.max(0, v));
+  $("fc-addOne").addEventListener("click", () => { S.fc.oneoff = S.fc.oneoff || []; S.fc.oneoff.push({ name: "", amt: 0, m: 1, kind: "exp" }); oneDrawn = ""; render(); const el = $("one-n-" + (S.fc.oneoff.length - 1)); if (el) el.focus(); });
+  const plan = () => (S.fc.plan = Object.assign({ growth: 20, salaryUp: 3, costUp: 3, hires: 1, goalType: "net", goal: 0 }, S.fc.plan || {}));
+  [["growth", -50, 500], ["hires", 0, 500], ["salaryUp", -50, 100], ["costUp", -50, 100]].forEach(([k, lo, hi]) => nb("pl-" + k, v => plan()[k] = v, lo, hi));
+  nb("pl-goal", v => plan().goal = Math.max(0, v));
+  $("pl-goalType").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { plan().goalType = b.dataset.v; render(); }));
 })();
 /* tabs */
 function showTab(t) {
@@ -2644,7 +2943,15 @@ async function exportForecast(opts = {}) {
     ["Accommodation, per expatriate a month", Math.max(0, num(S.fc.housing)), MF, "If the company provides housing. 0 if not"],
     ["Overtime and allowances, % of payroll", Math.max(0, num(S.fc.ot)) / 100, PF, "Transport, phone or other allowances"],
     ["Cost of sales, % of income", Fc.cogsPct, PF, S.fc.cogsLink ? "From the job mix in the app (job costs ÷ revenue)" : "Your own figure"],
-    ["Freight and shipping, % of income", Fc.frPct, PF, "For businesses that ship goods"]
+    ["Freight and shipping, % of income", Fc.frPct, PF, "For businesses that ship goods"],
+    ["VAT rate", Fc.vat, PF, Fc.vat ? "Added to invoices and purchases. Returns are paid each calendar quarter, in the month after it ends" : "Not VAT-registered, or no VAT in this country"],
+    ["Months until clients pay", Fc.lag, NF, "Days from invoice ÷ 30, rounded up" + (Fc.sc.delay ? " (worst case adds 30 days)" : "")],
+    ["Share paid on invoice", Fc.adv, PF, "Project deposits and retainers paid in advance, from the job mix"],
+    ["Already trading (1 = yes)", S.fc.trading !== false ? 1 : 0, NF, "1: invoices from before the first month are collected in the first months"],
+    ["Cash in the bank at the start", num(S.startCash), MF, "Opening balance for the cash flow"],
+    [Fc.tr.name + ", rate", Fc.tr.rate / 100, PF, Fc.tr.note],
+    ["Tax-free profit a year", Fc.tr.free, MF, "Profit below this is not taxed"],
+    ["End of service paid monthly in cash (1 = yes)", Fc.eosCash ? 1 : 0, NF, Fc.eosCash ? "Bahrain: paid to SIO every month" : "0: set aside as a provision and paid when people leave"]
   ];
   RU.forEach((r, i) => { const row = 5 + i, R = tr.getRow(row); R.height = 20;
     R.getCell(1).value = r[0]; R.getCell(2).value = r[1]; R.getCell(2).numFmt = r[2]; inp(R.getCell(2)); R.getCell(3).value = r[3];
@@ -2653,7 +2960,7 @@ async function exportForecast(opts = {}) {
     R.getCell(3).font = { name: "Calibri", size: 9, color: { argb: C.muted } }; R.getCell(3).alignment = { indent: 1, vertical: "middle", wrapText: true };
     [1, 3].forEach(k => R.getCell(k).border = { bottom: thin }); });
   const rr = k => "'Team & rates'!$B$" + (5 + k);
-  const TH = 21, T0 = 22, T1 = 41;
+  const TH = 5 + RU.length + 2, T0 = TH + 1, T1 = TH + 20;
   headRow(tr, TH, ["Role", "People", "Citizen (1 = yes)", "Salary a month", "Start month (1 to 12)", "Billable (1 = yes)", "Social insurance", "End of service", "Permit and visa", "Accommodation", "Medical", "Overtime", "Cost per person a month"]);
   for (let row = T0; row <= T1; row++) {
     const t = S.fc.team[row - T0], R = tr.getRow(row); R.height = 19;
@@ -2705,13 +3012,14 @@ async function exportForecast(opts = {}) {
   put("Total COGS", "sub", (i, L) => ({ f: "SUM(" + L + c0 + ":" + L + (row - 1) + ")", r: Fc.rows[i].cogs }), "cogs");
   put("Gross profit", "sub", (i, L) => ({ f: L + at.inc + "-" + L + at.cogs, r: Fc.rows[i].gp }), "gp");
   put("Expense", "sec2");
-  const e0 = row;
-  Fc.opex.forEach((e, j) => put(e.name, "l1", i => ({ r: Fc.rows[i].opv[j], input: true })));
-  if (Fc.own) put("Owner pay", "l1", i => ({ r: Fc.rows[i].own, input: true }));
+  const e0 = row, opM = [], opY = [];
+  Fc.opex.forEach((e, j) => { (e.y ? opY : opM).push(row); put(e.name + (e.y ? " (yearly bill ÷ 12)" : ""), "l1", i => ({ r: Fc.rows[i].opv[j], input: true })); });
+  if (Fc.own) put("Owner pay", "l1", i => ({ r: Fc.rows[i].own, input: true }), "own");
+  put("One-off expenses", "l1", i => ({ r: Fc.rows[i].oneExp, input: true }), "oneExp");
   put("Staff cost", "sec2");
   const s0 = row, TR = k => "'Team & rates'!$" + k + "$" + T0 + ":$" + k + "$" + T1;
   const STF = { pay: "D", ot: "L", si: "G", eos: "H", permit: "I", housing: "J", health: "K" };
-  STAFF_LINES.forEach(([k]) => put(staffLabel(k, P), "l2", (i, L) => ({ f: "SUMPRODUCT((" + TR("E") + "<=" + L + "$5)*" + TR("B") + "*" + TR(STF[k]) + ")", r: Fc.rows[i].sm[k] })));
+  STAFF_LINES.forEach(([k]) => put(staffLabel(k, P), "l2", (i, L) => ({ f: "SUMPRODUCT((" + TR("E") + "<=" + L + "$5)*" + TR("B") + "*" + TR(STF[k]) + ")", r: Fc.rows[i].sm[k] }), "s_" + k));
   put("Total staff cost", "l1s", (i, L) => ({ f: "SUM(" + L + s0 + ":" + L + (row - 1) + ")", r: Fc.rows[i].sm.total }), "staff");
   put("Total expense", "sub", (i, L) => ({ f: "SUM(" + L + e0 + ":" + L + (s0 - 2) + ")+" + L + at.staff, r: Fc.rows[i].exp }), "exp");
   put("Net ordinary income", "sub", (i, L) => ({ f: L + at.gp + "-" + L + at.exp, r: Fc.rows[i].noi }), "noi");
@@ -2720,19 +3028,46 @@ async function exportForecast(opts = {}) {
   Fc.other.forEach((o, j) => put(o.name, "l1", i => ({ r: Fc.rows[i].oth[j], input: true })));
   if (!Fc.other.length) put(Fc.base.grant, "l1", () => ({ r: 0, input: true }));
   put("Total other income", "sub", (i, L) => ({ f: "SUM(" + L + o0 + ":" + L + (row - 1) + ")", r: Fc.rows[i].othT }), "oth");
-  put("Net income", "big", (i, L) => ({ f: L + at.noi + "+" + L + at.oth, r: Fc.rows[i].net }), "net");
+  put("Net income before tax", "sub", (i, L) => ({ f: L + at.noi + "+" + L + at.oth, r: Fc.rows[i].net }), "pre");
+  put(Fc.tr.name + " (spread monthly)", "l1", (i, L) => ({ f: "MAX(0,$N$" + at.pre + "-" + rr(20) + ")*" + rr(19) + "/12", r: Fc.rows[i].tax }), "tax");
+  put("Net income", "big", (i, L) => ({ f: L + at.pre + "-" + L + at.tax, r: Fc.rows[i].netAT }), "net");
+  row++;
+  /* ---- cash flow, direct method ---- */
+  put("Cash flow", "sec");
+  const prevL = L => fs.getColumn(fs.getColumn(L).number - 1).letter;
+  const openRow = row;
+  put("Cash at start of month", "l1", (i, L) => ({ f: i === 0 ? rr(18) : prevL(L) + (openRow + 99), r: Fc.rows[i].open }), "open");
+  put("Expenses paid this month (before VAT)", "l2", (i, L) => ({ f: (opM.length ? opM.map(r => L + r).join("+") : "0") + (opY.length ? "+IF(" + L + "$5=1,12*(" + opY.map(r => L + r).join("+") + "),0)" : ""), r: Fc.rows[i].opCash }), "opc");
+  put("Assets bought (before VAT)", "l2", i => ({ r: Fc.rows[i].asset, input: true }), "asset");
+  put("VAT on sales", "l2", (i, L) => ({ f: L + at.inc + "*" + rr(14), r: Fc.rows[i].vatOut }), "vo");
+  put("VAT on purchases", "l2", (i, L) => ({ f: "(" + L + at.cogs + "+" + L + at.opc + "+" + L + at.oneExp + "+" + L + at.asset + ")*" + rr(14), r: Fc.rows[i].vatIn }), "vi");
+  put("Received from clients", "l1", (i, L) => ({ f: "(" + rr(16) + "*" + L + at.inc + "+(1-" + rr(16) + ")*IF(" + L + "$5>" + rr(15) + ",OFFSET(" + L + at.inc + ",0,-" + rr(15) + ")," + rr(17) + "*$B$" + at.inc + "))*(1+" + rr(14) + ")", r: Fc.rows[i].recv }), "recv");
+  put("Paid to suppliers", "l1", (i, L) => ({ f: "-(" + L + at.cogs + "+" + L + at.opc + "+" + L + at.oneExp + ")*(1+" + rr(14) + ")", r: -Fc.rows[i].paySup * (1 + Fc.vat) }), "sup");
+  put("Staff paid", "l1", (i, L) => ({ f: "-(" + L + at.staff + "-IF(" + rr(21) + "=1,0," + L + at.s_eos + "))", r: -Fc.rows[i].staffCash }), "stp");
+  if (Fc.own) put("Owner pay", "l1", (i, L) => ({ f: "-" + L + at.own, r: -Fc.rows[i].own }), "ownp");
+  put("VAT paid to the tax authority", "l1", (i, L) => { const cm = Number(Fc.months[i].iso.slice(5)); if (![1, 4, 7, 10].includes(cm) || i === 0) return { f: "0", r: 0 }; const a0 = fs.getColumn(Math.max(2, i - 1)).letter, a1 = prevL(L); return { f: "-(SUM(" + a0 + at.vo + ":" + a1 + at.vo + ")-SUM(" + a0 + at.vi + ":" + a1 + at.vi + "))", r: -Fc.rows[i].vatPaid }; }, "vatp");
+  put("Grants received", "l1", (i, L) => ({ f: L + at.oth, r: Fc.rows[i].othT }), "gr");
+  put("Assets bought", "l1", (i, L) => ({ f: "-" + L + at.asset + "*(1+" + rr(14) + ")", r: -Fc.rows[i].asset * (1 + Fc.vat) }), "assp");
+  put("Loans and capital in", "l1", i => ({ r: Fc.rows[i].loanIn, input: true }), "lin");
+  put("Loan repayments", "l1", i => ({ r: Fc.rows[i].loanOut, input: true }), "lout");
+  put("Net cash flow", "sub", (i, L) => ({ f: [at.recv, at.sup, at.stp, at.ownp, at.vatp, at.gr, at.assp, at.lin].filter(Boolean).map(r => L + r).join("+") + "-" + L + at.lout, r: Fc.rows[i].cashNet }), "cnet");
+  put("Cash at end of month", "big", (i, L) => ({ f: L + at.open + "+" + L + at.cnet, r: Fc.rows[i].close }), "close");
+  put("End of service owed to staff (provision)", "l2", (i, L) => ({ f: (i === 0 ? "" : prevL(L) + row + "+") + "IF(" + rr(21) + "=1,0," + L + at.s_eos + ")", r: Fc.rows[i].eosOwed || 0 }), "eosp");
+  /* fix opening-cash links now that the closing row is known */
+  for (let c = 3; c <= 13; c++) { const cell = fs.getCell(at.open, c); cell.value = F(prevL(fs.getColumn(c).letter) + at.close, Fc.rows[c - 2].open); }
+  [at.open, at.close, at.eosp].forEach(r => { const tc = fs.getCell(r, TC); tc.value = r === at.open ? F("B" + r, Fc.rows[0].open) : F("M" + r, r === at.close ? Fc.rows[11].close : Fc.rows[11].eosOwed || 0); });
   row++;
   put("Key ratios", "sec2");
   const dv = (a, b) => b ? a / b : 0, t = Fc.tot;
   const ratio = (label, num_, den, fn, tot) => { const R = put(label, "ratio", (i, L) => ({ f: "IF(" + L + den + "=0,0," + L + num_ + "/" + L + den + ")", r: fn(Fc.rows[i]), pf: true })); const tc = R.getCell(TC); tc.value = F("IF(N" + den + "=0,0,N" + num_ + "/N" + den + ")", tot); tc.numFmt = PF; };
   ratio("Gross margin", at.gp, at.inc, r => dv(r.gp, r.rev), dv(t.gp, t.rev));
   ratio("Staff cost, % of income", at.staff, at.inc, r => dv(r.sm.total, r.rev), dv(t.staff, t.rev));
-  ratio("Net margin", at.net, at.inc, r => dv(r.net, r.rev), dv(t.net, t.rev));
+  ratio("Net margin", at.net, at.inc, r => dv(r.netAT, r.rev), dv(t.netAT, t.rev));
   /* cached totals and ratios */
   fs.eachRow(R => { const tc = R.getCell(TC); if (tc.value && tc.value.formula && /^SUM\(B/.test(tc.value.formula) && !opts.noCache) { let t = 0; for (let k = 2; k <= 13; k++) { const v = R.getCell(k).value; t += typeof v === "number" ? v : (v && typeof v.result === "number" ? v.result : 0); } tc.value = { formula: tc.value.formula, result: t }; } });
   row++;
   fs.mergeCells(row, 1, row + 1, TC);
-  const nn = fs.getCell(row, 1); nn.value = "Blue cells on yellow are inputs: monthly sales, expenses and grants. Cost of sales and staff cost are formulas driven by 'Team & rates'. Accrual basis: yearly expenses are spread evenly and end of service is set aside monthly. Amounts in " + cur + ". Planning aid, not payroll, tax or legal advice.";
+  const nn = fs.getCell(row, 1); nn.value = "Blue cells on yellow are inputs: monthly sales (seasonality and growth already applied), expenses, one-off items and grants. Cost of sales, staff cost, tax and the whole cash flow are formulas driven by 'Team & rates'. Profit is on an accrual basis; the cash rows show when money moves (VAT, yearly bills paid in month 1, payment delays, end of service). Scenario: " + Fc.sc.label + ". Amounts in " + cur + ". Planning aid, not payroll, tax or legal advice.";
   nn.font = { name: "Calibri", italic: true, size: 9, color: { argb: C.muted } }; nn.alignment = { wrapText: true, vertical: "top", indent: 1 };
   fs.views = [{ showGridLines: false, state: "frozen", xSplit: 1, ySplit: 5 }];
   fs.addConditionalFormatting({ ref: "B" + at.net + ":N" + at.net, rules: [{ type: "cellIs", operator: "lessThan", formulae: [0], style: { font: { color: { argb: C.bad }, bold: true } } }] });
@@ -3050,21 +3385,22 @@ function renderHome(r, B) {
   $("h-rev").textContent = fmt0(B.R);
   $("h-own").textContent = fmt0(B.owner);
   $("h-cap").textContent = Math.round(B.capUsed * 100) + "%";
-  const last = B.months[11];
-  $("h-cash").textContent = fmt0(last.cash); $("h-cash").style.color = last.cash < 0 ? "var(--bad)" : "";
+  const FR = (B.fc || fcCalc(B)).rows, last = FR[11];
+  $("h-cash").textContent = fmt0(last.close); $("h-cash").style.color = last.close < 0 ? "var(--bad)" : "";
+  const HM = FR.map(r => ({ inflow: r.recv + r.othT + r.loanIn, out: r.recv + r.othT + r.loanIn - r.cashNet, lab: r.mo.label.slice(0, 3) }));
   /* cash flow chart: money in up, money out down */
   const W = 640, H = 220, mid = 100, pad = 30, bw = (W - pad * 2) / 12;
-  const mx = Math.max(1, ...B.months.map(m => Math.max(m.inflow, m.out)));
+  const mx = Math.max(1, ...HM.map(m => Math.max(m.inflow, m.out)));
   const sc = v => v / mx * 82;
   const now = new Date().getMonth();
   let g = "";
   [-1, -0.5, 0, 0.5, 1].forEach(t => { const y = mid - t * 82; g += '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + y + '" y2="' + y + '" stroke="var(--line)" stroke-dasharray="' + (t === 0 ? "0" : "3 4") + '"/>'; });
-  B.months.forEach((m, i) => {
+  HM.forEach((m, i) => {
     const x = pad + i * bw + bw * 0.22, w = bw * 0.56;
     const hi = sc(m.inflow), ho = sc(m.out);
-    g += '<rect x="' + x.toFixed(1) + '" y="' + (mid - hi).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, hi).toFixed(1) + '" rx="4" fill="var(--accent)"><title>' + MONTHS[(now + i) % 12] + " in " + esc(fmt(m.inflow)) + "</title></rect>";
-    g += '<rect x="' + x.toFixed(1) + '" y="' + mid + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, ho).toFixed(1) + '" rx="4" fill="var(--lime)"><title>' + MONTHS[(now + i) % 12] + " out " + esc(fmt(m.out)) + "</title></rect>";
-    g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + MONTHS[(now + i) % 12] + "</text>";
+    g += '<rect x="' + x.toFixed(1) + '" y="' + (mid - hi).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, hi).toFixed(1) + '" rx="4" fill="var(--accent)"><title>' + m.lab + " in " + esc(fmt(m.inflow)) + "</title></rect>";
+    g += '<rect x="' + x.toFixed(1) + '" y="' + mid + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, ho).toFixed(1) + '" rx="4" fill="var(--lime)"><title>' + m.lab + " out " + esc(fmt(m.out)) + "</title></rect>";
+    g += '<text x="' + (x + w / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + m.lab + "</text>";
   });
   $("h-chart").innerHTML = g;
   /* donut */
@@ -3177,10 +3513,11 @@ function paintWiz() {
   if (wizStep === 0) {
     wizButtons($("wizJobs"), JOBS.map(j => ({ j, html: '<i class="ji">' + svg(JOB_ICON[j.id] || "tag") + "</i><b>" + esc(j.name) + "</b><small>" + esc(BASES[j.basis].label) + "</small>" })), it => S.job === it.j.id, it => jobInto(S, it.j));
     const curs = CURRENCIES.flatMap(g => g[1]);
-    wizButtons($("wizCur"), curs.map(([c, n]) => ({ c, html: '<span class="flag">' + flagSVG(c) + "</span><b>" + c + "</b>" })), it => S.cur === it.c, it => { if (S.cur !== it.c) { S.cur = it.c; applyCountry(it.c, false); if ((S.fc.team || []).length) { const k = PAY_SCALE[S.cur] || 2.65; S.fc.team = SAMPLE_TEAM.map(t => Object.assign({}, t, { salary: Math.round(t.salary * k / 10) * 10 })); teamDrawn = ""; } } });
+    wizButtons($("wizCur"), curs.map(([c, n]) => ({ c, html: '<span class="flag">' + flagSVG(c) + "</span><b>" + c + "</b>" })), it => S.cur === it.c, it => { if (S.cur !== it.c) { changeCurrency(it.c); } });
   }
   if (wizStep === 1) {
     if (document.activeElement !== $("wizRate")) $("wizRate").value = fmtIn(S.hourRate);
+    scaleChips($("wizRateChips"), [25, 44, 62, 80]);
     $("wizRateChips").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", num(b.dataset.v) === S.hourRate));
     $("wizHrs").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", num(b.dataset.v) === S.hoursPerDay));
   }
@@ -3203,10 +3540,9 @@ $("wizRate").addEventListener("input", () => { S.rateMode = "hour"; S.hourRate =
 $("wizRateChips").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.rateMode = "hour"; S.hourRate = num(b.dataset.v); $("wizRate").value = fmtIn(S.hourRate); paintWiz(); }));
 $("wizHrs").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.hoursPerDay = num(b.dataset.v); paintWiz(); }));
 /* sample salaries are set in BHD; scale them to the chosen currency (rough market levels, edit later) */
-const PAY_SCALE = { BHD: 1, OMR: 1, KWD: 0.8, SAR: 10, AED: 10, QAR: 10, USD: 2.65, EUR: 2.4, GBP: 2.1 };
+const sampleTeam = () => { const k = fxRate("BHD", S.cur) || 1; return SAMPLE_TEAM.map(t => Object.assign({}, t, { salary: niceMoney(t.salary * k) })); };
 $("wizTeam").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
-  const k = PAY_SCALE[S.cur] || 2.65;
-  S.fc.team = b.dataset.v === "1" ? SAMPLE_TEAM.map(t => Object.assign({}, t, { salary: Math.round(t.salary * k / 10) * 10 })) : [];
+  S.fc.team = b.dataset.v === "1" ? sampleTeam() : [];
   teamDrawn = ""; paintWiz();
 }));
 function openWiz() { wizStep = 0; $("wiz").hidden = false; document.body.classList.add("noscroll"); paintWiz(); }
