@@ -3903,7 +3903,7 @@ const QCSS = `
       .q-doc .arl { display: block; font-size: 0.92em; color: #5d6b7a; font-weight: 500; margin-top: 1px; }
       .q-doc .arl.big { font-size: 15px; color: #13241c; font-weight: 600; }
       .q-doc .arl.h1ar { font-size: 20px; color: #1e4d3c; font-weight: 700; margin-top: 2px; text-align: right; direction: rtl; }
-      .q-doc .bi { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+      .q-doc .bi { display: flex !important; width: 100%; box-sizing: border-box; justify-content: space-between; align-items: baseline; gap: 10px; }
       .q-doc .bi .ar { font-size: 12px; font-weight: 600; }
       .q-doc td .arl, .q-doc th .arl { font-size: 10px; }
       .q-scope { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -3963,7 +3963,7 @@ function buildQuoteHTML() {
   const qno = (S.qNo || "").trim() || autoQNo(), rev = Math.max(0, Math.round(num(S.qRev)));
   const sc = Object.assign(scopePreset(S.industry), S.scope || {}), lines = t => String(t || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
   /* bilingual helpers: English first, Arabic after (right to left) */
-  const BI = S.qLang === "bi", A = k => QAR_L[k] || "";
+  const BI = S.qLang === "bi", A = k => QAR_L[k] || "", AI = k => '<span class="ar">' + (QAR_L[k] || k) + "</span>";
   const hh = (en, k) => '<div class="q-h' + (BI ? " bi" : "") + '"><span>' + en + "</span>" + (BI && A(k) ? '<span class="ar">' + A(k) + "</span>" : "") + "</div>";
   const lb = (en, k, raw) => en + (BI && (raw || A(k)) ? '<span class="arl">' + (raw || A(k)) + "</span>" : "");
   const scAr = !S.scopeEdited ? scopePresetAr(S.industry) : null;
@@ -3995,7 +3995,7 @@ function buildQuoteHTML() {
   if (S.basis === "project") sched.forEach((p, i) => rowsH.push('<tr class="' + (i === 0 ? "q-dep" : "") + '"><td>' + lb(esc(names[i]) + " (" + p + "%)", "", A(names[i]) ? A(names[i]) + " (" + p + "%)" : "") + "</td>" + cols.map(c => cell(c.stages[i])).join("") + "</tr>"));
   else if (S.basis === "month") rowsH.push('<tr class="q-dep"><td>' + lb("Due before each month starts", "dueMonth") + "</td>" + cols.map(c => cell(c.tot)).join("") + "</tr>");
   else if (S.deposit > 0) rowsH.push('<tr class="q-dep"><td>' + lb("Deposit before work starts (" + S.deposit + "%)", "", A("deposit") + " (" + S.deposit + "%)") + "</td>" + cols.map(c => cell(c.tot * S.deposit / 100)).join("") + "</tr>");
-  const headH = one ? "" : "<tr><th></th>" + cols.map(c => "<th>" + esc(c.name) + (BI && A(c.name) ? '<span class="arl">' + A(c.name) + "</span>" : "") + (c.mid ? '<span class="q-recs">Recommended' + (BI ? " · " + A("recommended") : "") + "</span>" : "") + "</th>").join("") + "</tr>";
+  const headH = one ? "" : "<tr><th></th>" + cols.map(c => "<th>" + esc(c.name) + (BI && A(c.name) ? '<span class="arl">' + A(c.name) + "</span>" : "") + (c.mid ? '<span class="q-recs">Recommended' + (BI ? " · " + AI("recommended") : "") + "</span>" : "") + "</th>").join("") + "</tr>";
   const summaryHTML = '<table class="q-tot' + (one ? "" : " q-multi") + '">' + headH + rowsH.join("") + "</table>";
   const cr = changeRateFor(r);
   const notReg = !tax && S.taxReg === false && ctry() && ctry().vat;
@@ -4014,7 +4014,7 @@ function buildQuoteHTML() {
   const terms = termPairs.map(p => p[0]);
   const pk = cards.filter(c => !oneOnly || c.mid).map(c => `
     <td class="q-pkg${c.mid ? " q-mid" : ""}">
-      ${c.mid && !oneOnly ? '<div class="q-rec">Recommended' + (BI ? " · " + A("recommended") : "") + "</div>" : ""}
+      ${c.mid && !oneOnly ? '<div class="q-rec">Recommended' + (BI ? " · " + AI("recommended") : "") + "</div>" : ""}
       <div class="q-pn">${esc(c.name)}${BI && A(c.name) ? '<span class="arl">' + A(c.name) + "</span>" : ""}</div>
       <div class="q-pp">${esc(c.price)} <span>${esc(c.per)}</span></div>
       <ul>${c.items.map(i => "<li>" + esc(i) + "</li>").join("")}</ul>
@@ -4032,11 +4032,11 @@ function buildQuoteHTML() {
         <div class="q-biz">${logoHTML()}<div class="q-bn">${esc(S.bizName || "Your business")}${BI && S.bizNameAr ? '<span class="arl big">' + esc(S.bizNameAr) + "</span>" : ""}</div></div>
         ${bizLines ? `<div class="q-bizd">${bizLines}</div>` : ""}
       </div>
-      <div class="q-title"><h1>Quotation${BI ? '<span class="arl h1ar">' + A("quotation") + "</span>" : ""}</h1><div class="q-meta">No.${BI ? " / " + A("no") : ""} <b>${esc(qno)}</b>${rev ? " · Rev " + rev : ""}<br>Date${BI ? " / " + A("date") : ""}: ${d(now)} · ${isoDate(now)}<br>Valid until${BI ? " / " + A("valid") : ""}: ${d(valid)} · ${isoDate(valid)}${rev ? "<br>Replaces Rev " + (rev - 1) + (BI ? " / " + A("replaces") + " " + (rev - 1) : "") : ""}</div></div>
+      <div class="q-title"><h1>Quotation${BI ? '<span class="arl h1ar">' + A("quotation") + "</span>" : ""}</h1><div class="q-meta">No.${BI ? " / " + AI("no") : ""} <b>${esc(qno)}</b>${rev ? " · Rev " + rev : ""}<br>Date${BI ? " / " + AI("date") : ""}: ${d(now)} · ${isoDate(now)}<br>Valid until${BI ? " / " + AI("valid") : ""}: ${d(valid)} · ${isoDate(valid)}${rev ? "<br>Replaces Rev " + (rev - 1) + (BI ? " / " + AI(A("replaces") + " " + (rev - 1)) : "") : ""}</div></div>
     </div>
     <div class="q-info">
-      <div><div class="q-k">Prepared for${BI ? " · " + A("preparedFor") : ""}</div><div class="q-v">${esc(S.client || "Client")}${BI && S.clientAr ? '<span class="arl">' + esc(S.clientAr) + "</span>" : ""}</div>${clientLines ? `<div class="q-party">${clientLines}</div>` : ""}</div>
-      <div><div class="q-k">Project${BI ? " · " + A("project") : ""}</div><div class="q-v">${esc(project)}</div><div class="q-party">${esc(b.label)}${S.delivery ? "<br>Delivery" + (BI ? " / " + A("delivery") : "") + ": " + esc(S.delivery) : ""}</div></div>
+      <div><div class="q-k">Prepared for${BI ? " · " + AI("preparedFor") : ""}</div><div class="q-v">${esc(S.client || "Client")}${BI && S.clientAr ? '<span class="arl">' + esc(S.clientAr) + "</span>" : ""}</div>${clientLines ? `<div class="q-party">${clientLines}</div>` : ""}</div>
+      <div><div class="q-k">Project${BI ? " · " + AI("project") : ""}</div><div class="q-v">${esc(project)}</div><div class="q-party">${esc(b.label)}${S.delivery ? "<br>Delivery" + (BI ? " / " + AI("delivery") : "") + ": " + esc(S.delivery) : ""}</div></div>
     </div>
     ${oneOnly ? hh("Scope and price", "scopePrice") : (S.basis === "project" || S.basis === "month") ? hh("Choose your package", "choose") : hh("Rates", "rates")}
     <table class="q-pkgs${oneOnly ? " q-one" : ""}"><tr>${pk}</tr></table>
