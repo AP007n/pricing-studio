@@ -708,8 +708,10 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
 .indsel select { width: auto; min-width: 230px; }
 .wiz-ind { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
 .wiz-ind button { display: flex; gap: 8px; align-items: center; text-align: left; font-size: 12.5px; padding: 8px 10px; }
-.fvbar { display: flex; gap: 10px; align-items: center; margin: 12px 0 0; }
-.fvbar .seg { flex: 1; max-width: 640px; }
+.fvbar { display: flex; gap: 12px; align-items: center; margin: 12px 0 0; flex-wrap: wrap; }
+.fvbar > .seg { flex: 1 1 420px; max-width: 620px; }
+.fvbar .scenbar { margin: 0; }
+.fvbar .scenbar .seg { min-width: 210px; }
 .scopebox textarea { width: 100%; min-height: 76px; }
 .scopebox label { display: block; margin: 10px 0 4px; font-size: 13px; }
 .scopebox label small { color: var(--muted); display: block; font-size: 12px; }
@@ -1067,8 +1069,9 @@ select.sel { border: 1px solid var(--line); background: var(--field); color: var
     <div class="tile"><div class="k">Team cost, 12 months</div><div class="v" id="f-staff"></div></div>
     <div class="tile hero"><div class="k">Net income, 12 months</div><div class="v" id="f-net"></div></div>
   </div>
-  <div class="scenbar"><span class="sk">Scenario</span><div class="seg" id="fc-scen"><button type="button" data-v="worst">Worst case</button><button type="button" data-v="base">Base</button><button type="button" data-v="best">Best case</button></div><span class="muted small" id="fc-scenNote"></span></div>
-  <div class="fvbar"><div class="seg" id="fc-view"><button type="button" data-v="summary">Plan</button><button type="button" data-v="table">Monthly table</button><button type="button" data-v="actuals">Actual vs forecast</button><button type="button" data-v="plan3">3 years</button></div></div>
+  <div class="fvbar"><div class="seg" id="fc-view"><button type="button" data-v="summary">Plan</button><button type="button" data-v="table">Monthly table</button><button type="button" data-v="actuals">Actual vs forecast</button><button type="button" data-v="plan3">3 years</button></div>
+    <div class="scenbar"><span class="sk">Scenario</span><div class="seg" id="fc-scen"><button type="button" data-v="worst">Worst</button><button type="button" data-v="base">Base</button><button type="button" data-v="best">Best</button></div></div></div>
+  <p class="muted small" id="fc-scenNote" style="margin:6px 0 0"></p>
   <div id="f-status" class="bstat"></div>
   <div class="split" data-fv="summary">
     <div class="card tcard" data-card="fc"><div class="ctabs" role="tablist"><button type="button" role="tab" data-pane="team" aria-selected="true">Team</button><button type="button" role="tab" data-pane="rev" aria-selected="false">Income</button><button type="button" role="tab" data-pane="cost" aria-selected="false">Costs</button><button type="button" role="tab" data-pane="other" aria-selected="false">One-offs</button><button type="button" role="tab" data-pane="rules" aria-selected="false">Rules</button></div><div class="pane" data-pane="team">
@@ -3903,7 +3906,7 @@ function buildQuoteHTML() {
   const qno = (S.qNo || "").trim() || autoQNo(), rev = Math.max(0, Math.round(num(S.qRev)));
   const sc = Object.assign(scopePreset(S.industry), S.scope || {}), lines = t => String(t || "").split(/\n+/).map(x => x.trim()).filter(Boolean);
   const pkgMode = S.basis === "project" || S.basis === "month", mid = cards.find(c => c.mid) || cards[0], jobNow = allJobs().find(j => j.id === S.job);
-  const inclItems = pkgMode && mid ? (S.showPkgs === "one" ? mid.items : ["As listed for the package you choose above"].concat(mid.items.map(x => "Standard: " + x)))
+  const inclItems = pkgMode && mid ? (S.showPkgs === "one" ? mid.items : ["Everything listed in the package you choose above"])
     : [(jobNow ? jobNow.desc || jobNow.name : r.b.label) + ", " + fmtIn(r.q) + " " + (S.basis === "hour" ? "hours" : "days") + " estimated", "Billed by the " + r.b.unit + " for actual time; we confirm before going over the estimate"];
   const scopeHTML = `<div class="q-h">Scope of work</div><div class="q-scope"><div><div class="q-sh">Included</div><ul>${inclItems.map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div><div><div class="q-sh">Not included</div><ul>${lines(sc.excl).map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div></div>`
     + (lines(sc.assume).length ? `<div class="q-sh2">The client provides</div><ul class="q-terms">${lines(sc.assume).map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "")
