@@ -37,15 +37,17 @@ Every push to `main` deploys automatically (build command: none, deploy command:
 - **Overview**: price card, revenue, take-home, hours used, 12-month cash flow, where revenue goes, health check.
 - **Price a job**: prices one job from your rate, costs, market and client value.
 - **Quote**: business and client details with a live preview. Client quote or internal report as PDF.
-- **Business**: expenses, job mix, profit and loss, break-even, capacity and cash.
+- **Business**: expenses, job mix, team cost, profit and loss, break-even, capacity and cash.
+- **Forecast** (v3, for SMEs): 12-month profit and loss in the GCC forecast-sheet layout (Income, COGS, Gross profit, Expenses with Staff cost lines, Net ordinary income, Grants, Net income). Team cost is worked out per country: SIO (BH), GOSI (SA), GPSSA (AE), SPF (OM), PIFSS (KW), GRSIA (QA), plus end of service, work permits, medical and housing. Excel export with live formulas (Forecast + Team & rates).
 - **Settings**: backup file (download/load), run setup again, erase data.
 - First visit opens a 4-step setup. No accounts: data stays in the visitor's browser.
-- **Excel** export: Summary, Expenses, Job mix, Profit and loss, Cash 12 months, Current job.
+- **Excel** export: Summary, Expenses, Job mix, Profit and loss, Cash 12 months, Current job. On the Forecast view the Excel button downloads the 12-month forecast workbook.
 
 ## Editing
 - Job presets (websites, apps, marketing, etc.): search `const JOBS` in index.html.
 - Default expenses and job mix: search `expenses: [` and `mix: {`.
 - Default hourly rate (62 BHD): search `DEFAULTS.hourRate`.
+- Country employer rules (rates checked November 2026): search `const PAYROLL`. Sample team: `SAMPLE_TEAM`.
 - Colours: the `:root` block at the top of the `<style>` tag.
 
 ## Version and contact
