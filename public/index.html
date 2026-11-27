@@ -4024,7 +4024,9 @@ function buildQuoteHTML() {
   const join = arr => arr.filter(x => x && String(x).trim()).map(esc).join("<br>");
   const bizLines = join([S.bizAddr, [S.bizPhone, S.bizEmail, S.bizWeb].filter(Boolean).join(" · "), [S.bizCR ? "CR " + S.bizCR + (BI ? " / " + A("cr") : "") : "", S.bizTax ? idS + " " + S.bizTax + (BI ? " / " + A("vatNo") : "") : ""].filter(Boolean).join(" · ")]);
   const clientLines = join([S.clientContact, S.clientAddr, S.clientPhone, S.clientTax ? idS + " " + S.clientTax : ""]);
-  return `
+  /* each Arabic word in its own box: the PDF renderer (html2canvas) drops spaces between right-to-left words otherwise */
+  const arWords = h => h.replace(/<span class="(arl[^"]*|ar)">([^<]*)<\/span>/g, (m, c, t) => '<span class="' + c + '">' + t.split(" ").map(w => '<span class="aw">' + w + "</span>").join(" ") + "</span>");
+  return arWords(`
   <div class="q-doc">
     <style>${QCSS}</style>
     <div class="q-top">
@@ -4053,7 +4055,7 @@ function buildQuoteHTML() {
       <div><div class="q-sn">${esc(S.clientContact || "")}</div>Accepted by ${esc(S.client || "the client")} (signature, stamp and date)${BI ? '<span class="arl">قبول ' + esc(S.clientAr || S.client || "العميل") + " (التوقيع والختم والتاريخ)</span>" : ""}</div>
     </div>
     <div class="q-foot">${[S.bizName, S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? idS + " " + S.bizTax : "", qno].filter(Boolean).map(esc).join(" · ")}</div>
-  </div>`;
+  </div>`);
 }
 function printFallback(html) {
   let pd = $("printDoc");
