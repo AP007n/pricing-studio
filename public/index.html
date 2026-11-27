@@ -565,6 +565,19 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
 .pkgwork { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; }
 .pkgwork .inp.sm { width: 84px; }
 .pkgwork[hidden] { display: none; }
+.ctrybox { background: var(--field); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+.cb-h { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.cb-h b { font-size: 14.5px; }
+.cb-dl { display: grid; grid-template-columns: max-content 1fr; gap: 5px 12px; margin: 0; font-size: 13px; }
+.cb-dl dt { color: var(--muted); }
+.cb-dl dd { margin: 0; }
+.cb-p { margin: 8px 0 0; font-size: 13px; }
+.vhint { display: block; font-size: 11.5px; color: var(--muted); }
+.vhint.good { color: var(--good); }
+.vhint.bad { color: var(--bad); }
+.chips.off { opacity: .4; pointer-events: none; }
+input:disabled { opacity: .55; }
+@media (max-width: 520px) { .cb-dl { grid-template-columns: 1fr; } .cb-dl dt { margin-top: 4px; } }
 /* bottom nav (phones) */
 .bnav { position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 40; display: none; background: #13241c; border-radius: 22px; padding: 6px; gap: 2px; box-shadow: 0 14px 34px -12px rgba(0,0,0,.55); }
 .bnav .navbtn { flex: 1; flex-direction: column; gap: 3px; color: #9fb3a8; padding: 8px 2px; justify-content: center; text-align: center; border-radius: 16px; }
@@ -790,7 +803,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
 
           <div class="field"><label for="bizName">Business name</label><div class="inp"><input id="bizName" class="txt" placeholder="Your company name"></div></div>
           <div class="field"><label for="bizCR">CR number<small>Company registration number</small></label><div class="inp"><input id="bizCR" class="txt" placeholder="Commercial registration"></div></div>
-          <div class="field"><label for="bizTax"><span class="taxlbl">VAT</span> number</label><div class="inp"><input id="bizTax" class="txt" placeholder="Tax registration number"></div></div>
+          <div class="field"><label for="bizTax"><span class="taxidlbl">VAT number</span><small class="vhint" id="bizTaxHint"></small></label><div class="inp"><input id="bizTax" class="txt" inputmode="numeric" placeholder="Tax registration number"></div></div>
           <div class="field"><label for="bizAddr">Address</label><div class="inp"><input id="bizAddr" class="txt" placeholder="Office, building, road, area, city"></div></div>
           <div class="field"><label for="bizPhone">Phone</label><div class="inp"><input id="bizPhone" class="txt" placeholder="+973 ..."></div></div>
           <div class="field"><label for="bizEmail">Email</label><div class="inp"><input id="bizEmail" class="txt" placeholder="hello@company.com"></div></div>
@@ -803,7 +816,7 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
           <div class="field"><label for="clientContact">Contact person</label><div class="inp"><input id="clientContact" class="txt" placeholder="Name, title"></div></div>
           <div class="field"><label for="clientAddr">Address</label><div class="inp"><input id="clientAddr" class="txt" placeholder="Client address"></div></div>
           <div class="field"><label for="clientPhone">Phone or email</label><div class="inp"><input id="clientPhone" class="txt" placeholder="Client phone or email"></div></div>
-          <div class="field"><label for="clientTax">Client <span class="taxlbl">VAT</span> number</label><div class="inp"><input id="clientTax" class="txt" placeholder="If they are tax-registered"></div></div>
+          <div class="field"><label for="clientTax">Client <span class="taxidlbl">VAT number</span><small class="vhint" id="clientTaxHint"></small></label><div class="inp"><input id="clientTax" class="txt" inputmode="numeric" placeholder="If they are tax-registered"></div></div>
         </div><div class="pane" data-pane="this" hidden>
           <div class="field"><label for="qNo">Quote number<small>Leave empty to number automatically</small></label><div class="inp"><input id="qNo" class="txt" placeholder="Automatic"></div></div>
           <div class="field"><label for="qTitle">Project title</label><div class="inp"><input id="qTitle" class="txt" placeholder="New company website"></div></div>
@@ -814,7 +827,8 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
           <textarea id="notes" rows="3" placeholder="What you need from the client, exclusions, next steps"></textarea>
         </div><div class="pane" data-pane="terms" hidden>
         <h2><span class="ico" data-i="receipt"></span>Tax and payment terms</h2>
-        <p class="note taxnote">This tool does not decide whether you must register for tax or whether a service is zero-rated or exempt. Check with your tax adviser.</p>
+        <div class="ctrybox" id="ctryBox"></div>
+        <div class="field" id="taxRegRow"><label>Are you VAT-registered?<small>Only registered businesses may charge VAT</small></label><div class="seg" id="taxRegSeg"><button type="button" data-v="yes">Yes</button><button type="button" data-v="no">No</button></div></div>
         <div class="field"><label for="taxName">Tax name<small>VAT, GST, sales tax, or leave as is</small></label><div class="inp"><input id="taxName" maxlength="20" style="text-align:left;font-family:var(--font-body)"></div></div>
         <div class="field"><label for="vat">Tax rate<small>Use 0 if you are not tax-registered</small><span class="chips" id="taxChips"><button type="button" data-v="0">0</button><button type="button" data-v="5">5</button><button type="button" data-v="10">10</button><button type="button" data-v="15">15</button></span></label><div class="inp"><input id="vat" inputmode="decimal"><span class="u">%</span></div></div>
         <div class="field"><label for="schedule">Payment schedule<small>% per stage. The first one is the deposit</small><span class="chips" id="schedChips"><button type="button" data-v="100">100</button><button type="button" data-v="50/50">50/50</button><button type="button" data-v="50/30/20">50/30/20</button><button type="button" data-v="30/40/30">30/40/30</button></span></label><div class="inp"><input id="schedule" class="txt" style="text-align:right" aria-describedby="schedNote"><span class="u">%</span></div></div>
@@ -1005,7 +1019,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "2.2", updated: "27 November 2026", contact: "" };
+const APP = { version: "2.3", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1082,7 +1096,7 @@ Object.assign(DEFAULTS, {
     { name: "Insurance", amt: 200, freq: "y" }, { name: "Laptop and equipment (spread)", amt: 400, freq: "y" }
   ]
 });
-Object.assign(DEFAULTS, { feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
+Object.assign(DEFAULTS, { taxReg: true, feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
 Object.assign(DEFAULTS, { logo: "", taxName: "VAT", validDays: 14, bizName: "", client: "", qTitle: "", notes: "" });
 const KEY = "pricing-model-v6";
 const TXT = ["taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
@@ -1098,6 +1112,29 @@ try {
 } catch (e) { S = clone(DEFAULTS); }
 
 const num = v => { const x = parseFloat(String(v).replace(/,/g, "")); return isFinite(x) ? x : 0; };
+/* country tax rules, checked November 2026 (planning guidance, not tax advice) */
+const COUNTRIES = {
+  BHD: { name: "Bahrain", vat: 10, idLabel: "VAT account number", idShort: "VAT account no.", idRe: /^\d{15}$/, idHint: "15 digits", threshold: 37500, voluntary: 18750, authority: "NBR (National Bureau for Revenue)",
+    profit: "No general corporate income tax for most local businesses. Large multinational groups pay a 15% minimum tax." },
+  SAR: { name: "Saudi Arabia", vat: 15, idLabel: "VAT registration number", idShort: "VAT no.", idRe: /^3\d{13}3$/, idHint: "15 digits, starting and ending with 3", threshold: 375000, authority: "ZATCA (Zakat, Tax and Customs Authority)",
+    profit: "Saudi and GCC-owned businesses pay 2.5% zakat (on the zakat base, not on profit). Foreign-owned shares pay 20% income tax.",
+    extra: "A quote does not need a ZATCA QR code. Tax invoices must come from a ZATCA-compliant e-invoicing system, which adds the QR code." },
+  AED: { name: "United Arab Emirates", vat: 5, idLabel: "TRN (Tax Registration Number)", idShort: "TRN", idRe: /^100\d{12}$/, idHint: "15 digits, starting with 100", threshold: 375000, voluntary: 187500, authority: "FTA (Federal Tax Authority)",
+    profit: "Corporate tax is 0% on the first AED 375,000 of taxable income and 9% above. Small business relief may apply below AED 3 million revenue." },
+  OMR: { name: "Oman", vat: 5, idLabel: "VATIN (VAT identification number)", idShort: "VATIN", idRe: null, threshold: 38500, authority: "OTA (Oman Tax Authority)",
+    profit: "Corporate income tax is 15%. A reduced 3% rate can apply to qualifying small businesses." },
+  KWD: { name: "Kuwait", vat: 0, noVat: "Kuwait has no VAT, and its 2026 to 2030 fiscal plan does not include one.",
+    profit: "Corporate income tax of 15% applies mainly to foreign-owned businesses." },
+  QAR: { name: "Qatar", vat: 0, noVat: "Qatar has no VAT yet. A 5% VAT is expected under the GCC agreement, but no start date is set.",
+    profit: "Corporate income tax of 10% applies mainly to foreign-owned shares." }
+};
+const ctry = (c = S.cur) => COUNTRIES[c] || null;
+function applyCountry(c, announce) {
+  const k = COUNTRIES[c]; if (!k) { if (announce) toast("Set your local tax rate in Quote › Tax & terms."); return; }
+  S.taxName = "VAT";
+  S.vat = k.vat && S.taxReg !== false ? k.vat : 0;
+  if (announce) toast(k.name + ": " + (k.vat ? "VAT " + k.vat + "% applied" + (S.taxReg ? "" : " when you are VAT-registered") : "no VAT") + ", " + dec(c) + " decimals. You can change this in Quote › Tax & terms.");
+}
 /* minor units per currency: BHD, KWD, OMR use fils/baisa (3); others 2 */
 const DECIMALS = { BHD: 3, KWD: 3, OMR: 3, SAR: 2, AED: 2, QAR: 2, USD: 2, GBP: 2, EUR: 2 };
 function dec(c = S.cur) {
@@ -1167,8 +1204,8 @@ const flagSVG = c => '<svg viewBox="0 0 30 20" aria-hidden="true">' + (FLAGS[c] 
     list.forEach(([c, n]) => {
       const o = document.createElement("button"); o.type = "button"; o.className = "curopt"; o.setAttribute("role", "option"); o.dataset.c = c;
       o.innerHTML = '<span class="flag">' + flagSVG(c) + "</span><b></b><span></span>";
-      o.querySelector("b").textContent = c; o.querySelector("span:last-child").textContent = n + " · " + dec(c) + " decimals";
-      o.addEventListener("click", () => { S.cur = c; closeMenus(); render(); });
+      o.querySelector("b").textContent = c; o.querySelector("span:last-child").textContent = n + " · " + dec(c) + " decimals" + (COUNTRIES[c] ? (COUNTRIES[c].vat ? " · VAT " + COUNTRIES[c].vat + "%" : " · no VAT") : "");
+      o.addEventListener("click", () => { const ch = S.cur !== c; S.cur = c; if (ch) { applyCountry(c, true); fillInputs(); } closeMenus(); render(); });
       box.appendChild(o);
     });
   });
@@ -1212,6 +1249,10 @@ $("logoFile").addEventListener("change", e => {
 $("logoDel").addEventListener("click", () => { S.logo = ""; save(); paintLogo(); if (S.tab === "quote") paintPreview(); });
 $("rateSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.rateMode = b.dataset.v; render(); }));
 $("rateChips").querySelectorAll("button").forEach(b => b.addEventListener("click", e => { e.preventDefault(); S.hourRate = num(b.dataset.v); $("hourRate").value = fmtIn(S.hourRate); render(); }));
+$("taxRegSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+  S.taxReg = b.dataset.v === "yes"; const k = ctry();
+  S.vat = S.taxReg ? (k ? k.vat : (S.vat || 0)) : 0; $("vat").value = fmtIn(S.vat); render();
+}));
 $("taxChips").querySelectorAll("button").forEach(b => b.addEventListener("click", e => { e.preventDefault(); S.vat = num(b.dataset.v); $("vat").value = fmtIn(S.vat); render(); }));
 TXT.forEach(k => $(k).addEventListener("input", () => { S[k] = $(k).value; save(); if (k === "taxName") render(); else if (S.tab === "quote") paintPreview(); }));
 $("pkgSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.showPkgs = b.dataset.v; render(); }));
@@ -1325,6 +1366,7 @@ function render() {
   $("taxChips").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", num(bt.dataset.v) === S.vat));
   $("f-vat-k").textContent = "Client pays incl. " + (S.taxName || "tax");
   document.querySelectorAll(".taxlbl").forEach(e => e.textContent = S.taxName || "Tax");
+  paintCountry();
   $("qNo").placeholder = autoQNo() + " (automatic)";
   $("pkgSeg").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === (S.showPkgs || "all")));
   $("hpdRow").hidden = S.basis !== "hour" && S.rateMode !== "hour";
@@ -1457,6 +1499,40 @@ function render() {
   save();
   return r;
 }
+function taxIdCheck(v) {
+  const k = ctry(); v = String(v || "").replace(/[\s-]/g, "");
+  if (!v || !k || !k.idRe) return "";
+  return k.idRe.test(v) ? "ok" : "Expected " + k.idHint;
+}
+function paintCountry() {
+  const k = ctry();
+  const lbl = k && k.idLabel ? k.idLabel : (k && !k.vat ? "Tax number (optional)" : (S.taxName || "Tax") + " number");
+  document.querySelectorAll(".taxidlbl").forEach(e => e.textContent = lbl);
+  ["bizTax", "clientTax"].forEach(id => {
+    const r = taxIdCheck(S[id]), h = $(id + "Hint");
+    h.textContent = r === "ok" ? "Format looks right" : r ? r : (k && k.idHint ? k.idHint : "");
+    h.className = "vhint" + (r === "ok" ? " good" : r ? " bad" : "");
+  });
+  const box = $("ctryBox");
+  if (!k) { box.innerHTML = '<p class="muted small">No tax preset for ' + esc(S.cur) + '. Enter your local tax name and rate below. This tool does not decide whether you must register or whether a service is zero-rated or exempt.</p>'; $("taxRegRow").hidden = false; }
+  else {
+    const rows = [];
+    rows.push(["VAT", k.vat ? k.vat + "% standard rate" : "None"]);
+    if (k.threshold) rows.push(["Must register above", fmt0(k.threshold) + " taxable sales a year" + (k.voluntary ? " (voluntary from " + fmt0(k.voluntary) + ")" : "")]);
+    if (k.idLabel) rows.push(["Tax ID on documents", k.idLabel + (k.idHint ? ", " + k.idHint : "")]);
+    if (k.authority) rows.push(["Tax authority", k.authority]);
+    rows.push(["Profit tax", k.profit]);
+    box.innerHTML = '<div class="cb-h"><span class="flag">' + flagSVG(S.cur) + "</span><b>" + esc(k.name) + "</b><span class=\"muted small\">rules checked Nov 2026</span></div>" +
+      (k.noVat ? '<p class="cb-p">' + esc(k.noVat) + "</p>" : "") +
+      '<dl class="cb-dl">' + rows.map(r => "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>").join("") + "</dl>" +
+      (k.extra ? '<p class="cb-p">' + esc(k.extra) + "</p>" : "") +
+      '<p class="muted small cb-p">Planning guidance, not tax advice. Zero-rated and exempt services are not covered: confirm with your tax adviser.</p>';
+    $("taxRegRow").hidden = !k.vat;
+  }
+  $("taxRegSeg").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", (S.taxReg !== false) === (b.dataset.v === "yes")));
+  const locked = S.taxReg === false || (k && !k.vat);
+  $("vat").disabled = locked; $("taxChips").classList.toggle("off", locked);
+}
 function paintMbar() {
   if (!$("mb-k")) return;
   const biz = S.tab === "business";
@@ -1503,7 +1579,7 @@ $("saveJob").addEventListener("click", () => {
 
 $("reset").addEventListener("click", () => {
   const j = allJobs().find(x => x.id === S.job) || JOBS[0];
-  const keep = {}; ["feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
+  const keep = {}; ["taxReg", "feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
   S = clone(DEFAULTS); Object.assign(S, keep); jobInto(S, j);
   drawJobs(); fillInputs(); render();
 });
@@ -1670,6 +1746,12 @@ function renderBusiness() {
   const low = B.months.reduce((a, m) => m.cash < a.cash ? m : a, B.months[0]);
   if (low.cash < 0) issues.push(["bad", "Cash goes negative in month " + low.m + " (" + fmt(low.cash) + "). Ask for a bigger deposit, shorter payment terms, or keep more in reserve."]);
   if (S.winRate < 25) issues.push(["warn", "A win rate under 25% makes every won project carry a lot of unpaid sales time."]);
+  const kc = ctry(), yearly = B.R * 12;
+  if (kc && kc.threshold && kc.vat) {
+    if (S.taxReg === false && yearly > kc.threshold) issues.push(["bad", "At this mix your sales are about " + fmt0(yearly) + " a year, above the " + fmt0(kc.threshold) + " VAT registration threshold. Register with the " + kc.authority + " and add VAT to your quotes."]);
+    else if (S.taxReg === false && yearly > kc.threshold * 0.8) issues.push(["warn", "Your yearly sales (" + fmt0(yearly) + ") are close to the " + fmt0(kc.threshold) + " VAT registration threshold. Plan for registration."]);
+    else if (S.taxReg !== false && S.vat === 0) issues.push(["warn", "You are marked as VAT-registered but quoting 0% VAT. Check the tax rate in Quote › Tax & terms."]);
+  }
   if (!issues.length) issues.push(["good", "The business covers expenses and your pay, with " + fmt(B.after) + " a month extra and " + Math.round(B.capUsed * 100) + "% of your hours used."]);
   $("b-status").innerHTML = "";
   issues.forEach(([lvl, t]) => {
@@ -1883,7 +1965,8 @@ async function exportExcel() {
     ["Cash in the bank today", S.startCash, MF, "Starting balance for the cash scenario", 1],
     ["Months until balance arrives", null, NF, "Days until paid ÷ 30, rounded up"],
     ["Payment fees (share of price)", Math.min(lim("feePct", S.feePct || 0), 90 - lim("margin", S.margin)) / 100, PF, "Card or gateway fees. 0 for bank transfer", 1],
-    ["Your cost per billable hour", null, MF, "Your pay plus a share of expenses, per billable hour"]
+    ["Your cost per billable hour", null, MF, "Your pay plus a share of expenses, per billable hour"],
+    ["Country tax rules", ctry() ? ctry().name : S.cur, "text", ctry() ? ((ctry().vat ? "VAT " + ctry().vat + "%" : "No VAT") + (ctry().threshold ? ", register above " + fmt0(ctry().threshold) + " a year" : "") + ". " + (S.taxReg === false && ctry().vat ? "Not VAT-registered. " : "") + "Checked Nov 2026; confirm with an adviser.") : "No preset: tax rate set by you"]
   ];
   A.forEach((a, i) => {
     const row = 5 + i, R = as.getRow(row);
@@ -2167,6 +2250,7 @@ function buildQuoteHTML() {
   const valid = new Date(now.getTime() + Math.max(1, S.validDays || 14) * 864e5);
   const qno = (S.qNo || "").trim() || autoQNo();
   const tax = S.vat > 0, taxN = S.taxName || "Tax";
+  const idS = (ctry() && ctry().idShort) || (taxN + " no.");
   const sched = parseSched(S.schedule);
   const stageNames = n => n === 1 ? ["On signing"] : n === 2 ? ["On signing", "On delivery"] : n === 3 ? ["On signing", "At midpoint (design approval)", "On delivery"] : Array.from({ length: n }, (_, i) => i === 0 ? "On signing" : i === n - 1 ? "On delivery" : "Milestone " + (i + 1));
   const names = stageNames(sched.length);
@@ -2189,7 +2273,7 @@ function buildQuoteHTML() {
   const cr = changeRateFor(r);
   const terms = [
     S.basis === "month" ? "Invoiced monthly in advance. No separate deposit." : S.basis === "project" ? (sched.length > 1 ? "Payment in " + sched.length + " stages: " + sched.join("/") + "% of the package you choose, as shown above." : "Full payment on signing.") : (S.deposit > 0 ? S.deposit + "% deposit before work starts, the rest invoiced as worked." : "Invoiced as worked."),
-    "All prices in " + S.cur + (tax ? ", excluding " + taxN + " (" + S.vat + "%), shown separately." : "."),
+    "All prices in " + S.cur + (tax ? ", excluding " + taxN + " (" + S.vat + "%), shown separately." : S.taxReg === false && ctry() && ctry().vat ? ". No VAT is charged because the supplier is not VAT-registered." : "."),
     S.basis === "month" ? "Minimum term: " + fmtIn(Math.max(1, S.months)) + " months. Contract value: " + fmt(r.total) + (tax ? " before " + taxN : "") + "." : "",
     (S.basis === "hour" || S.basis === "day") ? "Final amount is based on actual " + b.qtyUnit + " worked, reported with each invoice." : "Changes or extra work outside the agreed scope: " + fmt(cr) + " per hour, agreed in writing first.",
     S.lateFee > 0 ? "Invoices are due within 14 days. Overdue invoices incur " + S.lateFee + "% per month." : "Invoices are due within 14 days.",
@@ -2205,8 +2289,8 @@ function buildQuoteHTML() {
   const project = S.qTitle || (allJobs().find(j => j.id === S.job) || {}).name || "Project";
   const tl = S.taxName || "Tax";
   const join = arr => arr.filter(x => x && String(x).trim()).map(esc).join("<br>");
-  const bizLines = join([S.bizAddr, [S.bizPhone, S.bizEmail, S.bizWeb].filter(Boolean).join(" · "), [S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? tl + " no. " + S.bizTax : ""].filter(Boolean).join(" · ")]);
-  const clientLines = join([S.clientContact, S.clientAddr, S.clientPhone, S.clientTax ? tl + " no. " + S.clientTax : ""]);
+  const bizLines = join([S.bizAddr, [S.bizPhone, S.bizEmail, S.bizWeb].filter(Boolean).join(" · "), [S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? idS + " " + S.bizTax : ""].filter(Boolean).join(" · ")]);
+  const clientLines = join([S.clientContact, S.clientAddr, S.clientPhone, S.clientTax ? idS + " " + S.clientTax : ""]);
   return `
   <div class="q-doc">
     <style>${QCSS}</style>
@@ -2234,7 +2318,7 @@ function buildQuoteHTML() {
       <div><div class="q-sn">${esc(S.preparedBy || S.bizName || "")}</div>For ${esc(S.bizName || "the supplier")} (signature and stamp)</div>
       <div><div class="q-sn">${esc(S.clientContact || "")}</div>Accepted by ${esc(S.client || "the client")} (signature, stamp and date)</div>
     </div>
-    <div class="q-foot">${[S.bizName, S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? tl + " no. " + S.bizTax : "", qno].filter(Boolean).map(esc).join(" · ")}</div>
+    <div class="q-foot">${[S.bizName, S.bizCR ? "CR " + S.bizCR : "", S.bizTax ? idS + " " + S.bizTax : "", qno].filter(Boolean).map(esc).join(" · ")}</div>
   </div>`;
 }
 function printFallback(html) {
@@ -2504,7 +2588,7 @@ function paintWiz() {
   if (wizStep === 0) {
     wizButtons($("wizJobs"), JOBS.map(j => ({ j, html: '<i class="ji">' + svg(JOB_ICON[j.id] || "tag") + "</i><b>" + esc(j.name) + "</b><small>" + esc(BASES[j.basis].label) + "</small>" })), it => S.job === it.j.id, it => jobInto(S, it.j));
     const curs = CURRENCIES.flatMap(g => g[1]);
-    wizButtons($("wizCur"), curs.map(([c, n]) => ({ c, html: '<span class="flag">' + flagSVG(c) + "</span><b>" + c + "</b>" })), it => S.cur === it.c, it => { S.cur = it.c; });
+    wizButtons($("wizCur"), curs.map(([c, n]) => ({ c, html: '<span class="flag">' + flagSVG(c) + "</span><b>" + c + "</b>" })), it => S.cur === it.c, it => { if (S.cur !== it.c) { S.cur = it.c; applyCountry(it.c, false); } });
   }
   if (wizStep === 1) {
     if (document.activeElement !== $("wizRate")) $("wizRate").value = fmtIn(S.hourRate);
