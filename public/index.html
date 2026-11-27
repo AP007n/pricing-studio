@@ -2416,7 +2416,7 @@ function renderForecast(B) {
   const AC = F.act;
   if (AC.n && AC.incF > 0) { const d = (AC.incA - AC.incF) / AC.incF; if (d < -0.1) iss.push([d < -0.2 ? "bad" : "warn", "Actual income is " + Math.round(-d * 100) + "% below the forecast over " + AC.n + " month" + (AC.n > 1 ? "s" : "") + " (" + fmt(AC.incA - AC.incF) + "). Year-end outlook: " + fmt(AC.outNoi) + " operating profit."]);
     else if (d > 0.1) iss.push(["good", "Actual income is " + Math.round(d * 100) + "% above the forecast. Consider raising the base or hiring earlier."]); }
-  if (F.low.close < 0) iss.push(["bad", "Cash runs out in " + F.low.mo.label + " (" + fmt(F.low.close) + "), even if the year is profitable. Ask for deposits, shorten payment terms, delay the asset purchase or arrange finance."]);
+  if (F.low.close < 0) iss.push(["bad", "Cash runs out in " + F.low.mo.label + " (" + fmt(F.low.close) + ")" + (t.netAT >= 0 ? ", even though the year is profitable" : "") + ". Ask for deposits, shorten payment terms, delay the asset purchase or arrange finance."]);
   else if (F.low.close < F.rows[11].staffCash) iss.push(["warn", "Cash falls to " + fmt(F.low.close) + " in " + F.low.mo.label + ", less than one month of salaries. Keep at least two months of costs in the bank."]);
   if (!iss.length) iss.push(["good", "Profitable in every month with cash never below " + fmt0(F.low.close) + ": " + fmt(t.netAT) + " net income over 12 months, team cost " + (t.rev > 0 ? Math.round(t.staff / t.rev * 100) : 0) + "% of income."]);
   $("f-status").innerHTML = "";
