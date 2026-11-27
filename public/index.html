@@ -1005,7 +1005,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "2.1", updated: "24 November 2026", contact: "" };
+const APP = { version: "2.2", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1098,7 +1098,15 @@ try {
 } catch (e) { S = clone(DEFAULTS); }
 
 const num = v => { const x = parseFloat(String(v).replace(/,/g, "")); return isFinite(x) ? x : 0; };
-const fmt = v => S.cur + " " + Math.round(v).toLocaleString("en-US");
+/* minor units per currency: BHD, KWD, OMR use fils/baisa (3); others 2 */
+const DECIMALS = { BHD: 3, KWD: 3, OMR: 3, SAR: 2, AED: 2, QAR: 2, USD: 2, GBP: 2, EUR: 2 };
+function dec(c = S.cur) {
+  if (DECIMALS[c] !== undefined) return DECIMALS[c];
+  try { return new Intl.NumberFormat("en", { style: "currency", currency: c }).resolvedOptions().maximumFractionDigits; } catch (e) { return 2; }
+}
+const rnd = v => { const k = Math.pow(10, dec()); return Math.round(v * k) / k; };
+const fmt0 = v => S.cur + " " + Math.round(v).toLocaleString("en-US");
+const fmt = v => { const d = dec(); return S.cur + " " + rnd(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }); };
 const fmtIn = v => (Math.round(v * 100) / 100).toLocaleString("en-US");
 const roundUp = (v, step) => step > 0 ? Math.ceil(v / step) * step : v;
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
@@ -1159,7 +1167,7 @@ const flagSVG = c => '<svg viewBox="0 0 30 20" aria-hidden="true">' + (FLAGS[c] 
     list.forEach(([c, n]) => {
       const o = document.createElement("button"); o.type = "button"; o.className = "curopt"; o.setAttribute("role", "option"); o.dataset.c = c;
       o.innerHTML = '<span class="flag">' + flagSVG(c) + "</span><b></b><span></span>";
-      o.querySelector("b").textContent = c; o.querySelector("span:last-child").textContent = n;
+      o.querySelector("b").textContent = c; o.querySelector("span:last-child").textContent = n + " · " + dec(c) + " decimals";
       o.addEventListener("click", () => { S.cur = c; closeMenus(); render(); });
       box.appendChild(o);
     });
@@ -1340,10 +1348,10 @@ function render() {
   $("schedNote").textContent = Math.abs(ssum - 100) > 0.01 ? "Stages add up to " + ssum + "%, not 100%. Fix this before downloading the quote." : "";
   $("schedNote").style.color = "var(--bad)";
   $("schedChips").querySelectorAll("button").forEach(bt => bt.setAttribute("aria-pressed", bt.dataset.v === String(S.schedule).replace(/\s/g, "")));
-  $("t-quote").textContent = fmt(r.unitPrice);
-  $("t-floor").textContent = fmt(r.floorUnit);
-  $("t-value").textContent = r.valuePrice > 0 ? fmt(r.valueUnit) : "Not set";
-  $("t-eff").textContent = fmt(r.eff / Math.max(1, S.hoursPerDay));
+  $("t-quote").textContent = fmt0(r.unitPrice);
+  $("t-floor").textContent = fmt0(r.floorUnit);
+  $("t-value").textContent = r.valuePrice > 0 ? fmt0(r.valueUnit) : "Not set";
+  $("t-eff").textContent = fmt0(r.eff / Math.max(1, S.hoursPerDay));
   $("t-effd").textContent = fmt(r.eff) + " / day";
 
   $("f-total-k").textContent = S.basis === "month" ? "Contract total (" + fmtIn(Math.max(1, S.months)) + " months)" : S.basis === "project" ? "Project total" : "Estimated job total";
@@ -1639,14 +1647,14 @@ function renderBusiness() {
     : S.cur + " floats against the US dollar. Tools billed in USD can change in cost, so review prices every few months.";
   drawMix(B);
 
-  $("b-rev").textContent = fmt(B.R);
-  $("b-own").textContent = fmt(B.owner);
-  $("b-after").textContent = (B.after >= 0 ? "+" : "") + fmt(B.after);
+  $("b-rev").textContent = fmt0(B.R);
+  $("b-own").textContent = fmt0(B.owner);
+  $("b-after").textContent = (B.after >= 0 ? "+" : "") + fmt0(B.after);
   $("b-after").style.color = B.after >= 0 ? "var(--good)" : "var(--bad)";
-  $("b-be").textContent = fmt(B.be);
-  $("b-target").textContent = fmt(B.targetPay);
+  $("b-be").textContent = fmt0(B.be);
+  $("b-target").textContent = fmt0(B.targetPay);
   $("b-cap").textContent = Math.round(B.capUsed * 100) + "%";
-  $("b-wc").textContent = fmt(B.wc);
+  $("b-wc").textContent = fmt0(B.wc);
   $("b-run").textContent = isFinite(B.runway) ? fmtIn(Math.round(B.runway * 10) / 10) + " months" : "No costs set";
 
   /* status list */
@@ -1706,7 +1714,7 @@ function renderBusiness() {
   if (B.after < 0 && B.R > 0) { const l = document.createElement("span"); l.style.color = "var(--bad)"; l.textContent = "Shortfall " + fmt(-B.after); $("whereLeg").appendChild(l); }
 
   /* break-even */
-  $("o-be").textContent = fmt(B.be);
+  $("o-be").textContent = fmt0(B.be);
   $("beList").innerHTML = "";
   B.beJobs.forEach(({ x, n }) => {
     const c = document.createElement("span"); c.className = "bechip";
@@ -1769,7 +1777,8 @@ async function exportExcel() {
   wb.creator = "Pricing Studio"; wb.created = new Date();
   wb.calcProperties = { fullCalcOnLoad: true };
   const C = { dark: "FF1E4D3C", lime: "FFB9EC7E", soft: "FFE3EFE7", zebra: "FFF6F9F7", line: "FFD9E2DC", ink: "FF13241C", muted: "FF65766D", input: "FF1F4E9E", inFill: "FFFFF7DD", bad: "FFC2453D", badFill: "FFFBE3E1", white: "FFFFFFFF" };
-  const MF = '"' + cur + '" #,##0;[Red]-"' + cur + '" #,##0;"' + cur + '" 0';
+  const z = dec() > 0 ? "." + "0".repeat(dec()) : "";
+  const MF = '"' + cur + '" #,##0' + z + ';[Red]-"' + cur + '" #,##0' + z + ';"' + cur + '" 0' + z;
   const PF = "0%", HF = "#,##0.0", NF = "#,##0";
   const fill = a => ({ type: "pattern", pattern: "solid", fgColor: { argb: a } });
   const thin = { style: "thin", color: { argb: C.line } };
@@ -2164,8 +2173,8 @@ function buildQuoteHTML() {
   const isPkg = S.basis === "project" || S.basis === "month";
   const oneOnly = S.showPkgs === "one" && isPkg;
   const cols = isPkg ? cards.filter(c => !oneOnly || c.mid).map(c => ({ name: c.name, mid: c.mid, sub: c.price_n })) : [{ name: "Estimate", mid: true, sub: r.quote }];
-  const split = (t, arr) => { const a = arr.map(p => Math.round(t * p / 100)); a[a.length - 1] = Math.round(t) - a.slice(0, -1).reduce((x, y) => x + y, 0); return a; };
-  cols.forEach(c => { c.tax = c.sub * S.vat / 100; c.tot = c.sub + c.tax; c.stages = split(c.tot, sched); });
+  const split = (t, arr) => { const a = arr.map(p => rnd(t * p / 100)); a[a.length - 1] = rnd(rnd(t) - a.slice(0, -1).reduce((x, y) => x + y, 0)); return a; };
+  cols.forEach(c => { c.sub = rnd(c.sub); c.tax = rnd(c.sub * S.vat / 100); c.tot = rnd(c.sub + c.tax); c.stages = split(c.tot, sched); });
   const one = cols.length === 1;
   const cell = v => "<td>" + fmt(v) + "</td>";
   const rowsH = [];
@@ -2367,11 +2376,11 @@ function renderHome(r, B) {
   $("h-badge").textContent = $("s-pill").textContent; $("h-badge").dataset.lvl = pl;
   $("h-price").textContent = fmt(r.unitPrice);
   $("h-sub").textContent = "per " + r.b.unit + " · cost floor " + fmt(r.floorUnit) + " · " + (S.vat > 0 ? "excl. " + (S.taxName || "tax") : "no tax");
-  $("h-rev").textContent = fmt(B.R);
-  $("h-own").textContent = fmt(B.owner);
+  $("h-rev").textContent = fmt0(B.R);
+  $("h-own").textContent = fmt0(B.owner);
   $("h-cap").textContent = Math.round(B.capUsed * 100) + "%";
   const last = B.months[11];
-  $("h-cash").textContent = fmt(last.cash); $("h-cash").style.color = last.cash < 0 ? "var(--bad)" : "";
+  $("h-cash").textContent = fmt0(last.cash); $("h-cash").style.color = last.cash < 0 ? "var(--bad)" : "";
   /* cash flow chart: money in up, money out down */
   const W = 640, H = 220, mid = 100, pad = 30, bw = (W - pad * 2) / 12;
   const mx = Math.max(1, ...B.months.map(m => Math.max(m.inflow, m.out)));
@@ -2400,13 +2409,13 @@ function renderHome(r, B) {
     off += v / tot;
   });
   $("h-donut").innerHTML = d;
-  $("h-donut-v").textContent = fmt(B.R);
+  $("h-donut-v").textContent = fmt0(B.R);
   $("h-donut-list").innerHTML = "";
   segs.forEach(([n, v, c]) => {
     const row = document.createElement("div"); row.className = "drow";
     row.innerHTML = '<span><i style="background:' + c + '"></i></span><span class="dn"></span><span class="dv"></span>';
     row.querySelector(".dn").textContent = n + (B.R > 0 ? " · " + Math.round(v / tot * 100) + "%" : "");
-    row.querySelector(".dv").textContent = fmt(v);
+    row.querySelector(".dv").textContent = fmt0(v);
     $("h-donut-list").appendChild(row);
   });
   if (B.after < 0 && B.R > 0) { const row = document.createElement("div"); row.className = "drow bad"; row.innerHTML = '<span><i style="background:var(--bad)"></i></span><span class="dn">Short of your pay target</span><span class="dv"></span>'; row.querySelector(".dv").textContent = fmt(-B.after); $("h-donut-list").appendChild(row); }
