@@ -648,7 +648,7 @@ input:disabled { opacity: .55; }
         <button type="button" class="curbtn" id="curBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Currency"><span class="flag" id="curFlag"></span><span id="curCode"></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
         <div class="curmenu" id="curMenu" role="listbox" hidden>
           <div id="curList"></div>
-          <div class="curother"><label for="curOther">Other currency code</label><input id="curOther" maxlength="5" placeholder="e.g. EGP" autocomplete="off"></div>
+          <div class="curother"><label for="curOther">Other currency code</label><input id="curOther" maxlength="3" placeholder="ISO code, e.g. EGP" autocomplete="off"></div>
         </div>
       </div>
       <button class="ghost tb" id="reset" type="button" title="Reset this job" aria-label="Reset this job"><span class="ti" data-i="reset"></span><span class="tl">Reset job</span></button>
@@ -809,8 +809,10 @@ input:disabled { opacity: .55; }
           <div class="field"><label for="bizEmail">Email</label><div class="inp"><input id="bizEmail" class="txt" placeholder="hello@company.com"></div></div>
           <div class="field"><label for="bizWeb">Website</label><div class="inp"><input id="bizWeb" class="txt" placeholder="company.com"></div></div>
           <div class="field"><label for="preparedBy">Prepared by<small>Signs the quote for your business</small></label><div class="inp"><input id="preparedBy" class="txt" placeholder="Name, title"></div></div>
-          <label for="bank" class="sub" style="display:block;margin-top:8px;font-size:13px">Payment details (optional)</label>
-          <textarea id="bank" rows="3" placeholder="Bank name, account name, IBAN, or payment link"></textarea>
+          <div class="field"><label for="bizIban">IBAN<small class="vhint" id="bizIbanHint">ISO 13616, checked for typos</small></label><div class="inp"><input id="bizIban" class="txt" autocomplete="off" spellcheck="false" placeholder="BH00 XXXX 0000 0000 0000 00"></div></div>
+          <div class="field"><label for="bizBic">BIC / SWIFT<small class="vhint" id="bizBicHint">8 or 11 characters</small></label><div class="inp"><input id="bizBic" class="txt" autocomplete="off" spellcheck="false" maxlength="11" placeholder="XXXXBHBM"></div></div>
+          <label for="bank" class="sub" style="display:block;margin-top:8px;font-size:13px">Other payment details (optional)</label>
+          <textarea id="bank" rows="2" placeholder="Bank name, account name, or payment link"></textarea>
         </div><div class="pane" data-pane="client" hidden>
           <div class="field"><label for="client">Company</label><div class="inp"><input id="client" class="txt" placeholder="Client company"></div></div>
           <div class="field"><label for="clientContact">Contact person</label><div class="inp"><input id="clientContact" class="txt" placeholder="Name, title"></div></div>
@@ -1019,7 +1021,7 @@ const ICONS = {
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1.2"/>'
 };
 const MARK_SVG = '<svg class="brandmark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#1e4d3c"/><g transform="translate(32 32) scale(1.06) translate(-31 -35.5)"><path d="M15 17h19.5a4 4 0 0 1 2.83 1.17l12.5 12.5a4 4 0 0 1 0 5.66L37.33 48.83A4 4 0 0 1 34.5 50H15a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z" fill="#b9ec7e" transform="rotate(-45 32 33.5) translate(1 0)"/><circle cx="40.6" cy="24.9" r="3.3" fill="#1e4d3c"/><rect x="18.6" y="37" width="4.2" height="7" rx="1.5" fill="#1e4d3c"/><rect x="24.8" y="32.5" width="4.2" height="11.5" rx="1.5" fill="#1e4d3c"/><rect x="31" y="28" width="4.2" height="16" rx="1.5" fill="#1e4d3c"/></g></svg>';
-const APP = { version: "2.3", updated: "27 November 2026", contact: "" };
+const APP = { version: "2.4", updated: "27 November 2026", contact: "" };
 const svg = n => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[n] || ICONS.tag) + '</svg>';
 const BASIS_ICON = { project: "briefcase", day: "calendar", hour: "clock", month: "repeat" };
 const JOB_ICON = { website: "globe", app: "phone", design: "pen", marketing: "megaphone", support: "wrench", consult: "bulb" };
@@ -1096,10 +1098,10 @@ Object.assign(DEFAULTS, {
     { name: "Insurance", amt: 200, freq: "y" }, { name: "Laptop and equipment (spread)", amt: 400, freq: "y" }
   ]
 });
-Object.assign(DEFAULTS, { taxReg: true, feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
+Object.assign(DEFAULTS, { bizIban: "", bizBic: "", taxReg: true, feePct: 0, pkgWorkB: 60, pkgWorkP: 150, onboarded: false, qSeq: 1, showPkgs: "all", bizCR: "", bizTax: "", bizAddr: "", bizPhone: "", bizEmail: "", bizWeb: "", preparedBy: "", bank: "", clientContact: "", clientAddr: "", clientPhone: "", clientTax: "", qNo: "", delivery: "" });
 Object.assign(DEFAULTS, { logo: "", taxName: "VAT", validDays: 14, bizName: "", client: "", qTitle: "", notes: "" });
 const KEY = "pricing-model-v6";
-const TXT = ["taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
+const TXT = ["bizIban", "bizBic", "taxName", "bizName", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "client", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qTitle", "delivery", "notes"];
 const SIMPLE = ["feePct", "pkgWorkB", "pkgWorkP", "vat", "validDays", "hourRate", "income", "billDays", "changeRate", "lateFee", "careOffer", "taxReserve", "propHours", "winRate", "startCash", "payDelay", "hoursPerDay", "months", "cont", "margin", "share"];
 const $ = id => document.getElementById(id);
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -1114,18 +1116,18 @@ try {
 const num = v => { const x = parseFloat(String(v).replace(/,/g, "")); return isFinite(x) ? x : 0; };
 /* country tax rules, checked November 2026 (planning guidance, not tax advice) */
 const COUNTRIES = {
-  BHD: { name: "Bahrain", vat: 10, idLabel: "VAT account number", idShort: "VAT account no.", idRe: /^\d{15}$/, idHint: "15 digits", threshold: 37500, voluntary: 18750, authority: "NBR (National Bureau for Revenue)",
+  BHD: { iso: "BH", name: "Bahrain", vat: 10, idLabel: "VAT account number", idShort: "VAT account no.", idRe: /^\d{15}$/, idHint: "15 digits", threshold: 37500, voluntary: 18750, authority: "NBR (National Bureau for Revenue)",
     profit: "No general corporate income tax for most local businesses. Large multinational groups pay a 15% minimum tax." },
-  SAR: { name: "Saudi Arabia", vat: 15, idLabel: "VAT registration number", idShort: "VAT no.", idRe: /^3\d{13}3$/, idHint: "15 digits, starting and ending with 3", threshold: 375000, authority: "ZATCA (Zakat, Tax and Customs Authority)",
+  SAR: { iso: "SA", name: "Saudi Arabia", vat: 15, idLabel: "VAT registration number", idShort: "VAT no.", idRe: /^3\d{13}3$/, idHint: "15 digits, starting and ending with 3", threshold: 375000, authority: "ZATCA (Zakat, Tax and Customs Authority)",
     profit: "Saudi and GCC-owned businesses pay 2.5% zakat (on the zakat base, not on profit). Foreign-owned shares pay 20% income tax.",
     extra: "A quote does not need a ZATCA QR code. Tax invoices must come from a ZATCA-compliant e-invoicing system, which adds the QR code." },
-  AED: { name: "United Arab Emirates", vat: 5, idLabel: "TRN (Tax Registration Number)", idShort: "TRN", idRe: /^100\d{12}$/, idHint: "15 digits, starting with 100", threshold: 375000, voluntary: 187500, authority: "FTA (Federal Tax Authority)",
+  AED: { iso: "AE", name: "United Arab Emirates", vat: 5, idLabel: "TRN (Tax Registration Number)", idShort: "TRN", idRe: /^100\d{12}$/, idHint: "15 digits, starting with 100", threshold: 375000, voluntary: 187500, authority: "FTA (Federal Tax Authority)",
     profit: "Corporate tax is 0% on the first AED 375,000 of taxable income and 9% above. Small business relief may apply below AED 3 million revenue." },
-  OMR: { name: "Oman", vat: 5, idLabel: "VATIN (VAT identification number)", idShort: "VATIN", idRe: null, threshold: 38500, authority: "OTA (Oman Tax Authority)",
+  OMR: { iso: "OM", name: "Oman", vat: 5, idLabel: "VATIN (VAT identification number)", idShort: "VATIN", idRe: null, threshold: 38500, authority: "OTA (Oman Tax Authority)",
     profit: "Corporate income tax is 15%. A reduced 3% rate can apply to qualifying small businesses." },
-  KWD: { name: "Kuwait", vat: 0, noVat: "Kuwait has no VAT, and its 2026 to 2030 fiscal plan does not include one.",
+  KWD: { iso: "KW", name: "Kuwait", vat: 0, noVat: "Kuwait has no VAT, and its 2026 to 2030 fiscal plan does not include one.",
     profit: "Corporate income tax of 15% applies mainly to foreign-owned businesses." },
-  QAR: { name: "Qatar", vat: 0, noVat: "Qatar has no VAT yet. A 5% VAT is expected under the GCC agreement, but no start date is set.",
+  QAR: { iso: "QA", name: "Qatar", vat: 0, noVat: "Qatar has no VAT yet. A 5% VAT is expected under the GCC agreement, but no start date is set.",
     profit: "Corporate income tax of 10% applies mainly to foreign-owned shares." }
 };
 const ctry = (c = S.cur) => COUNTRIES[c] || null;
@@ -1135,13 +1137,35 @@ function applyCountry(c, announce) {
   S.vat = k.vat && S.taxReg !== false ? k.vat : 0;
   if (announce) toast(k.name + ": " + (k.vat ? "VAT " + k.vat + "% applied" + (S.taxReg ? "" : " when you are VAT-registered") : "no VAT") + ", " + dec(c) + " decimals. You can change this in Quote › Tax & terms.");
 }
-/* minor units per currency: BHD, KWD, OMR use fils/baisa (3); others 2 */
-const DECIMALS = { BHD: 3, KWD: 3, OMR: 3, SAR: 2, AED: 2, QAR: 2, USD: 2, GBP: 2, EUR: 2 };
-function dec(c = S.cur) {
-  if (DECIMALS[c] !== undefined) return DECIMALS[c];
-  try { return new Intl.NumberFormat("en", { style: "currency", currency: c }).resolvedOptions().maximumFractionDigits; } catch (e) { return 2; }
+/* ISO 4217: minor units (Table A.1). Every listed currency not named here uses 2.
+   Browsers' Intl data (CLDR) differs from ISO for some codes (e.g. IQD), so ISO wins. */
+const ISO4217_MINOR = { BHD: 3, IQD: 3, JOD: 3, KWD: 3, LYD: 3, OMR: 3, TND: 3, CLF: 4, UYW: 4,
+  BIF: 0, CLP: 0, DJF: 0, GNF: 0, ISK: 0, JPY: 0, KMF: 0, KRW: 0, PYG: 0, RWF: 0, UGX: 0, UYI: 0, VND: 0, VUV: 0, XAF: 0, XOF: 0, XPF: 0 };
+/* ISO 4217 numeric codes and ISO 3166-1 alpha-2 countries for the currencies offered in the picker */
+const ISO4217_NUM = { BHD: "048", SAR: "682", AED: "784", KWD: "414", QAR: "634", OMR: "512", USD: "840", GBP: "826", EUR: "978" };
+function isoCurrencyValid(c) {
+  if (!/^[A-Z]{3}$/.test(c)) return false;
+  try { if (Intl.supportedValuesOf) return Intl.supportedValuesOf("currency").includes(c) || c in ISO4217_MINOR; } catch (e) {}
+  return true;
 }
-const rnd = v => { const k = Math.pow(10, dec()); return Math.round(v * k) / k; };
+function dec(c = S.cur) { return ISO4217_MINOR[c] !== undefined ? ISO4217_MINOR[c] : 2; }
+const rnd = v => { const k = Math.pow(10, dec()); return Math.round((Math.abs(v) * k) + 1e-9) / k * Math.sign(v); };
+/* ISO 8601 calendar date (YYYY-MM-DD) in the user's local time zone, not UTC */
+const isoDate = (d = new Date()) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+/* ISO 13616 IBAN with ISO 7064 MOD 97-10 check; lengths from the SWIFT IBAN registry */
+const IBAN_LEN = { BH: 22, SA: 24, AE: 23, KW: 30, QA: 29, GB: 22, DE: 22, FR: 27, JO: 30, EG: 29, TR: 26 };
+const ibanClean = v => String(v || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+function ibanCheck(v) {
+  const x = ibanClean(v); if (!x) return "";
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(x)) return "An IBAN starts with a 2-letter country code and 2 check digits";
+  const L = IBAN_LEN[x.slice(0, 2)]; if (L && x.length !== L) return x.slice(0, 2) + " IBANs have " + L + " characters (this has " + x.length + ")";
+  const r = (x.slice(4) + x.slice(0, 4)).replace(/[A-Z]/g, ch => ch.charCodeAt(0) - 55);
+  let m = 0; for (let i = 0; i < r.length; i += 7) m = Number(String(m) + r.slice(i, i + 7)) % 97;
+  return m === 1 ? "ok" : "Check digits do not match. Look for a typo";
+}
+const ibanPrint = v => ibanClean(v).replace(/(.{4})/g, "$1 ").trim();
+/* ISO 9362 BIC: 4 letters bank, 2 letters country, 2 location, optional 3 branch */
+const bicCheck = v => { const x = String(v || "").toUpperCase().replace(/\s/g, ""); return !x ? "" : /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(x) ? "ok" : "A BIC (SWIFT code) has 8 or 11 characters"; };
 const fmt0 = v => S.cur + " " + Math.round(v).toLocaleString("en-US");
 const fmt = v => { const d = dec(); return S.cur + " " + rnd(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }); };
 const fmtIn = v => (Math.round(v * 100) / 100).toLocaleString("en-US");
@@ -1212,7 +1236,7 @@ const flagSVG = c => '<svg viewBox="0 0 30 20" aria-hidden="true">' + (FLAGS[c] 
 })();
 function closeMenus() { ["curMenu", "pdfPop"].forEach(id => $(id).hidden = true); $("curBtn").setAttribute("aria-expanded", "false"); $("pdf").setAttribute("aria-expanded", "false"); }
 $("curBtn").addEventListener("click", e => { e.stopPropagation(); const open = $("curMenu").hidden; closeMenus(); $("curMenu").hidden = !open; $("curBtn").setAttribute("aria-expanded", open); });
-$("curOther").addEventListener("keydown", e => { if (e.key === "Enter") { const v = $("curOther").value.toUpperCase().replace(/[^A-Z]/g, ""); if (v) { S.cur = v; $("curOther").value = ""; closeMenus(); render(); } } });
+$("curOther").addEventListener("keydown", e => { if (e.key === "Enter") { const v = $("curOther").value.toUpperCase().replace(/[^A-Z]/g, ""); if (v && !isoCurrencyValid(v)) { toast(v + " is not an ISO 4217 currency code. Use 3 letters, for example EGP or JOD."); return; } if (v) { S.cur = v; $("curOther").value = ""; closeMenus(); render(); } } });
 $("curOther").addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", e => { if (!e.target.closest(".curpick") && !e.target.closest(".pdfwrap") && !e.target.closest(".mbar")) closeMenus(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenus(); });
@@ -1254,7 +1278,7 @@ $("taxRegSeg").querySelectorAll("button").forEach(b => b.addEventListener("click
   S.vat = S.taxReg ? (k ? k.vat : (S.vat || 0)) : 0; $("vat").value = fmtIn(S.vat); render();
 }));
 $("taxChips").querySelectorAll("button").forEach(b => b.addEventListener("click", e => { e.preventDefault(); S.vat = num(b.dataset.v); $("vat").value = fmtIn(S.vat); render(); }));
-TXT.forEach(k => $(k).addEventListener("input", () => { S[k] = $(k).value; save(); if (k === "taxName") render(); else if (S.tab === "quote") paintPreview(); }));
+TXT.forEach(k => $(k).addEventListener("input", () => { S[k] = $(k).value; save(); if (k === "taxName") render(); else { if (["bizTax", "clientTax", "bizIban", "bizBic"].includes(k)) paintCountry(); if (S.tab === "quote") paintPreview(); } }));
 $("pkgSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { S.showPkgs = b.dataset.v; render(); }));
 
 function drawLines() {
@@ -1508,21 +1532,25 @@ function paintCountry() {
   const k = ctry();
   const lbl = k && k.idLabel ? k.idLabel : (k && !k.vat ? "Tax number (optional)" : (S.taxName || "Tax") + " number");
   document.querySelectorAll(".taxidlbl").forEach(e => e.textContent = lbl);
+  [["bizIban", ibanCheck(S.bizIban), "ISO 13616, checked for typos"], ["bizBic", bicCheck(S.bizBic), "8 or 11 characters"]].forEach(([id, r, d]) => {
+    const h = $(id + "Hint"); h.textContent = r === "ok" ? "Valid" : r || d; h.className = "vhint" + (r === "ok" ? " good" : r ? " bad" : "");
+  });
   ["bizTax", "clientTax"].forEach(id => {
     const r = taxIdCheck(S[id]), h = $(id + "Hint");
     h.textContent = r === "ok" ? "Format looks right" : r ? r : (k && k.idHint ? k.idHint : "");
     h.className = "vhint" + (r === "ok" ? " good" : r ? " bad" : "");
   });
   const box = $("ctryBox");
-  if (!k) { box.innerHTML = '<p class="muted small">No tax preset for ' + esc(S.cur) + '. Enter your local tax name and rate below. This tool does not decide whether you must register or whether a service is zero-rated or exempt.</p>'; $("taxRegRow").hidden = false; }
+  if (!k) { box.innerHTML = '<p class="muted small">' + esc(S.cur) + " · ISO 4217" + (ISO4217_NUM[S.cur] ? " " + ISO4217_NUM[S.cur] : "") + " · " + dec() + ' decimals. No tax preset for this currency. Enter your local tax name and rate below. This tool does not decide whether you must register or whether a service is zero-rated or exempt.</p>'; $("taxRegRow").hidden = false; }
   else {
     const rows = [];
+    rows.push(["Codes", "Country " + k.iso + " (ISO 3166-1) · currency " + S.cur + (ISO4217_NUM[S.cur] ? " " + ISO4217_NUM[S.cur] : "") + " (ISO 4217), " + dec() + " decimals"]);
     rows.push(["VAT", k.vat ? k.vat + "% standard rate" : "None"]);
     if (k.threshold) rows.push(["Must register above", fmt0(k.threshold) + " taxable sales a year" + (k.voluntary ? " (voluntary from " + fmt0(k.voluntary) + ")" : "")]);
     if (k.idLabel) rows.push(["Tax ID on documents", k.idLabel + (k.idHint ? ", " + k.idHint : "")]);
     if (k.authority) rows.push(["Tax authority", k.authority]);
     rows.push(["Profit tax", k.profit]);
-    box.innerHTML = '<div class="cb-h"><span class="flag">' + flagSVG(S.cur) + "</span><b>" + esc(k.name) + "</b><span class=\"muted small\">rules checked Nov 2026</span></div>" +
+    box.innerHTML = '<div class="cb-h"><span class="flag">' + flagSVG(S.cur) + "</span><b>" + esc(k.name) + " (" + k.iso + ")</b><span class=\"muted small\">rules checked Nov 2026</span></div>" +
       (k.noVat ? '<p class="cb-p">' + esc(k.noVat) + "</p>" : "") +
       '<dl class="cb-dl">' + rows.map(r => "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>").join("") + "</dl>" +
       (k.extra ? '<p class="cb-p">' + esc(k.extra) + "</p>" : "") +
@@ -1579,7 +1607,7 @@ $("saveJob").addEventListener("click", () => {
 
 $("reset").addEventListener("click", () => {
   const j = allJobs().find(x => x.id === S.job) || JOBS[0];
-  const keep = {}; ["taxReg", "feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
+  const keep = {}; ["bizIban", "bizBic", "taxReg", "feePct", "myJobs", "logo", "expenses", "mix", "schedule", "propHours", "winRate", "startCash", "payDelay", "taxReserve", "changeRate", "lateFee", "careOffer", "tab", "bizCR", "bizTax", "bizAddr", "bizPhone", "bizEmail", "bizWeb", "preparedBy", "bank", "clientContact", "clientAddr", "clientPhone", "clientTax", "qNo", "qSeq", "delivery", "showPkgs", "bizName", "client", "qTitle", "notes", "taxName", "vat", "cur", "rateMode", "hourRate", "deposit", "validDays"].forEach(k => keep[k] = S[k]);
   S = clone(DEFAULTS); Object.assign(S, keep); jobInto(S, j);
   drawJobs(); fillInputs(); render();
 });
@@ -1864,7 +1892,7 @@ async function exportExcel() {
   const PF = "0%", HF = "#,##0.0", NF = "#,##0";
   const fill = a => ({ type: "pattern", pattern: "solid", fgColor: { argb: a } });
   const thin = { style: "thin", color: { argb: C.line } };
-  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) + " (" + isoDate() + ")";
   const sub = (S.bizName || "Your business") + "   ·   Currency " + cur + "   ·   " + today;
   const F = (formula, result) => ({ formula, result });
 
@@ -1966,6 +1994,7 @@ async function exportExcel() {
     ["Months until balance arrives", null, NF, "Days until paid ÷ 30, rounded up"],
     ["Payment fees (share of price)", Math.min(lim("feePct", S.feePct || 0), 90 - lim("margin", S.margin)) / 100, PF, "Card or gateway fees. 0 for bank transfer", 1],
     ["Your cost per billable hour", null, MF, "Your pay plus a share of expenses, per billable hour"],
+    ["Currency (ISO 4217)", S.cur + (ISO4217_NUM[S.cur] ? " / " + ISO4217_NUM[S.cur] : ""), "text", dec() + " decimal places (minor unit)" + (ctry() ? " · country " + ctry().iso + " (ISO 3166-1)" : "")],
     ["Country tax rules", ctry() ? ctry().name : S.cur, "text", ctry() ? ((ctry().vat ? "VAT " + ctry().vat + "%" : "No VAT") + (ctry().threshold ? ", register above " + fmt0(ctry().threshold) + " a year" : "") + ". " + (S.taxReg === false && ctry().vat ? "Not VAT-registered. " : "") + "Checked Nov 2026; confirm with an adviser.") : "No preset: tax rate set by you"]
   ];
   A.forEach((a, i) => {
@@ -2157,7 +2186,7 @@ async function exportExcel() {
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = ((S.bizName || "Pricing") + " plan " + new Date().toISOString().slice(0, 10)).replace(/[^\w\- ]+/g, "").replace(/\s+/g, "-") + ".xlsx";
+    a.download = ((S.bizName || "Pricing") + " plan " + isoDate()).replace(/[^\w\- ]+/g, "").replace(/\s+/g, "-") + ".xlsx";
     document.body.appendChild(a); a.click(); a.remove();
     toast("Excel downloaded");
   } catch (e) { toast("Downloads are blocked here. Use the live site."); }
@@ -2313,7 +2342,7 @@ function buildQuoteHTML() {
     <div class="q-h">Terms</div>
     <ul class="q-terms">${terms.map(t => "<li>" + esc(t) + "</li>").join("")}</ul>
     ${S.notes ? `<div class="q-h">Notes</div><div class="q-notes">${esc(S.notes)}</div>` : ""}
-    ${S.bank ? `<div class="q-h">Payment details</div><div class="q-pay">${esc(S.bank)}</div>` : ""}
+    ${(S.bank || S.bizIban || S.bizBic) ? `<div class="q-h">Payment details</div><div class="q-pay">${[S.bizIban ? "IBAN: " + ibanPrint(S.bizIban) : "", S.bizBic ? "BIC / SWIFT: " + String(S.bizBic).toUpperCase().replace(/\s/g, "") : "", S.bank || ""].filter(Boolean).map(esc).join("\n")}</div>` : ""}
     <div class="q-sign">
       <div><div class="q-sn">${esc(S.preparedBy || S.bizName || "")}</div>For ${esc(S.bizName || "the supplier")} (signature and stamp)</div>
       <div><div class="q-sn">${esc(S.clientContact || "")}</div>Accepted by ${esc(S.client || "the client")} (signature, stamp and date)</div>
@@ -2400,6 +2429,11 @@ async function downloadPDF(mode) {
     toast("Payment stages must add up to 100% before you send a quote.");
     showTab("quote"); const tb = document.querySelector('.tcard[data-card="quote"] [data-pane="terms"]'); if (tb) tb.click();
     setTimeout(() => $("schedule").focus(), 50); return;
+  }
+  if (mode !== "internal" && S.bizIban && ibanCheck(S.bizIban) !== "ok") {
+    toast("The IBAN fails its check (" + ibanCheck(S.bizIban) + "). Fix it before sending a quote.");
+    showTab("quote"); const tb = document.querySelector('.tcard[data-card="quote"] [data-pane="biz"]'); if (tb) tb.click();
+    setTimeout(() => $("bizIban").focus(), 50); return;
   }
   if (!window.html2pdf) { try { await loadScript("lib/html2pdf.bundle.min.js"); } catch (e) {} }
   const html = mode === "internal" ? buildInternalHTML() : buildQuoteHTML();
@@ -2532,7 +2566,7 @@ $("bkSave").addEventListener("click", () => {
   try {
     const blob = new Blob([JSON.stringify(S, null, 1)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = "pricing-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.download = "pricing-backup-" + isoDate() + ".json";
     document.body.appendChild(a); a.click(); a.remove();
     $("toast").textContent = "Backup downloaded";
   } catch (e) { $("toast").textContent = "Downloads are blocked here. Use the live site."; }
